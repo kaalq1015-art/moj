@@ -176,7 +176,7 @@
         lucide.createIcons();
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // تهيئة الحالة - API Key يجب أن يبقى فارغاً كما في التعليمات
+        // تهيئة الحالة - API Key يتم توفيره تلقائياً في البيئة
         const apiKey = ""; 
         let systemState = {
             files: [],
@@ -201,7 +201,8 @@
                     if (response.status === 429 || response.status >= 500) {
                         // استمر للمحاولة القادمة
                     } else {
-                        throw new Error(`API Error: ${response.status}`);
+                        const errBody = await response.text();
+                        throw new Error(`API Error: ${response.status} - ${errBody}`);
                     }
                 } catch (e) {
                     if (i === 4) throw e;
@@ -249,9 +250,14 @@
                     systemState.extractedTexts.push({ name: file.name, content: text });
                 }
 
+                const allContent = systemState.extractedTexts.map(t => `[اسم المستند: ${t.name}]\n${t.content}`).join('\n\n');
+
+                if (allContent.trim().length < 20) {
+                    throw new Error("لم يتم استخراج نص كافٍ من الملفات. قد تكون الملفات صوراً ممسوحة ضوئياً فقط وغير مدعومة حالياً للاستخراج النصي المباشر.");
+                }
+
                 // 2. التحليل بواسطة Gemini
                 updateProgress("جاري التحليل القانوني الذكي...", 75);
-                const allContent = systemState.extractedTexts.map(t => `[اسم المستند: ${t.name}]\n${t.content}`).join('\n\n');
                 systemState.finalData = await callGeminiAnalysis(allContent);
                 
                 // 3. عرض النتائج
@@ -262,7 +268,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert("حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى أو التحقق من جودة الملفات.");
+                alert(`حدث خطأ: ${err.message}`);
                 window.location.reload();
             }
         };
@@ -285,8 +291,8 @@
 
         async function callGeminiAnalysis(prompt) {
             const systemPrompt = `أنت مساعد قانوني سعودي محترف. سأعطيك نصوصاً مستخرجة من صكوك ووكالات. 
-            مهمتك استخراج البيانات التالية بدقة فائقة وإعادتها بصيغة JSON فقط.
-            استخرج الأفراد (الاسم، رقم الهوية، الدور، المصدر)، العقارات (الوصف)، وملخص قانوني شامل بصيغة Markdown.`;
+            مهمتك استخراج البيانات التالية بدقة متناهية وإعادتها بصيغة JSON فقط.
+            تأكد من استخراج الأفراد (الاسم، رقم الهوية، الدور، المصدر)، العقارات (الوصف)، وملخص قانوني شامل بصيغة Markdown.`;
 
             const payload = {
                 contents: [{ parts: [{ text: prompt }] }],
@@ -305,7 +311,8 @@
                                         id: { type: "STRING" },
                                         role: { type: "STRING" },
                                         source: { type: "STRING" }
-                                    }
+                                    },
+                                    required: ["name", "id", "role", "source"]
                                 }
                             },
                             estates: {
@@ -315,17 +322,21 @@
                                     properties: {
                                         description: { type: "STRING" },
                                         details: { type: "ARRAY", items: { type: "STRING" } }
-                                    }
+                                    },
+                                    required: ["description"]
                                 }
                             },
                             legal_summary: { type: "STRING" }
-                        }
+                        },
+                        required: ["individuals", "estates", "legal_summary"]
                     }
                 }
             };
 
             const result = await makeGeminiCall(payload);
-            return JSON.parse(result.candidates[0].content.parts[0].text);
+            const textResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!textResponse) throw new Error("لم يتم تلقي استجابة صحيحة من الذكاء الاصطناعي.");
+            return JSON.parse(textResponse);
         }
 
         // خوارزمية التحقق من الهوية السعودية
@@ -346,6 +357,7 @@
 
         function renderResults() {
             const data = systemState.finalData;
+            if (!data) return;
             
             // 1. الملخص
             document.getElementById('ai-summary-content').innerHTML = marked.parse(data.legal_summary || "تم استخراج البيانات بنجاح.");
@@ -377,6 +389,8 @@
                         <p class="text-[10px] text-amber-600">${(e.details || []).join(' • ')}</p>
                     </div>
                 `).join('');
+            } else {
+                estateCard.classList.add('hidden');
             }
             lucide.createIcons();
         }
@@ -398,7 +412,7 @@
             chatInput.value = '';
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            const context = systemState.extractedTexts.map(t => t.content).join('\n').substring(0, 12000);
+            const context = systemState.extractedTexts.map(t => t.content).join('\n').substring(0, 15000);
             
             const payload = {
                 contents: [{ parts: [{ text: `بناءً على نصوص المستندات التالية: \n ${context} \n\n أجب على هذا السؤال: ${query}` }] }]
@@ -406,17 +420,18 @@
             
             try {
                 const result = await makeGeminiCall(payload);
-                const reply = result.candidates[0].content.parts[0].text;
+                const reply = result.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!reply) throw new Error("لا توجد استجابة.");
                 chatMessages.innerHTML += `<div class="flex justify-end"><div class="bg-white border p-3 rounded-2xl rounded-tl-none text-slate-700 shadow-sm">${marked.parse(reply)}</div></div>`;
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             } catch (err) {
-                chatMessages.innerHTML += `<div class="text-center text-rose-500 text-[10px]">فشل الاتصال بالذكاء الاصطناعي. يرجى المحاولة لاحقاً.</div>`;
+                chatMessages.innerHTML += `<div class="text-center text-rose-500 text-[10px]">فشل الاتصال بالذكاء الاصطناعي: ${err.message}</div>`;
             }
         }
 
         // تصدير Excel
         window.exportToExcel = () => {
-            if (!systemState.finalData) return;
+            if (!systemState.finalData || !systemState.finalData.individuals) return;
             const ws = XLSX.utils.json_to_sheet(systemState.finalData.individuals);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "البيانات المستخرجة");
