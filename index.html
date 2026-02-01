@@ -3,171 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحلل العدلي الذكي | MOJ Document Analyzer</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js"></script>
+    <title>نظام المدقق العدلي المتقدم | MOJ Pro Analyzer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Kufi+Arabic:wght@400;700&display=swap');
-        body { font-family: 'Noto Kufi Arabic', sans-serif; background-color: #f0f2f5; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .status-pill { padding: 4px 12px; border-radius: 999px; font-size: 0.75rem; font-weight: bold; }
-        .loader-spin { border: 3px solid #f3f3f3; border-top: 3px solid #059669; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: 'Tajawal', sans-serif; background: #f8fafc; color: #1e293b; }
+        
+        /* تأثير الزجاج الاحترافي */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+        }
+
+        /* تنسيق النصوص المستخرجة */
+        .extracted-text-box {
+            background-color: #f1f5f9;
+            border-right: 4px solid;
+            font-size: 0.9rem;
+            line-height: 1.8;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap; /* يحافظ على التنسيق */
+        }
+
+        .loader-ring {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-4 md:p-10">
+<body class="p-4 md:p-8 min-h-screen">
 
-    <div class="max-w-6xl mx-auto">
-        <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border-b-4 border-emerald-600 flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="max-w-7xl mx-auto space-y-8">
+        
+        <header class="text-center md:text-right flex flex-col md:flex-row justify-between items-center bg-white p-6 rounded-2xl shadow-sm border-b-4 border-emerald-600">
             <div>
-                <h1 class="text-2xl font-bold text-gray-800">المحلل العدلي الذكي ⚖️</h1>
-                <p class="text-sm text-gray-500">نظام مطابقة الوكالات وحصر الورثة - نسخة 2026</p>
+                <h1 class="text-3xl font-black text-slate-800">المدقق العدلي الذكي <span class="text-emerald-600">Pro</span></h1>
+                <p class="text-slate-500 mt-2 font-medium">نظام مطابقة الوكالات وتحليل البنود بدقة عالية</p>
             </div>
-            <button id="mainActionBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-lg flex items-center gap-2">
-                <span>استخراج وتحليل البيانات</span>
-                <div id="btnLoader" class="hidden loader-spin"></div>
+            <button id="analyzeBtn" class="mt-4 md:mt-0 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-xl font-bold shadow-lg shadow-emerald-200 transition-all flex items-center gap-3">
+                <span>تشغيل التحليل الشامل</span>
+                <div id="loadingSpinner" class="hidden loader-ring"></div>
             </button>
-        </div>
+        </header>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="space-y-6">
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                    <label class="block text-emerald-800 font-bold mb-3">1. صك حصر الورثة</label>
-                    <input type="file" id="heirsFile" accept="image/*,application/pdf" class="block w-full text-xs text-gray-400 file:bg-emerald-50 file:text-emerald-700 file:border-0 file:rounded-lg file:px-4 file:py-2 cursor-pointer">
-                </div>
-                <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
-                    <label class="block text-blue-800 font-bold mb-3">2. وثيقة الوكالة</label>
-                    <input type="file" id="poaFile" accept="image/*,application/pdf" class="block w-full text-xs text-gray-400 file:bg-blue-50 file:text-blue-700 file:border-0 file:rounded-lg file:px-4 file:py-2 cursor-pointer">
-                </div>
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-2 h-full bg-emerald-500"></div>
+                <h3 class="text-xl font-bold text-emerald-900 mb-2 flex items-center gap-2">
+                    📄 1. صك حصر الورثة
+                </h3>
+                <p class="text-sm text-slate-500 mb-4">المصدر الأساسي لأسماء وأرقام الورثة</p>
+                <input type="file" id="heirsInput" accept="image/*,application/pdf" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer transition-colors">
             </div>
 
-            <div class="lg:col-span-2 space-y-6">
-                <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-                    <h2 class="text-lg font-bold mb-4 flex justify-between items-center">
-                        <span>تقرير مطابقة الورثة</span>
-                        <span id="matchScore" class="text-xs bg-gray-100 px-3 py-1 rounded-full">بانتظار البيانات...</span>
-                    </h2>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right">
-                            <thead class="bg-gray-50 text-gray-600 text-sm">
-                                <tr>
-                                    <th class="p-3">رقم الهوية</th>
-                                    <th class="p-3">الصفة</th>
-                                    <th class="p-3 text-center">الحالة</th>
-                                </tr>
-                            </thead>
-                            <tbody id="resultTableBody" class="text-sm divide-y">
-                                </tbody>
-                        </table>
+            <div class="glass-panel p-6 rounded-2xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-2 h-full bg-blue-500"></div>
+                <h3 class="text-xl font-bold text-blue-900 mb-2 flex items-center gap-2">
+                    ⚖️ 2. وثيقة الوكالة
+                </h3>
+                <p class="text-sm text-slate-500 mb-4">الوثيقة المراد التحقق من صلاحياتها وأطرافها</p>
+                <input type="file" id="poaInput" accept="image/*,application/pdf" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer transition-colors">
+            </div>
+        </div>
+
+        <div id="resultsArea" class="hidden space-y-8 animate-fade-in-up">
+            
+            <div class="glass-panel p-8 rounded-2xl">
+                <h2 class="text-2xl font-bold text-slate-800 mb-6 border-b pb-4">نتائج مطابقة الهويات (Verification Report)</h2>
+                <div class="overflow-x-auto rounded-xl border border-slate-200">
+                    <table class="w-full text-right bg-white">
+                        <thead class="bg-slate-50 text-slate-600 text-sm uppercase font-bold">
+                            <tr>
+                                <th class="p-4">رقم الهوية (English)</th>
+                                <th class="p-4">الدور المكتشف</th>
+                                <th class="p-4 text-center">النتيجة النهائية</th>
+                            </tr>
+                        </thead>
+                        <tbody id="matchTableBody" class="divide-y divide-slate-100 font-mono text-sm"></tbody>
+                    </table>
+                </div>
+                <div id="summaryFooter" class="mt-4 text-center font-bold text-lg"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-3 h-3 rounded-full bg-amber-500"></span>
+                        <h3 class="font-bold text-slate-800">نطاق الوكالة (Scope)</h3>
+                    </div>
+                    <div id="scopeBox" class="extracted-text-box p-4 rounded-lg border-amber-400 text-slate-600">
+                        جاري الاستخراج...
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="bg-white rounded-xl p-5 border-r-4 border-amber-500 shadow-sm">
-                        <h3 class="font-bold text-amber-800 mb-2 flex items-center gap-2">📍 نطاق الوكالة</h3>
-                        <div id="scopeDisplay" class="text-xs leading-relaxed text-gray-600 h-32 overflow-y-auto bg-amber-50 p-3 rounded-lg">يرجى رفع الوكالة أولاً</div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-3 h-3 rounded-full bg-blue-500"></span>
+                        <h3 class="font-bold text-slate-800">بند العقارات (Real Estate)</h3>
                     </div>
-                    <div class="bg-white rounded-xl p-5 border-r-4 border-blue-500 shadow-sm">
-                        <h3 class="font-bold text-blue-800 mb-2 flex items-center gap-2">📑 بنود العقارات</h3>
-                        <div id="clausesDisplay" class="text-xs leading-relaxed text-gray-600 h-32 overflow-y-auto bg-blue-50 p-3 rounded-lg">يرجى رفع الوكالة أولاً</div>
+                    <div id="estateBox" class="extracted-text-box p-4 rounded-lg border-blue-400 text-slate-600">
+                        جاري الاستخراج...
                     </div>
                 </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-2 mb-4">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                        <h3 class="font-bold text-slate-800">المطالبات والقسمة (Legal)</h3>
+                    </div>
+                    <div id="legalBox" class="extracted-text-box p-4 rounded-lg border-red-400 text-slate-600">
+                        جاري الاستخراج...
+                    </div>
+                </div>
+
             </div>
         </div>
+
     </div>
 
     <script>
-        const pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        // إعداد مكتبة PDF
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        let analysisStore = { heirs: [], principals: [], agent: null, fullText: "" };
-
-        document.getElementById('mainActionBtn').addEventListener('click', async () => {
-            const hFile = document.getElementById('heirsFile').files[0];
-            const pFile = document.getElementById('poaFile').files[0];
-
-            if (!hFile || !pFile) return alert("يرجى إرفاق المستندين للمتابعة");
-
-            document.getElementById('btnLoader').classList.remove('hidden');
-
-            // معالجة صك الحصر
-            const hText = await processDoc(hFile);
-            analysisStore.heirs = [...new Set(hText.match(/1\d{9}/g) || [])];
-
-            // معالجة الوكالة
-            const pText = await processDoc(pFile);
-            analysisStore.fullText = normalizeArabic(pText);
-            
-            // تحديد الوكيل والموكلين بدقة
-            const ids = [...new Set(pText.match(/1\d{9}/g) || [])];
-            ids.forEach(id => {
-                const context = pText.substring(pText.indexOf(id) - 50, pText.indexOf(id) + 50);
-                if (context.includes("وكيل")) analysisStore.agent = id;
-                else analysisStore.principals.push(id);
+        // دالة تحويل الأرقام العربية لإنجليزية (السر في الدقة)
+        function toEnglishDigits(str) {
+            const arabicNumbers = ["٠", "١", "٢", "٣", "٤", "٥", "٦", "٧", "٨", "٩"];
+            return str.replace(/[٠-٩]/g, function(w) {
+                return arabicNumbers.indexOf(w);
             });
+        }
 
-            renderUI();
-            document.getElementById('btnLoader').classList.add('hidden');
+        // دالة تنظيف النصوص العربية
+        function normalizeArabic(text) {
+            text = text.replace(/(أ|إ|آ)/g, 'ا');
+            text = text.replace(/(ة)/g, 'ه');
+            text = text.replace(/(ى)/g, 'ي');
+            // إزالة التشكيل والتطويل
+            text = text.replace(/[\u064B-\u065F\u0640]/g, '');
+            return text;
+        }
+
+        let store = { heirs: [], poaPrincipals: [], poaAgent: null, poaText: "" };
+
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const hFile = document.getElementById('heirsInput').files[0];
+            const pFile = document.getElementById('poaInput').files[0];
+
+            if(!hFile || !pFile) {
+                alert("🔴 فضلاً.. يجب إرفاق ملف الورثة وملف الوكالة أولاً");
+                return;
+            }
+
+            // تفعيل حالة التحميل
+            const btn = document.getElementById('analyzeBtn');
+            const spinner = document.getElementById('loadingSpinner');
+            btn.disabled = true;
+            btn.classList.add('opacity-75');
+            spinner.classList.remove('hidden');
+
+            try {
+                // 1. معالجة صك الحصر
+                const hRawText = await extractText(hFile);
+                // تحويل الأرقام واستخراج الهويات
+                const hCleanText = toEnglishDigits(hRawText);
+                store.heirs = [...new Set(hCleanText.match(/1\d{9}/g) || [])];
+
+                // 2. معالجة الوكالة
+                const pRawText = await extractText(pFile);
+                const pCleanText = toEnglishDigits(pRawText); // نسخة للأرقام
+                store.poaText = normalizeArabic(pRawText); // نسخة للنصوص (بدون تحويل أرقام عشان السياق)
+                
+                // البحث عن الوكيل (الذي يظهر بجانبه كلمة وكيل)
+                // نستخدم النص المنظف للبحث عن "وكيل" والنص الرقمي لاستخراج الهوية
+                const pTextForAnalysis = toEnglishDigits(normalizeArabic(pRawText)); 
+                
+                // تحديد الموكلين والوكيل
+                const allPoaIds = [...new Set(pTextForAnalysis.match(/1\d{9}/g) || [])];
+                
+                store.poaPrincipals = [];
+                store.poaAgent = null;
+
+                // منطق ذكي لتحديد الوكيل: البحث في محيط الرقم عن كلمة "وكيل"
+                allPoaIds.forEach(id => {
+                    const index = pTextForAnalysis.indexOf(id);
+                    const context = pTextForAnalysis.substring(Math.max(0, index - 50), Math.min(pTextForAnalysis.length, index + 50));
+                    
+                    if (context.includes("وكيل") && !context.includes("موكل")) {
+                        store.poaAgent = id;
+                    } else {
+                        store.poaPrincipals.push(id);
+                    }
+                });
+
+                // في حال لم ينجح الـ Regex في تحديد الوكيل بدقة، نعتبر أول اسم في الجدول موكلين والأخير وكيل (افتراض شائع)
+                // لكن سنعتمد على المطابقة مع الورثة لتصحيح ذلك
+
+                renderResults();
+                extractClauses(store.poaText); // نرسل النص العربي الأصلي (المنظف) لاستخراج البنود
+
+            } catch (err) {
+                console.error(err);
+                alert("حدث خطأ أثناء قراءة الملفات، تأكد من جودة الصور.");
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-75');
+                spinner.classList.add('hidden');
+            }
         });
 
-        async function processDoc(file) {
-            if (file.type === "application/pdf") {
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument(arrayBuffer).promise;
-                let text = "";
+        // دالة الاستخراج الموحدة (PDF أو صورة)
+        async function extractText(file) {
+            if (file.type === 'application/pdf') {
+                const buffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(buffer).promise;
+                let fullText = "";
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
-                    const content = await page.getTextContent();
-                    text += content.items.map(item => item.str).join(" ") + " ";
+                    const textContent = await page.getTextContent();
+                    fullText += textContent.items.map(s => s.str).join(" ");
                 }
-                return text;
+                // إذا كان الـ PDF صورة (ممسوح ضوئياً)، النص سيكون فارغاً، نحوله لصور
+                if (fullText.trim().length < 50) {
+                    return await performOCR(file); // نستخدم OCR
+                }
+                return fullText;
             } else {
-                const res = await Tesseract.recognize(file, 'ara');
-                return res.data.text;
+                return await performOCR(file);
             }
         }
 
-        function normalizeArabic(text) {
-            return text.replace(/[أإآ]/g, "ا").replace(/ة/g, "ه").replace(/ى/g, "ي");
+        async function performOCR(file) {
+            const worker = await Tesseract.createWorker('ara'); // اللغة العربية
+            const ret = await worker.recognize(file);
+            await worker.terminate();
+            return ret.data.text;
         }
 
-        function renderUI() {
-            // 1. استخراج النطاق (بين كلمة النطاق والبنود)
-            const scopeMatch = analysisStore.fullText.match(/النطاق\s*:([\s\S]*?)البنود\s*:/);
-            document.getElementById('scopeDisplay').innerText = scopeMatch ? scopeMatch[1].trim() : "تعذر استخراج النطاق آلياً";
+        // استخراج البنود بذكاء (Regex متطور)
+        function extractClauses(text) {
+            // تنظيف المسافات الزائدة والأسطر الجديدة العشوائية
+            const clean = text.replace(/\s+/g, ' ');
 
-            // 2. استخراج البنود (من العقارات حتى الخاتمة)
-            const clauseMatch = analysisStore.fullText.match(/البنود\s*:([\s\S]*?)(?=صدرت هذه|$)/);
-            document.getElementById('clausesDisplay').innerText = clauseMatch ? clauseMatch[1].trim() : "تعذر استخراج البنود آلياً";
+            // 1. النطاق: يأتي غالباً بعد "النطاق :" وقبل "البنود"
+            const scopeMatch = clean.match(/النطاق\s*:?([\s\S]*?)(?=البنود|البند)/);
+            document.getElementById('scopeBox').innerText = scopeMatch ? scopeMatch[1].trim() : "لم يتم العثور على نص النطاق بشكل صريح.";
 
-            // 3. بناء جدول المطابقة
-            const tbody = document.getElementById('resultTableBody');
-            tbody.innerHTML = "";
+            // 2. العقارات: نبحث عن كلمة العقارات وما بعدها حتى نجد فاصل منطقي
+            const estateMatch = clean.match(/العقارات\s*([\s\S]*?)(?=المطالبات|المحاكم|البنوك|الشركات|البند|$)/);
+            document.getElementById('estateBox').innerText = estateMatch ? estateMatch[1].trim() : "لم يتم العثور على بند العقارات.";
+
+            // 3. المحاكم والقسمة
+            // نبحث عن أي من الكلمات المفتاحية
+            const legalMatch = clean.match(/(المطالبات والمحاكم|قسمه التركه|فرز النصيب)([\s\S]*?)(?=البنوك|الشركات|العقارات|البند|$)/);
+            document.getElementById('legalBox').innerText = legalMatch ? 
+                (legalMatch[1] + " " + legalMatch[2]).trim() : 
+                "⚠️ لم يتم العثور على نص صريح لقسمة التركة أو المحاكم.";
+        }
+
+        function renderResults() {
+            const container = document.getElementById('resultsArea');
+            container.classList.remove('hidden');
+            const tbody = document.getElementById('matchTableBody');
+            tbody.innerHTML = '';
+
+            // تجميع كل الهويات الفريدة
+            const allIdentities = [...new Set([...store.heirs, ...store.poaPrincipals, store.poaAgent].filter(Boolean))];
             
-            const allParties = [...new Set([...analysisStore.heirs, ...analysisStore.principals, analysisStore.agent].filter(Boolean))];
+            let matchCount = 0;
 
-            allParties.forEach(id => {
-                const isHeir = analysisStore.heirs.includes(id);
-                const isAgent = id === analysisStore.agent;
-                const isPrincipal = analysisStore.principals.includes(id);
+            allIdentities.forEach(id => {
+                const isHeir = store.heirs.includes(id);
+                const isAgent = id === store.poaAgent;
+                const isPrincipal = store.poaPrincipals.includes(id);
 
-                let role = "طرف خارجي";
-                if (isAgent) role = '<span class="text-blue-600 font-bold">الوكيل المفوض</span>';
-                else if (isPrincipal) role = "موكل أصيل";
+                // تحديد الدور
+                let roleHTML = "";
+                if (isAgent) roleHTML = '<span class="text-blue-600 font-bold bg-blue-50 px-2 py-1 rounded">الوكيل المفوض 👤</span>';
+                else if (isPrincipal) roleHTML = '<span class="text-emerald-700 font-bold">موكل (طرف في الوكالة)</span>';
+                else roleHTML = '<span class="text-slate-400">غير مذكور في الوكالة</span>';
 
-                let status = (isPrincipal || isAgent) ? 
-                    '<span class="status-pill bg-green-100 text-green-700">✅ وكّل</span>' : 
-                    '<span class="status-pill bg-red-100 text-red-700">❌ لم يوكل</span>';
+                if (isHeir) roleHTML += ' <span class="text-xs text-amber-600 block mt-1">✨ (أحد الورثة)</span>';
 
-                tbody.innerHTML += `
-                    <tr>
-                        <td class="p-3 font-mono">${id}</td>
-                        <td class="p-3 text-xs">${role} ${!isHeir ? '<span class="text-gray-400">(غير وارث)</span>' : ''}</td>
-                        <td class="p-3 text-center">${status}</td>
-                    </tr>`;
+                // تحديد النتيجة
+                let statusHTML = "";
+                if (isPrincipal || isAgent) {
+                    statusHTML = '<span class="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full font-bold">✅ تم التوكيل</span>';
+                    if(isHeir) matchCount++;
+                } else {
+                    statusHTML = '<span class="inline-flex items-center gap-1 bg-rose-100 text-rose-800 px-3 py-1 rounded-full font-bold">❌ لم يوكل</span>';
+                }
+
+                const tr = `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-4 text-slate-700 font-mono text-base">${id}</td>
+                        <td class="p-4">${roleHTML}</td>
+                        <td class="p-4 text-center">${statusHTML}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += tr;
             });
+
+            // ملخص النتيجة
+            const footer = document.getElementById('summaryFooter');
+            const totalHeirs = store.heirs.length;
+            
+            if (totalHeirs > 0 && matchCount === totalHeirs) {
+                footer.innerHTML = `<span class="text-emerald-600">🎉 اكتمل النصاب! جميع الورثة (${totalHeirs}) قاموا بإصدار الوكالة.</span>`;
+            } else if (totalHeirs > 0) {
+                footer.innerHTML = `<span class="text-amber-600">⚠️ تنبيه: تم توكيل ${matchCount} فقط من أصل ${totalHeirs} ورثة.</span>`;
+            }
         }
     </script>
 </body>
