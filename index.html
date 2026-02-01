@@ -3,274 +3,254 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محرك مطابقة الصكوك (يدعم OCR)</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
-    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
+    <title>محرك مطابقة الصكوك | الإصدار الكامل</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@4.0.2/dist/tesseract.min.js"></script>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
         body { font-family: 'Tajawal', sans-serif; }
-        /* تأثير نبض أثناء المعالجة الثقيلة */
-        .pulse-animation { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
+        .progress-bar { transition: width 0.4s ease; }
     </style>
 </head>
-<body class="bg-gray-50 p-5 md:p-10">
+<body class="bg-slate-100 min-h-screen p-4 md:p-10">
 
-    <div class="max-w-5xl mx-auto">
-        <header class="text-center mb-10">
-            <h1 class="text-3xl font-bold text-blue-900">نظام المطابقة العقاري الذكي (v2.0)</h1>
-            <p class="text-gray-600 mt-2">يدعم الآن الصكوك الرقمية والممسوحة ضوئياً (OCR)</p>
+    <div class="max-w-6xl mx-auto">
+        <header class="bg-blue-900 text-white p-8 rounded-3xl shadow-2xl mb-10 text-center relative overflow-hidden">
+            <div class="relative z-10">
+                <h1 class="text-3xl font-bold mb-2">النظام المتكامل لمطابقة صكوك الورثة</h1>
+                <p class="opacity-80">تحليل منطقي، مطابقة هويات، وفحص صلاحيات (محلي بالكامل)</p>
+            </div>
+            <div class="absolute top-0 right-0 w-32 h-32 bg-blue-800 rounded-full -mr-16 -mt-16 opacity-50"></div>
         </header>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500">
-                <label class="block font-bold mb-2 flex items-center">
-                    📄 1. صك حصر الورثة
-                    <span id="inhStatus" class="text-xs mr-2 text-gray-400"></span>
-                </label>
-                <input type="file" id="inheritanceFile" accept=".pdf" class="file-input w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="bg-white p-8 rounded-2xl shadow-sm border-b-4 border-blue-500 transition-transform hover:scale-[1.01]">
+                <h3 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
+                    📄 صك حصر الورثة
+                </h3>
+                <input type="file" id="inhInput" accept=".pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                <p class="text-xs text-gray-400 mt-3 italic">سيتم استخراج قائمة الورثة الشرعيين من هذا الملف.</p>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
-                <label class="block font-bold mb-2 flex items-center">
-                    ⚖️ 2. صك الوكالة
-                    <span id="poaStatus" class="text-xs mr-2 text-gray-400"></span>
-                </label>
-                <input type="file" id="poaFile" accept=".pdf" class="file-input w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
+
+            <div class="bg-white p-8 rounded-2xl shadow-sm border-b-4 border-emerald-500 transition-transform hover:scale-[1.01]">
+                <h3 class="text-xl font-bold text-emerald-900 mb-4 flex items-center gap-2">
+                    ⚖️ صك الوكالة
+                </h3>
+                <input type="file" id="poaInput" accept=".pdf" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer">
+                <p class="text-xs text-gray-400 mt-3 italic">سيتم التحقق من وجود توكيل لكل وارث في هذا الملف.</p>
             </div>
         </div>
 
-        <div class="text-center mb-10 space-y-3">
-            <button onclick="startProcessing()" id="processBtn" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 px-12 rounded-lg transition-all shadow-lg text-lg">
-                🛡️ بدء التحليل والمطابقة
+        <div class="text-center space-y-4">
+            <button onclick="runEngine()" id="startBtn" class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-4 px-16 rounded-2xl shadow-lg transition-all active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                بدء التحليل والمطابقة
             </button>
-            <div id="processingStatus" class="text-blue-700 font-semibold hidden pulse-animation">
-                جاري تهيئة المحركات...
-            </div>
-            <div id="ocrWarning" class="text-amber-600 text-sm hidden">
-                ⚠️ تنبيه: تم اكتشاف ملفات ممسوحة ضوئياً. عملية الـ OCR قد تستغرق وقتاً أطول (دقيقة أو أكثر) حسب سرعة جهازك.
+            
+            <div id="loadingStatus" class="hidden max-w-md mx-auto">
+                <p id="statusLabel" class="text-blue-800 font-bold mb-2 text-sm">جاري تهيئة المحركات...</p>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 shadow-inner">
+                    <div id="progressBar" class="bg-blue-600 h-2.5 rounded-full progress-bar" style="width: 0%"></div>
+                </div>
             </div>
         </div>
 
-        <div id="resultsArea" class="hidden">
-             <div id="summaryAlert" class="mb-6 p-4 rounded-lg flex items-center gap-3"></div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="bg-white rounded-xl shadow overflow-hidden">
-                    <div class="bg-gray-800 text-white px-4 py-2 font-bold">جدول مطابقة الورثة</div>
-                    <div class="max-h-96 overflow-y-auto">
-                        <table class="w-full text-right border-collapse" id="resultsTable">
-                            <thead class="sticky top-0 bg-gray-100 shadow-sm">
-                                <tr class="text-sm text-gray-600">
-                                    <th class="p-3 border">الطرف (من صك الحصر)</th>
-                                    <th class="p-3 border">رقم الهوية المستخرج</th>
-                                    <th class="p-3 border">الحالة في الوكالة</th>
-                                </tr>
-                            </thead>
-                            <tbody></tbody>
-                        </table>
-                    </div>
+        <div id="resultsView" class="hidden mt-12 animate-in fade-in duration-700">
+            <hr class="mb-10 border-gray-300">
+            
+            <div id="mainAlert" class="mb-8 p-6 rounded-2xl flex items-center gap-4 shadow-sm border-r-8">
                 </div>
-                <div class="bg-white rounded-xl shadow p-6 border border-gray-200">
-                    <h3 class="font-bold text-lg mb-4 text-blue-900 border-b pb-2">تحليل نطاق وصلاحيات الوكالة</h3>
-                    <div id="poaDetails" class="space-y-3 text-sm"></div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-white rounded-2xl shadow-sm border overflow-hidden">
+                    <div class="bg-slate-800 text-white p-4 font-bold">تفاصيل مطابقة الأطراف (عبر رقم الهوية)</div>
+                    <table class="w-full text-right" id="matchesTable">
+                        <thead class="bg-slate-50 text-slate-600 border-b">
+                            <tr>
+                                <th class="p-4">رقم الهوية</th>
+                                <th class="p-4 text-center">الحالة في الوكالة</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y"></tbody>
+                    </table>
+                </div>
+
+                <div class="bg-white rounded-2xl shadow-sm p-6 border self-start">
+                    <h3 class="font-bold text-slate-800 border-b pb-4 mb-4">تحليل صلاحيات الوكالة</h3>
+                    <div id="authResults" class="space-y-4">
+                        </div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // إعداد مكتبة PDF.js
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+        // --- إعدادات المكتبة الفنية ---
+        const pdfjs = window['pdfjs-dist/build/pdf'];
+        // ربط ملف الـ Worker لضمان استقرار المعالجة في الخلفية
+        pdfjs.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js';
 
-        // --- دوال مساعدة للواجهة ---
-        const updateStatus = (msg, showOcrWarning = false) => {
-            const statusDiv = document.getElementById('processingStatus');
-            const ocrWarnDiv = document.getElementById('ocrWarning');
-            statusDiv.innerText = msg;
-            statusDiv.classList.remove('hidden');
-            if(showOcrWarning) ocrWarnDiv.classList.remove('hidden');
-            else ocrWarnDiv.classList.add('hidden');
-        };
+        // --- الدوال الأساسية للمحرك ---
 
-        const setFileStatus = (elementId, status, isOCR = false) => {
-            const el = document.getElementById(elementId);
-            el.innerText = status;
-            el.className = `text-xs mr-2 ${isOCR ? 'text-amber-600 font-bold' : 'text-green-600'}`;
-        };
+        async function runEngine() {
+            const inhFile = document.getElementById('inhInput').files[0];
+            const poaFile = document.getElementById('poaInput').files[0];
 
-
-        // --- المحرك الأساسي (HYBRID ENGINE) ---
-
-        // 1. المحاولة السريعة: استخراج النص الرقمي المباشر
-        async function tryQuickExtraction(pdfDoc) {
-            let fullText = "";
-            for (let i = 1; i <= pdfDoc.numPages; i++) {
-                const page = await pdfDoc.getPage(i);
-                const content = await page.getTextContent();
-                fullText += content.items.map(item => item.str).join(" ");
+            if (!inhFile || !poaFile) {
+                alert("يرجى رفع ملف صك الحصر وملف صك الوكالة للمتابعة.");
+                return;
             }
+
+            // تهيئة واجهة المستخدم لبدء العمل
+            toggleLoading(true);
+            updateProgress(10, "جاري تحميل صك الحصر...");
+
+            try {
+                // 1. استخراج النص من صك الحصر
+                const inhText = await extractTextFromPDF(inhFile, "حصر الورثة");
+                updateProgress(50, "تم تحليل الحصر. جاري تحليل صك الوكالة...");
+
+                // 2. استخراج النص من صك الوكالة
+                const poaText = await extractTextFromPDF(poaFile, "الوكالة");
+                updateProgress(90, "جاري المطابقة النهائية...");
+
+                // 3. منطق المطابقة (Cross-Checking)
+                const idPattern = /1\d{9}/g; // نمط الهوية السعودية
+                const heirs = [...new Set(inhText.match(idPattern) || [])];
+                const principals = [...new Set(poaText.match(idPattern) || [])];
+
+                // 4. عرض النتائج النهائية
+                renderResults(heirs, principals, poaText);
+
+            } catch (error) {
+                console.error(error);
+                alert("حدث خطأ تقني: " + error.message);
+            } finally {
+                toggleLoading(false);
+            }
+        }
+
+        // دالة استخراج النص الذكية (تحاول قراءة النص الرقمي أولاً، ثم تشغل OCR إذا فشلت)
+        async function extractTextFromPDF(file, label) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
+            let fullText = "";
+
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                const pageText = content.items.map(item => item.str).join(" ");
+                fullText += pageText + " ";
+            }
+
+            // فحص: إذا كان النص المستخرج فارغاً، فهذا يعني أن الملف "صورة" (Scan)
+            if (fullText.trim().length < 50) {
+                updateProgress(null, `تنبيه: ${label} ممسوح ضوئياً، جاري تفعيل محرك OCR...`);
+                fullText = await runOCRProcess(pdf);
+            }
+
             return fullText;
         }
 
-        // 2. المحاولة الثقيلة: استخراج النص عبر OCR للصور
-        async function performOCR(pdfDoc, fileTypeLabel) {
-            updateStatus(`جاري تشغيل OCR على ${fileTypeLabel}... (هذه العملية تستغرق وقتاً)`, true);
-            
-            // تهيئة عامل Tesseract للغة العربية
+        // دالة تشغيل محرك Tesseract للتعرف على النصوص من الصور
+        async function runOCRProcess(pdf) {
+            // إنشاء عامل (Worker) للغة العربية
             const worker = await Tesseract.createWorker('ara');
-            let fullText = "";
+            let ocrResult = "";
 
-            for (let i = 1; i <= pdfDoc.numPages; i++) {
-                updateStatus(`جاري تحليل صفحة ${i} من ${pdfDoc.numPages} في ${fileTypeLabel}...`, true);
-                
-                const page = await pdfDoc.getPage(i);
-                // زيادة دقة الصورة (scale 2.0) لتحسين نتائج الـ OCR
-                const viewport = page.getViewport({ scale: 2.0 });
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const viewport = page.getViewport({ scale: 2.0 }); // دقة عالية للـ OCR
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
                 canvas.height = viewport.height;
                 canvas.width = viewport.width;
 
-                // تحويل صفحة PDF إلى صورة في الـ canvas
+                // تحويل صفحة الـ PDF إلى صورة مرسومة داخل المتصفح
                 await page.render({ canvasContext: ctx, viewport: viewport }).promise;
 
-                // تنفيذ الـ OCR على الصورة
+                // قراءة النص من الصورة
                 const { data: { text } } = await worker.recognize(canvas);
-                fullText += text + " ";
+                ocrResult += text + " ";
             }
-            await worker.terminate(); // إغلاق العامل لتوفير الذاكرة
-            return fullText;
+
+            await worker.terminate();
+            return ocrResult;
         }
 
-        // 3. الدالة الذكية التي تقرر أي طريقة تستخدم
-        async function smartExtract(file, statusElementId, fileTypeLabel) {
-            setFileStatus(statusElementId, "جاري التحميل...");
-            const arrayBuffer = await file.arrayBuffer();
-            const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+        // دالة عرض النتائج وتطبيق المنطق القانوني
+        function renderResults(heirs, principals, poaText) {
+            const resultsView = document.getElementById('resultsView');
+            const tbody = document.querySelector('#matchesTable tbody');
+            const mainAlert = document.getElementById('mainAlert');
+            const authResults = document.getElementById('authResults');
 
-            // الخطوة أ: تجربة الاستخراج السريع
-            let text = await tryQuickExtraction(pdfDoc);
-
-            // الخطوة ب: التحقق مما إذا كان النص المستخرج مفيداً
-            // إذا كان النص قصيراً جداً (أقل من 100 حرف)، نعتبر الملف "صورة" ونشغل الـ OCR
-            if (text.trim().length < 100) {
-                setFileStatus(statusElementId, "ملف مصور (يتطلب OCR)", true);
-                console.log(`${fileTypeLabel} يبدو كصورة. جاري التحويل لـ OCR...`);
-                text = await performOCR(pdfDoc, fileTypeLabel);
-            } else {
-                setFileStatus(statusElementId, "ملف رقمي (نصي)");
-            }
-            return text;
-        }
-
-        // --- منطق المطابقة (نفس السابق) ---
-        function findIDs(text) {
-            // تنظيف النص قليلاً قبل البحث لزيادة الدقة في الـ OCR
-            const cleanText = text.replace(/[^\d\s]/g, ' '); 
-            const regex = /\b1\d{9}\b/g;
-            return [...new Set(cleanText.match(regex) || [])];
-        }
-
-        async function startProcessing() {
-            const inhFile = document.getElementById('inheritanceFile').files[0];
-            const poaFile = document.getElementById('poaFile').files[0];
-            const btn = document.getElementById('processBtn');
-            const resultsArea = document.getElementById('resultsArea');
-
-            if (!inhFile || !poaFile) { alert("يرجى اختيار الملفين أولاً"); return; }
-
-            btn.disabled = true;
-            btn.classList.add('opacity-50', 'cursor-not-allowed');
-            resultsArea.classList.add('hidden');
-            updateStatus("بدء عملية تحليل الملفات...");
-
-            try {
-                // استخراج النصوص باستخدام المحرك الذكي
-                updateStatus("جاري تحليل صك حصر الورثة...");
-                const inhText = await smartExtract(inhFile, 'inhStatus', "صك الورثة");
-
-                updateStatus("جاري تحليل صك الوكالة...");
-                const poaText = await smartExtract(poaFile, 'poaStatus', "صك الوكالة");
-
-                updateStatus("جاري مطابقة البيانات...");
-                const heirsIDs = findIDs(inhText);
-                const principalIDs = findIDs(poaText);
-
-                if (heirsIDs.length === 0) {
-                    alert("لم يتم العثور على أي أرقام هويات في صك حصر الورثة. تأكد من جودة الملف.");
-                    throw new Error("No IDs found in inheritance doc");
-                }
-
-                displayResults(heirsIDs, principalIDs, poaText);
-
-            } catch (error) {
-                console.error(error);
-                updateStatus("حدث خطأ! راجع وحدة التحكم (Console) للتفاصيل.");
-                alert("حدث خطأ أثناء المعالجة. إذا كنت تستخدم OCR، تأكد من اتصال الإنترنت لتحميل ملفات اللغة لأول مرة.");
-            } finally {
-                btn.disabled = false;
-                btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                btn.innerText = "🛡️ بدء التحليل والمطابقة";
-                document.getElementById('processingStatus').classList.add('hidden');
-                document.getElementById('ocrWarning').classList.add('hidden');
-            }
-        }
-
-        // --- عرض النتائج (نفس السابق مع تحسينات طفيفة) ---
-        function displayResults(heirs, principals, poaText) {
-            const resultsArea = document.getElementById('resultsArea');
-            const tbody = document.querySelector('#resultsTable tbody');
-            const summary = document.getElementById('summaryAlert');
-            const poaDetails = document.getElementById('poaDetails');
-            
-            resultsArea.classList.remove('hidden');
+            resultsView.classList.remove('hidden');
             tbody.innerHTML = "";
             let missingCount = 0;
 
-            heirs.forEach((id, index) => {
-                const isPresent = principals.includes(id);
-                if (!isPresent) missingCount++;
-                const row = `
-                    <tr class="border-b ${isPresent ? 'bg-green-50' : 'bg-red-50'}">
-                        <td class="p-3 text-sm text-gray-700">طرف رقم ${index + 1}</td>
-                        <td class="p-3 font-mono text-blue-800">${id}</td>
-                        <td class="p-3 font-bold ${isPresent ? 'text-green-700' : 'text-red-700'}">
-                            ${isPresent ? '✅ موجود كموكل' : '❌ غير موجود'}
+            // مطابقة كل وارث مع قائمة الموكلين
+            heirs.forEach(id => {
+                const isFound = principals.includes(id);
+                if (!isFound) missingCount++;
+
+                tbody.innerHTML += `
+                    <tr class="${isFound ? 'bg-emerald-50' : 'bg-red-50'} border-b">
+                        <td class="p-4 font-mono font-bold text-slate-700">${id}</td>
+                        <td class="p-4 text-center">
+                            <span class="px-3 py-1 rounded-full text-xs font-bold ${isFound ? 'bg-emerald-200 text-emerald-800' : 'bg-red-200 text-red-800'}">
+                                ${isFound ? '✅ موكّل مكتمل' : '❌ مفقود من الوكالة'}
+                            </span>
                         </td>
-                    </tr>`;
-                tbody.innerHTML += row;
+                    </tr>
+                `;
             });
 
+            // تحديث الملخص العام
             if (missingCount === 0) {
-                summary.className = "mb-6 p-4 rounded-lg flex items-center gap-3 bg-green-100 text-green-900 border-l-4 border-green-600 shadow-sm";
-                summary.innerHTML = `<div class="text-2xl">✅</div><div><h4 class="font-bold">الوكالة مكتملة الأطراف</h4><p class="text-sm">جميع الأطراف المستخرجة من صك الحصر (${heirs.length}) موجودون في الوكالة.</p></div>`;
+                mainAlert.className = "mb-8 p-6 rounded-2xl flex items-center gap-4 shadow-sm border-r-8 bg-emerald-100 border-emerald-600 text-emerald-900";
+                mainAlert.innerHTML = `<span class="text-3xl">✅</span> <div><h4 class="font-bold text-xl">اكتمال التوكيل</h4><p class="text-sm opacity-80">جميع الورثة المذكورين في صك الحصر قاموا بالتوكيل بشكل نظامي.</p></div>`;
             } else {
-                summary.className = "mb-6 p-4 rounded-lg flex items-center gap-3 bg-red-100 text-red-900 border-l-4 border-red-600 shadow-sm pulse-animation";
-                summary.innerHTML = `<div class="text-2xl">⚠️</div><div><h4 class="font-bold">تنبيه: الوكالة ناقصة</h4><p class="text-sm">يوجد عدد (${missingCount}) من الورثة لم يتم العثور على هوياتهم في الوكالة.</p></div>`;
+                mainAlert.className = "mb-8 p-6 rounded-2xl flex items-center gap-4 shadow-sm border-r-8 bg-red-100 border-red-600 text-red-900";
+                mainAlert.innerHTML = `<span class="text-3xl">⚠️</span> <div><h4 class="font-bold text-xl">نقص في الوكالة</h4><p class="text-sm opacity-80">هناك ${missingCount} من الورثة لم يتم العثور على أرقام هوياتهم في صك الوكالة.</p></div>`;
             }
 
-             // تحسين البحث عن الكلمات المفتاحية لدعم أخطاء الـ OCR المحتملة
-             // مثلاً البحث عن "بيع" قد يجدها الـ OCR "بيغ" أو "ييع"
-            const hasSelling = /بيع|افراغ|إفراغ|لبيع|للافراغ/.test(poaText);
-            const hasReceiving = /قبض|استلام|للاستلام|وقبض|استلام المبلغ/.test(poaText);
-            const poaSnippet = poaText.substring(0, 300) + "..."; // عرض مقتطف
+            // فحص بنود الصلاحيات (البيع، الإفراغ، قبض الثمن)
+            const canSell = /بيع|إفراغ|افراغ/.test(poaText);
+            const canPay = /قبض|ثمن|استلام|المبلغ/.test(poaText);
 
-            poaDetails.innerHTML = `
-                <div class="grid grid-cols-2 gap-4 mb-4">
-                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-center">
-                        <span class="block text-gray-500 text-xs">صلاحية البيع والإفراغ</span>
-                        <span class="font-bold ${hasSelling?'text-green-700':'text-red-700'} text-lg">${hasSelling ? '✅ متوفرة' : '❓ غير واضحة'}</span>
-                    </div>
-                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-center">
-                        <span class="block text-gray-500 text-xs">صلاحية قبض الثمن</span>
-                        <span class="font-bold ${hasReceiving?'text-green-700':'text-red-700'} text-lg">${hasReceiving ? '✅ متوفرة' : '❓ غير واضحة'}</span>
-                    </div>
+            authResults.innerHTML = `
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border">
+                    <span class="text-sm font-medium">البيع والإفراغ:</span>
+                    <span class="font-bold ${canSell ? 'text-emerald-600' : 'text-red-600'}">${canSell ? 'مذكورة' : 'غير واضحة'}</span>
                 </div>
-                <div>
-                    <h4 class="font-bold text-gray-700 mb-1 text-sm">مقتطف من بداية نص الوكالة المستخرج:</h4>
-                    <p class="bg-gray-100 p-3 rounded text-xs text-gray-600 leading-relaxed h-24 overflow-y-auto">${poaSnippet}</p>
+                <div class="flex items-center justify-between p-4 bg-slate-50 rounded-xl border">
+                    <span class="text-sm font-medium">استلام المبالغ:</span>
+                    <span class="font-bold ${canPay ? 'text-emerald-600' : 'text-red-600'}">${canPay ? 'مذكورة' : 'غير واضحة'}</span>
                 </div>
+                <p class="text-[10px] text-gray-400 mt-4 leading-relaxed italic">ملاحظة: فحص الصلاحيات يعتمد على الكلمات المفتاحية في النص المستخرج، يرجى مراجعة البند يدوياً للتأكيد النهائي.</p>
             `;
+            
+            // التمرير التلقائي للنتائج
+            resultsView.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // دوال مساعدة للتحكم في الواجهة
+        function toggleLoading(show) {
+            document.getElementById('startBtn').disabled = show;
+            document.getElementById('loadingStatus').classList.toggle('hidden', !show);
+            if(show) {
+                document.getElementById('resultsView').classList.add('hidden');
+                updateProgress(0, "جاري تهيئة المحرك...");
+            }
+        }
+
+        function updateProgress(percent, text) {
+            if (percent !== null) document.getElementById('progressBar').style.width = percent + "%";
+            if (text) document.getElementById('statusLabel').innerText = text;
         }
     </script>
 </body>
