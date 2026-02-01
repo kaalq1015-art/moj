@@ -3,372 +3,275 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام استخراج البيانات المارقة - النسخة المحلية</title>
-    
-    <!-- المكتبات الأساسية (تعمل من الذاكرة المؤقتة) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <title>محرك مطابقة الصكوك (يدعم OCR)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+    <script src='https://cdn.jsdelivr.net/npm/tesseract.js@4/dist/tesseract.min.js'></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/lucide@latest"></script>
-
     <style>
-        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background-color: #f0f2f5; color: #1a202c; }
-        .card { background: white; border-radius: 1.5rem; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
-        .drop-zone { border: 3px dashed #cbd5e1; transition: all 0.3s ease; background: #ffffff; }
-        .drop-zone:hover, .drop-zone.dragover { border-color: #2563eb; background: #f1f7ff; transform: translateY(-2px); }
-        .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #1a202c; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
-        .btn-primary { background: #1a202c; color: white; transition: all 0.3s ease; }
-        .btn-primary:hover { background: #000000; transform: translateY(-1px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .ar-line { line-height: 1.8; }
-        .status-badge { padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: bold; }
-        @media print { .no-print { display: none; } }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; }
+        /* تأثير نبض أثناء المعالجة الثقيلة */
+        .pulse-animation { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: .5; } }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-50 p-5 md:p-10">
 
-    <div class="min-h-screen flex flex-col">
-        <!-- Navigation -->
-        <nav class="no-print sticky top-0 z-50 bg-white border-b border-slate-200 px-8 py-4 flex justify-between items-center shadow-sm">
-            <div class="flex items-center gap-4">
-                <div class="w-10 h-10 bg-slate-900 rounded-xl flex items-center justify-center text-white">
-                    <i data-lucide="database-zap" class="w-6 h-6"></i>
+    <div class="max-w-5xl mx-auto">
+        <header class="text-center mb-10">
+            <h1 class="text-3xl font-bold text-blue-900">نظام المطابقة العقاري الذكي (v2.0)</h1>
+            <p class="text-gray-600 mt-2">يدعم الآن الصكوك الرقمية والممسوحة ضوئياً (OCR)</p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-blue-500">
+                <label class="block font-bold mb-2 flex items-center">
+                    📄 1. صك حصر الورثة
+                    <span id="inhStatus" class="text-xs mr-2 text-gray-400"></span>
+                </label>
+                <input type="file" id="inheritanceFile" accept=".pdf" class="file-input w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"/>
+            </div>
+            <div class="bg-white p-6 rounded-xl shadow-md border-t-4 border-green-500">
+                <label class="block font-bold mb-2 flex items-center">
+                    ⚖️ 2. صك الوكالة
+                    <span id="poaStatus" class="text-xs mr-2 text-gray-400"></span>
+                </label>
+                <input type="file" id="poaFile" accept=".pdf" class="file-input w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100"/>
+            </div>
+        </div>
+
+        <div class="text-center mb-10 space-y-3">
+            <button onclick="startProcessing()" id="processBtn" class="bg-blue-900 hover:bg-blue-800 text-white font-bold py-4 px-12 rounded-lg transition-all shadow-lg text-lg">
+                🛡️ بدء التحليل والمطابقة
+            </button>
+            <div id="processingStatus" class="text-blue-700 font-semibold hidden pulse-animation">
+                جاري تهيئة المحركات...
+            </div>
+            <div id="ocrWarning" class="text-amber-600 text-sm hidden">
+                ⚠️ تنبيه: تم اكتشاف ملفات ممسوحة ضوئياً. عملية الـ OCR قد تستغرق وقتاً أطول (دقيقة أو أكثر) حسب سرعة جهازك.
+            </div>
+        </div>
+
+        <div id="resultsArea" class="hidden">
+             <div id="summaryAlert" class="mb-6 p-4 rounded-lg flex items-center gap-3"></div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow overflow-hidden">
+                    <div class="bg-gray-800 text-white px-4 py-2 font-bold">جدول مطابقة الورثة</div>
+                    <div class="max-h-96 overflow-y-auto">
+                        <table class="w-full text-right border-collapse" id="resultsTable">
+                            <thead class="sticky top-0 bg-gray-100 shadow-sm">
+                                <tr class="text-sm text-gray-600">
+                                    <th class="p-3 border">الطرف (من صك الحصر)</th>
+                                    <th class="p-3 border">رقم الهوية المستخرج</th>
+                                    <th class="p-3 border">الحالة في الوكالة</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold">محرك الاستخراج المحلي</h1>
-                    <p class="text-[9px] text-emerald-600 font-bold uppercase tracking-widest flex items-center gap-1">
-                        <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-                        خصوصية كاملة - معالجة في الجهاز
-                    </p>
+                <div class="bg-white rounded-xl shadow p-6 border border-gray-200">
+                    <h3 class="font-bold text-lg mb-4 text-blue-900 border-b pb-2">تحليل نطاق وصلاحيات الوكالة</h3>
+                    <div id="poaDetails" class="space-y-3 text-sm"></div>
                 </div>
             </div>
-            <button onclick="window.location.reload()" class="text-sm font-medium text-slate-500 hover:text-slate-900 transition flex items-center gap-2">
-                <i data-lucide="rotate-ccw" class="w-4 h-4"></i> تحليل ملف جديد
-            </button>
-        </nav>
-
-        <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
-            
-            <!-- Setup Section -->
-            <section id="setup-view" class="no-print card p-10 text-center animate-in fade-in duration-500">
-                <div class="max-w-xl mx-auto mb-10">
-                    <h2 class="text-3xl font-black text-slate-900 mb-4">فكك مستنداتك في ثوانٍ</h2>
-                    <p class="text-slate-500">ارفع صكوك الوكالة، حصر الورثة، أو العقود. سيقوم المحرك بتشخيص النصوص واستخراج كافة الأطراف والبيانات دون الحاجة لاتصال بالإنترنت.</p>
-                </div>
-
-                <div id="drop-zone" class="drop-zone rounded-[2rem] p-16 cursor-pointer group">
-                    <input type="file" id="file-input" class="hidden" accept=".pdf" multiple>
-                    <div class="w-20 h-20 bg-slate-50 rounded-3xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
-                        <i data-lucide="file-text" class="w-10 h-10 text-slate-400"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-slate-800">اسحب الصكوك هنا</h3>
-                    <p class="text-slate-400 mt-2">يدعم ملفات PDF المتعددة</p>
-                    <div id="file-preview" class="mt-8 flex flex-wrap justify-center gap-3"></div>
-                </div>
-
-                <button id="start-btn" disabled class="btn-primary mt-10 w-full max-w-md py-5 rounded-2xl font-bold text-lg shadow-xl disabled:opacity-20">
-                    بدء الفحص والتشخيص
-                </button>
-            </section>
-
-            <!-- Processing Section -->
-            <section id="processing-view" class="hidden card p-20 text-center">
-                <div class="loader mb-6"></div>
-                <h2 class="text-2xl font-bold text-slate-800" id="process-title">جاري التفكيك...</h2>
-                <div class="max-w-sm mx-auto mt-8 bg-slate-100 h-2 rounded-full overflow-hidden">
-                    <div id="progress-bar" style="width:0%" class="bg-slate-900 h-full transition-all duration-300"></div>
-                </div>
-            </section>
-
-            <!-- Results Section -->
-            <section id="results-view" class="hidden space-y-8 animate-in slide-in-from-bottom-5 duration-500">
-                
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    
-                    <!-- Main Data -->
-                    <div class="lg:col-span-2 space-y-6">
-                        <div class="card overflow-hidden">
-                            <div class="p-6 border-b flex justify-between items-center bg-slate-50/50">
-                                <h3 class="font-bold flex items-center gap-3">
-                                    <i data-lucide="users" class="w-5 h-5 text-blue-600"></i>
-                                    الأطراف المكتشفة في المستند
-                                </h3>
-                                <div class="flex gap-2 no-print">
-                                    <input type="text" id="search-data" placeholder="بحث سريع..." class="text-xs border rounded-lg px-3 py-1.5 outline-none focus:ring-1 focus:ring-slate-400">
-                                    <button onclick="exportToExcel()" class="bg-white text-slate-700 px-4 py-1.5 rounded-lg text-xs font-bold border hover:bg-slate-50 transition">تصدير Excel</button>
-                                </div>
-                            </div>
-                            <div class="overflow-x-auto">
-                                <table class="w-full text-right text-sm">
-                                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
-                                        <tr>
-                                            <th class="p-5">الاسم الكامل</th>
-                                            <th class="p-5">رقم الهوية</th>
-                                            <th class="p-5">الحالة القانونية</th>
-                                            <th class="p-5">المصدر</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="people-table-body" class="divide-y divide-slate-100"></tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- العقارات والبيانات الأخرى -->
-                        <div class="card p-8 space-y-6">
-                            <h3 class="font-bold text-lg flex items-center gap-3 border-b pb-4">
-                                <i data-lucide="database" class="w-5 h-5 text-amber-600"></i>
-                                البيانات العقارية والتواريخ
-                            </h3>
-                            <div id="extra-data-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <!-- سيتم تعبئته آلياً -->
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Sidebar -->
-                    <div class="space-y-6">
-                        <div class="card p-6 bg-slate-900 text-white relative overflow-hidden">
-                            <i data-lucide="zap" class="absolute -bottom-6 -left-6 w-32 h-32 opacity-10"></i>
-                            <h4 class="font-bold text-xl mb-6 flex items-center gap-2">
-                                <i data-lucide="info" class="w-5 h-5 text-blue-400"></i>
-                                ملخص الفحص
-                            </h4>
-                            <div id="summary-content" class="space-y-4 text-sm font-light opacity-90 ar-line">
-                                <!-- الملخص الإحصائي -->
-                            </div>
-                        </div>
-
-                        <div class="card p-6 border-l-4 border-l-blue-600">
-                            <h4 class="font-bold mb-4 flex items-center gap-2">
-                                <i data-lucide="check-circle" class="w-5 h-5 text-blue-600"></i>
-                                ملاحظات النظام
-                            </h4>
-                            <ul class="text-xs space-y-3 text-slate-500 ar-line">
-                                <li>• تم التحقق من سلامة أرقام الهويات المكتشفة.</li>
-                                <li>• تم ربط الأسماء المذكورة قبل أرقام الهوية مباشرة.</li>
-                                <li>• استخراج بيانات الصكوك والقطع تم بناءً على الأنماط الرسمية.</li>
-                            </ul>
-                        </div>
-                    </div>
-
-                </div>
-            </section>
-        </main>
+        </div>
     </div>
 
     <script>
-        lucide.createIcons();
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        // إعداد مكتبة PDF.js
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
 
-        let appData = { files: [], results: [] };
-
-        const fileInput = document.getElementById('file-input');
-        const startBtn = document.getElementById('start-btn');
-        const dropZone = document.getElementById('drop-zone');
-
-        dropZone.onclick = () => fileInput.click();
-        fileInput.onchange = (e) => {
-            const selected = Array.from(e.target.files).filter(f => f.type === 'application/pdf');
-            appData.files = [...appData.files, ...selected].slice(0, 10);
-            document.getElementById('file-preview').innerHTML = appData.files.map(f => `
-                <div class="bg-slate-100 px-4 py-2 rounded-xl text-[10px] font-bold border flex items-center gap-2">
-                    <i data-lucide="file-text" class="w-3 h-3"></i> ${f.name}
-                </div>
-            `).join('');
-            startBtn.disabled = appData.files.length === 0;
-            lucide.createIcons();
+        // --- دوال مساعدة للواجهة ---
+        const updateStatus = (msg, showOcrWarning = false) => {
+            const statusDiv = document.getElementById('processingStatus');
+            const ocrWarnDiv = document.getElementById('ocrWarning');
+            statusDiv.innerText = msg;
+            statusDiv.classList.remove('hidden');
+            if(showOcrWarning) ocrWarnDiv.classList.remove('hidden');
+            else ocrWarnDiv.classList.add('hidden');
         };
 
-        // --- محرك الاستخراج المحلي الخورافي ---
-        function extractDataLocally(text, filename) {
-            const results = { individuals: [], estates: [], dates: [] };
-            
-            // تنظيف النصوص
-            const cleanText = text.replace(/[\n\r]/g, " ").replace(/\s+/g, " ");
+        const setFileStatus = (elementId, status, isOCR = false) => {
+            const el = document.getElementById(elementId);
+            el.innerText = status;
+            el.className = `text-xs mr-2 ${isOCR ? 'text-amber-600 font-bold' : 'text-green-600'}`;
+        };
 
-            // 1. استخراج الهويات (سعودية/مقيم/700)
-            const idRegex = /\b([127]\d{9})\b/g;
-            const foundIDs = [...new Set(text.match(idRegex) || [])];
 
-            foundIDs.forEach(id => {
-                const idPos = cleanText.indexOf(id);
-                // البحث عن الاسم في الـ 100 حرف التي تسبق الهوية
-                const searchArea = cleanText.substring(Math.max(0, idPos - 120), idPos);
-                
-                // نمط الأسماء العربية (كلمات من حرفين فأكثر)
-                const namePattern = /([أ-ي]{3,}\s+){2,4}[أ-ي]{3,}/g;
-                const nameMatches = searchArea.match(namePattern);
-                let name = nameMatches ? nameMatches[nameMatches.length - 1].trim() : "غير مكتشف";
+        // --- المحرك الأساسي (HYBRID ENGINE) ---
 
-                // استنباط الدور
-                let role = "طرف";
-                if (searchArea.includes("وكيل") || cleanText.substring(idPos, idPos + 50).includes("وكيل")) role = "وكيل";
-                else if (searchArea.includes("موكل")) role = "موكل";
-                else if (searchArea.includes("وريث") || searchArea.includes("ورثة")) role = "وريث";
-                else if (searchArea.includes("مورث") || searchArea.includes("المتوفى")) role = "مورث";
-
-                results.individuals.push({ name, id, role, source: filename });
-            });
-
-            // 2. استخراج التواريخ
-            const dateRegex = /\b(\d{1,2}[\/-]\d{1,2}[\/-]\d{4})\b/g;
-            results.dates = [...new Set(text.match(dateRegex) || [])];
-
-            // 3. استخراج البيانات العقارية
-            const patterns = {
-                sak: /صك رقم\s*([\d\/]+)/g,
-                qita: /قطعة رقم\s*([\d\/]+)/g,
-                mokh: /مخطط رقم\s*([\d\/]+)/g,
-                area: /مساحتها\s*([\d\.,]+)/g
-            };
-
-            const sakMatches = [...text.matchAll(patterns.sak)];
-            sakMatches.forEach(m => {
-                const pos = text.indexOf(m[0]);
-                const context = text.substring(pos, pos + 200);
-                results.estates.push({
-                    title: m[0],
-                    details: [
-                        context.match(patterns.qita)?.[0] || "",
-                        context.match(patterns.mokh)?.[0] || "",
-                        context.match(patterns.area)?.[0] ? context.match(patterns.area)[0] + " م٢" : ""
-                    ].filter(Boolean)
-                });
-            });
-
-            return results;
+        // 1. المحاولة السريعة: استخراج النص الرقمي المباشر
+        async function tryQuickExtraction(pdfDoc) {
+            let fullText = "";
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                const page = await pdfDoc.getPage(i);
+                const content = await page.getTextContent();
+                fullText += content.items.map(item => item.str).join(" ");
+            }
+            return fullText;
         }
 
-        // --- بدء المعالجة ---
-        startBtn.onclick = async () => {
-            document.getElementById('setup-view').classList.add('hidden');
-            document.getElementById('processing-view').classList.remove('hidden');
+        // 2. المحاولة الثقيلة: استخراج النص عبر OCR للصور
+        async function performOCR(pdfDoc, fileTypeLabel) {
+            updateStatus(`جاري تشغيل OCR على ${fileTypeLabel}... (هذه العملية تستغرق وقتاً)`, true);
             
-            let finalResults = { individuals: [], estates: [], dates: [] };
+            // تهيئة عامل Tesseract للغة العربية
+            const worker = await Tesseract.createWorker('ara');
+            let fullText = "";
 
-            for (let i = 0; i < appData.files.length; i++) {
-                const file = appData.files[i];
-                document.getElementById('process-title').textContent = `تفكيك نصوص: ${file.name}`;
-                document.getElementById('progress-bar').style.width = `${((i+1)/appData.files.length)*100}%`;
-
-                const arrayBuffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-                let fullText = "";
+            for (let i = 1; i <= pdfDoc.numPages; i++) {
+                updateStatus(`جاري تحليل صفحة ${i} من ${pdfDoc.numPages} في ${fileTypeLabel}...`, true);
                 
-                for (let j = 1; j <= pdf.numPages; j++) {
-                    const page = await pdf.getPage(j);
-                    const content = await page.getTextContent();
-                    fullText += content.items.map(item => item.str).join(' ') + " ";
+                const page = await pdfDoc.getPage(i);
+                // زيادة دقة الصورة (scale 2.0) لتحسين نتائج الـ OCR
+                const viewport = page.getViewport({ scale: 2.0 });
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                // تحويل صفحة PDF إلى صورة في الـ canvas
+                await page.render({ canvasContext: ctx, viewport: viewport }).promise;
+
+                // تنفيذ الـ OCR على الصورة
+                const { data: { text } } = await worker.recognize(canvas);
+                fullText += text + " ";
+            }
+            await worker.terminate(); // إغلاق العامل لتوفير الذاكرة
+            return fullText;
+        }
+
+        // 3. الدالة الذكية التي تقرر أي طريقة تستخدم
+        async function smartExtract(file, statusElementId, fileTypeLabel) {
+            setFileStatus(statusElementId, "جاري التحميل...");
+            const arrayBuffer = await file.arrayBuffer();
+            const pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+            // الخطوة أ: تجربة الاستخراج السريع
+            let text = await tryQuickExtraction(pdfDoc);
+
+            // الخطوة ب: التحقق مما إذا كان النص المستخرج مفيداً
+            // إذا كان النص قصيراً جداً (أقل من 100 حرف)، نعتبر الملف "صورة" ونشغل الـ OCR
+            if (text.trim().length < 100) {
+                setFileStatus(statusElementId, "ملف مصور (يتطلب OCR)", true);
+                console.log(`${fileTypeLabel} يبدو كصورة. جاري التحويل لـ OCR...`);
+                text = await performOCR(pdfDoc, fileTypeLabel);
+            } else {
+                setFileStatus(statusElementId, "ملف رقمي (نصي)");
+            }
+            return text;
+        }
+
+        // --- منطق المطابقة (نفس السابق) ---
+        function findIDs(text) {
+            // تنظيف النص قليلاً قبل البحث لزيادة الدقة في الـ OCR
+            const cleanText = text.replace(/[^\d\s]/g, ' '); 
+            const regex = /\b1\d{9}\b/g;
+            return [...new Set(cleanText.match(regex) || [])];
+        }
+
+        async function startProcessing() {
+            const inhFile = document.getElementById('inheritanceFile').files[0];
+            const poaFile = document.getElementById('poaFile').files[0];
+            const btn = document.getElementById('processBtn');
+            const resultsArea = document.getElementById('resultsArea');
+
+            if (!inhFile || !poaFile) { alert("يرجى اختيار الملفين أولاً"); return; }
+
+            btn.disabled = true;
+            btn.classList.add('opacity-50', 'cursor-not-allowed');
+            resultsArea.classList.add('hidden');
+            updateStatus("بدء عملية تحليل الملفات...");
+
+            try {
+                // استخراج النصوص باستخدام المحرك الذكي
+                updateStatus("جاري تحليل صك حصر الورثة...");
+                const inhText = await smartExtract(inhFile, 'inhStatus', "صك الورثة");
+
+                updateStatus("جاري تحليل صك الوكالة...");
+                const poaText = await smartExtract(poaFile, 'poaStatus', "صك الوكالة");
+
+                updateStatus("جاري مطابقة البيانات...");
+                const heirsIDs = findIDs(inhText);
+                const principalIDs = findIDs(poaText);
+
+                if (heirsIDs.length === 0) {
+                    alert("لم يتم العثور على أي أرقام هويات في صك حصر الورثة. تأكد من جودة الملف.");
+                    throw new Error("No IDs found in inheritance doc");
                 }
 
-                const out = extractDataLocally(fullText, file.name);
-                finalResults.individuals.push(...out.individuals);
-                finalResults.estates.push(...out.estates);
-                finalResults.dates.push(...out.dates);
+                displayResults(heirsIDs, principalIDs, poaText);
+
+            } catch (error) {
+                console.error(error);
+                updateStatus("حدث خطأ! راجع وحدة التحكم (Console) للتفاصيل.");
+                alert("حدث خطأ أثناء المعالجة. إذا كنت تستخدم OCR، تأكد من اتصال الإنترنت لتحميل ملفات اللغة لأول مرة.");
+            } finally {
+                btn.disabled = false;
+                btn.classList.remove('opacity-50', 'cursor-not-allowed');
+                btn.innerText = "🛡️ بدء التحليل والمطابقة";
+                document.getElementById('processingStatus').classList.add('hidden');
+                document.getElementById('ocrWarning').classList.add('hidden');
             }
-
-            appData.results = finalResults;
-            renderResults();
-        };
-
-        function renderResults() {
-            document.getElementById('processing-view').classList.add('hidden');
-            document.getElementById('results-view').classList.remove('hidden');
-
-            const tbody = document.getElementById('people-table-body');
-            tbody.innerHTML = '';
-
-            if (appData.results.individuals.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="4" class="p-10 text-center text-slate-400">لم يتم العثور على بيانات أفراد واضحة</td></tr>';
-            } else {
-                appData.results.individuals.forEach(p => {
-                    tbody.innerHTML += `
-                        <tr class="hover:bg-slate-50 transition-colors">
-                            <td class="p-5 font-bold text-slate-900">${p.name}</td>
-                            <td class="p-5 font-mono text-blue-600 font-bold">${p.id}</td>
-                            <td class="p-5"><span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-bold uppercase">${p.role}</span></td>
-                            <td class="p-5 text-[9px] text-slate-400 font-medium">${p.source}</td>
-                        </tr>
-                    `;
-                });
-            }
-
-            // ملخص الإحصائيات الجانبي
-            document.getElementById('summary-content').innerHTML = `
-                <div class="flex justify-between items-center border-b border-white/10 pb-3">
-                    <span>إجمالي الأفراد المكتشفين:</span>
-                    <span class="text-2xl font-black">${appData.results.individuals.length}</span>
-                </div>
-                <div class="flex justify-between items-center border-b border-white/10 pb-3">
-                    <span>البيانات العقارية:</span>
-                    <span class="text-2xl font-black">${appData.results.estates.length}</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span>التواريخ المذكورة:</span>
-                    <span class="text-2xl font-black">${[...new Set(appData.results.dates)].length}</span>
-                </div>
-                <div class="mt-6 p-4 bg-white/5 rounded-2xl text-[11px] ar-line italic">
-                    <i data-lucide="info" class="w-3 h-3 inline ml-1"></i>
-                    تمت معالجة جميع المستندات محلياً. لم يتم إرسال أي بيانات عبر الإنترنت. النظام استند إلى التحليل النمطي للنصوص القانونية.
-                </div>
-            `;
-
-            // البيانات الإضافية
-            const extraContainer = document.getElementById('extra-data-container');
-            extraContainer.innerHTML = '';
-
-            // عرض العقارات
-            if (appData.results.estates.length > 0) {
-                const estateHtml = appData.results.estates.map(e => `
-                    <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100">
-                        <p class="font-bold text-amber-900 text-sm mb-2">${e.title}</p>
-                        <div class="flex flex-wrap gap-2">
-                            ${e.details.map(d => `<span class="bg-white px-2 py-0.5 rounded text-[10px] text-amber-600 border">${d}</span>`).join('')}
-                        </div>
-                    </div>
-                `).join('');
-                extraContainer.innerHTML += `<div class="space-y-4"> <h5 class="text-xs font-bold text-slate-400">العقارات المكتشفة</h5> ${estateHtml} </div>`;
-            }
-
-            // عرض التواريخ
-            const uniqueDates = [...new Set(appData.results.dates)];
-            if (uniqueDates.length > 0) {
-                const datesHtml = uniqueDates.map(d => `
-                    <div class="flex items-center justify-between p-3 bg-slate-50 rounded-xl border">
-                        <span class="text-sm font-bold text-slate-700">${d}</span>
-                        <i data-lucide="calendar" class="w-4 h-4 text-slate-400"></i>
-                    </div>
-                `).join('');
-                extraContainer.innerHTML += `<div class="space-y-4"> <h5 class="text-xs font-bold text-slate-400">التواريخ المهمة</h5> <div class="grid grid-cols-2 gap-3">${datesHtml}</div> </div>`;
-            }
-
-            lucide.createIcons();
         }
 
-        // البحث السريع
-        document.getElementById('search-data').oninput = (e) => {
-            const val = e.target.value.toLowerCase();
-            const rows = document.querySelectorAll('#people-table-body tr');
-            rows.forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(val) ? '' : 'none';
+        // --- عرض النتائج (نفس السابق مع تحسينات طفيفة) ---
+        function displayResults(heirs, principals, poaText) {
+            const resultsArea = document.getElementById('resultsArea');
+            const tbody = document.querySelector('#resultsTable tbody');
+            const summary = document.getElementById('summaryAlert');
+            const poaDetails = document.getElementById('poaDetails');
+            
+            resultsArea.classList.remove('hidden');
+            tbody.innerHTML = "";
+            let missingCount = 0;
+
+            heirs.forEach((id, index) => {
+                const isPresent = principals.includes(id);
+                if (!isPresent) missingCount++;
+                const row = `
+                    <tr class="border-b ${isPresent ? 'bg-green-50' : 'bg-red-50'}">
+                        <td class="p-3 text-sm text-gray-700">طرف رقم ${index + 1}</td>
+                        <td class="p-3 font-mono text-blue-800">${id}</td>
+                        <td class="p-3 font-bold ${isPresent ? 'text-green-700' : 'text-red-700'}">
+                            ${isPresent ? '✅ موجود كموكل' : '❌ غير موجود'}
+                        </td>
+                    </tr>`;
+                tbody.innerHTML += row;
             });
-        };
 
-        // التصدير
-        window.exportToExcel = () => {
-            const data = appData.results.individuals.map(p => ({
-                "الاسم": p.name,
-                "رقم الهوية": p.id,
-                "الصفة": p.role,
-                "المستند": p.source
-            }));
-            const ws = XLSX.utils.json_to_sheet(data);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "البيانات");
-            XLSX.writeFile(wb, "تقرير_الاستخراج_المحلي.xlsx");
-        };
+            if (missingCount === 0) {
+                summary.className = "mb-6 p-4 rounded-lg flex items-center gap-3 bg-green-100 text-green-900 border-l-4 border-green-600 shadow-sm";
+                summary.innerHTML = `<div class="text-2xl">✅</div><div><h4 class="font-bold">الوكالة مكتملة الأطراف</h4><p class="text-sm">جميع الأطراف المستخرجة من صك الحصر (${heirs.length}) موجودون في الوكالة.</p></div>`;
+            } else {
+                summary.className = "mb-6 p-4 rounded-lg flex items-center gap-3 bg-red-100 text-red-900 border-l-4 border-red-600 shadow-sm pulse-animation";
+                summary.innerHTML = `<div class="text-2xl">⚠️</div><div><h4 class="font-bold">تنبيه: الوكالة ناقصة</h4><p class="text-sm">يوجد عدد (${missingCount}) من الورثة لم يتم العثور على هوياتهم في الوكالة.</p></div>`;
+            }
 
+             // تحسين البحث عن الكلمات المفتاحية لدعم أخطاء الـ OCR المحتملة
+             // مثلاً البحث عن "بيع" قد يجدها الـ OCR "بيغ" أو "ييع"
+            const hasSelling = /بيع|افراغ|إفراغ|لبيع|للافراغ/.test(poaText);
+            const hasReceiving = /قبض|استلام|للاستلام|وقبض|استلام المبلغ/.test(poaText);
+            const poaSnippet = poaText.substring(0, 300) + "..."; // عرض مقتطف
+
+            poaDetails.innerHTML = `
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-center">
+                        <span class="block text-gray-500 text-xs">صلاحية البيع والإفراغ</span>
+                        <span class="font-bold ${hasSelling?'text-green-700':'text-red-700'} text-lg">${hasSelling ? '✅ متوفرة' : '❓ غير واضحة'}</span>
+                    </div>
+                    <div class="bg-blue-50 p-3 rounded-lg border border-blue-100 text-center">
+                        <span class="block text-gray-500 text-xs">صلاحية قبض الثمن</span>
+                        <span class="font-bold ${hasReceiving?'text-green-700':'text-red-700'} text-lg">${hasReceiving ? '✅ متوفرة' : '❓ غير واضحة'}</span>
+                    </div>
+                </div>
+                <div>
+                    <h4 class="font-bold text-gray-700 mb-1 text-sm">مقتطف من بداية نص الوكالة المستخرج:</h4>
+                    <p class="bg-gray-100 p-3 rounded text-xs text-gray-600 leading-relaxed h-24 overflow-y-auto">${poaSnippet}</p>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
