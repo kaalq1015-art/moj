@@ -167,7 +167,7 @@
         </main>
         
         <footer class="no-print p-6 text-center text-slate-400 text-[10px] border-t">
-            نظام استخراج البيانات الذكي © 2026 - جميع العمليات مشفرة ومعالجة بواسطة Gemini 2.5
+            نظام استخراج البيانات الذكي © 2026 - جميع العمليات معالجة بواسطة Gemini 2.5
         </footer>
     </div>
 
@@ -176,13 +176,41 @@
         lucide.createIcons();
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        // تهيئة الحالة
-        const apiKey = ""; // سيتم تزويده برمجياً
+        // تهيئة الحالة - API Key يجب أن يبقى فارغاً كما في التعليمات
+        const apiKey = ""; 
         let systemState = {
             files: [],
             extractedTexts: [],
             finalData: null
         };
+
+        // دالة موحدة لطلب الـ API مع Exponential Backoff
+        async function makeGeminiCall(payload) {
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            let delay = 1000;
+            for (let i = 0; i < 5; i++) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) {
+                        return await response.json();
+                    }
+                    if (response.status === 429 || response.status >= 500) {
+                        // استمر للمحاولة القادمة
+                    } else {
+                        throw new Error(`API Error: ${response.status}`);
+                    }
+                } catch (e) {
+                    if (i === 4) throw e;
+                }
+                await new Promise(resolve => setTimeout(resolve, delay));
+                delay *= 2;
+            }
+            throw new Error("فشل الاتصال بالخدمة بعد عدة محاولات.");
+        }
 
         // عناصر الواجهة
         const fileInput = document.getElementById('file-input');
@@ -213,6 +241,7 @@
 
             try {
                 // 1. استخراج النصوص
+                systemState.extractedTexts = [];
                 for (let i = 0; i < systemState.files.length; i++) {
                     const file = systemState.files[i];
                     updateProgress(`قراءة: ${file.name}`, Math.round(((i + 1) / systemState.files.length) * 40));
@@ -233,7 +262,7 @@
 
             } catch (err) {
                 console.error(err);
-                alert("حدث خطأ أثناء تحليل المستندات. يرجى التأكد من اتصال الإنترنت.");
+                alert("حدث خطأ في الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى أو التحقق من جودة الملفات.");
                 window.location.reload();
             }
         };
@@ -256,31 +285,46 @@
 
         async function callGeminiAnalysis(prompt) {
             const systemPrompt = `أنت مساعد قانوني سعودي محترف. سأعطيك نصوصاً مستخرجة من صكوك ووكالات. 
-            مهمتك استخراج البيانات التالية بدقة فائقة وإعادتها بصيغة JSON فقط:
-            1. individuals: قائمة بالأفراد (الاسم، رقم الهوية، الدور مثل وكيل/موكل/وارث، المصدر).
-            2. estates: قائمة بالعقارات (الوصف، التفاصيل المذكورة).
-            3. legal_summary: ملخص قانوني شامل لأهم الالتزامات والصلاحيات بصيغة Markdown.
-            
-            تنسيق الـ JSON المطلوب:
-            {
-                "individuals": [{"name": "", "id": "", "role": "", "source": ""}],
-                "estates": [{"description": "", "details": []}],
-                "legal_summary": ""
-            }`;
+            مهمتك استخراج البيانات التالية بدقة فائقة وإعادتها بصيغة JSON فقط.
+            استخرج الأفراد (الاسم، رقم الهوية، الدور، المصدر)، العقارات (الوصف)، وملخص قانوني شامل بصيغة Markdown.`;
 
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    systemInstruction: { parts: [{ text: systemPrompt }] },
-                    generationConfig: { responseMimeType: "application/json" }
-                })
-            });
-            
-            const result = await response.json();
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                systemInstruction: { parts: [{ text: systemPrompt }] },
+                generationConfig: { 
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            individuals: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        name: { type: "STRING" },
+                                        id: { type: "STRING" },
+                                        role: { type: "STRING" },
+                                        source: { type: "STRING" }
+                                    }
+                                }
+                            },
+                            estates: {
+                                type: "ARRAY",
+                                items: {
+                                    type: "OBJECT",
+                                    properties: {
+                                        description: { type: "STRING" },
+                                        details: { type: "ARRAY", items: { type: "STRING" } }
+                                    }
+                                }
+                            },
+                            legal_summary: { type: "STRING" }
+                        }
+                    }
+                }
+            };
+
+            const result = await makeGeminiCall(payload);
             return JSON.parse(result.candidates[0].content.parts[0].text);
         }
 
@@ -355,22 +399,18 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             const context = systemState.extractedTexts.map(t => t.content).join('\n').substring(0, 12000);
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: `بناءً على نصوص المستندات التالية: \n ${context} \n\n أجب على هذا السؤال: ${query}` }] }]
+            };
             
             try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        contents: [{ parts: [{ text: `بناءً على نصوص المستندات التالية: \n ${context} \n\n أجب على هذا السؤال: ${query}` }] }]
-                    })
-                });
-                const result = await response.json();
+                const result = await makeGeminiCall(payload);
                 const reply = result.candidates[0].content.parts[0].text;
                 chatMessages.innerHTML += `<div class="flex justify-end"><div class="bg-white border p-3 rounded-2xl rounded-tl-none text-slate-700 shadow-sm">${marked.parse(reply)}</div></div>`;
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             } catch (err) {
-                chatMessages.innerHTML += `<div class="text-center text-rose-500 text-[10px]">حدث خطأ في الاتصال بالذكاء الاصطناعي.</div>`;
+                chatMessages.innerHTML += `<div class="text-center text-rose-500 text-[10px]">فشل الاتصال بالذكاء الاصطناعي. يرجى المحاولة لاحقاً.</div>`;
             }
         }
 
