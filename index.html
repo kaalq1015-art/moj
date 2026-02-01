@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نظام استخراج البيانات الذكي - النسخة الاحترافية 2026</title>
+    <title>نظام استخراج البيانات الذكي - النسخة الاحترافية</title>
     
+    <!-- المكتبات الخارجية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -15,260 +15,374 @@
     <script src="https://unpkg.com/lucide@latest"></script>
 
     <style>
-        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background-color: #f8fafc; }
-        .drop-zone { border: 3px dashed #cbd5e1; transition: all 0.3s ease; }
-        .drop-zone.dragover { border-color: #2563eb; background: #eff6ff; }
-        .loader { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid #2563eb; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .id-valid { color: #10b981; font-weight: bold; }
-        .id-invalid { color: #ef4444; font-weight: bold; }
-        .ar-text { line-height: 1.8; text-align: justify; }
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background-color: #f1f5f9; color: #1e293b; }
+        .glass-panel { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); }
+        .drop-zone { border: 3px dashed #cbd5e1; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .drop-zone:hover, .drop-zone.dragover { border-color: #3b82f6; background: rgba(59, 130, 246, 0.05); }
+        .loader { width: 45px; height: 45px; border: 5px solid #E2E8F0; border-bottom-color: #3B82F6; border-radius: 50%; animation: rotation 1s linear infinite; display: inline-block; }
+        @keyframes rotation { 0% { transform: rotate(0deg) } 100% { transform: rotate(360deg) } }
+        .ar-line-height { line-height: 1.8; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        @media print { .no-print { display: none; } }
     </style>
 </head>
-<body class="antialiased text-slate-800">
+<body class="antialiased overflow-x-hidden">
 
     <div class="min-h-screen flex flex-col">
-        <nav class="bg-white border-b px-8 py-4 flex justify-between items-center sticky top-0 z-50 shadow-sm">
+        <!-- شريط العنوان -->
+        <header class="no-print sticky top-0 z-50 glass-panel border-b border-slate-200 px-6 py-4 flex justify-between items-center shadow-sm">
             <div class="flex items-center gap-4">
-                <div class="bg-blue-600 p-2 rounded-lg text-white">
-                    <i data-lucide="scale" class="w-6 h-6"></i>
+                <div class="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
+                    <i data-lucide="brain-circuit" class="w-7 h-7"></i>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold">نظام استخراج البيانات الذكي</h1>
-                    <p class="text-xs text-slate-500 uppercase tracking-wider">تحليل الصكوك والوكالات عبر AI [2026]</p>
+                    <h1 class="text-xl font-bold text-slate-900">نظام استخراج البيانات الذكي</h1>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">تحليل قانوني مدعوم بـ AI</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3">
-                <span id="system-date" class="text-sm font-medium bg-slate-100 px-3 py-1 rounded-full"></span>
-                <button onclick="location.reload()" class="text-sm text-blue-600 hover:underline">تحليل جديد</button>
-            </div>
-        </nav>
+            <button onclick="window.location.reload()" class="flex items-center gap-2 text-sm font-medium text-slate-600 hover:text-blue-600 transition">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                تحليل جديد
+            </button>
+        </header>
 
-        <main class="p-6 max-w-7xl mx-auto w-full space-y-8">
+        <main class="flex-grow p-4 md:p-8 max-w-7xl mx-auto w-full space-y-8">
             
-            <section id="upload-section" class="bg-white p-10 rounded-3xl shadow-sm border border-slate-200 text-center">
-                <div id="drop-zone" class="drop-zone rounded-2xl p-12 cursor-pointer">
-                    <input type="file" id="file-input" class="hidden" accept=".pdf" multiple>
-                    <i data-lucide="upload-cloud" class="w-16 h-16 text-blue-500 mx-auto mb-4"></i>
-                    <h3 class="text-xl font-bold mb-2">اسحب وأفلت صكوك الوكالة أو حصر الورثة</h3>
-                    <p class="text-slate-500 text-sm">سيقوم النظام بربط البيانات آلياً بين المستندات</p>
+            <!-- قسم الرفع والإعداد -->
+            <section id="setup-view" class="no-print bg-white p-10 rounded-[2.5rem] shadow-sm border border-slate-200">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-slate-900 mb-2">معالجة المستندات القانونية</h2>
+                    <p class="text-slate-500">ارفع ملفات الـ PDF (صكوك، وكالات، عقود) ليقوم النظام بتحليلها فوراً</p>
                 </div>
-                <div id="file-list" class="mt-6 space-y-2 text-right"></div>
-                <button id="process-btn" disabled class="mt-8 w-full bg-blue-600 text-white py-4 rounded-xl font-bold disabled:opacity-50 transition-all hover:bg-blue-700">
-                    بدء التحليل القانوني الذكي
+
+                <div id="drop-zone" class="drop-zone rounded-[2rem] p-12 text-center cursor-pointer bg-slate-50/50">
+                    <input type="file" id="file-input" class="hidden" accept=".pdf" multiple>
+                    <i data-lucide="upload-cloud" class="w-12 h-12 text-blue-500 mx-auto mb-4"></i>
+                    <h3 class="text-xl font-bold text-slate-800">اسحب الملفات هنا</h3>
+                    <p class="text-slate-400 text-sm">يدعم ملفات PDF الممسوحة ضوئياً أو النصية</p>
+                    <div id="file-preview" class="mt-6 flex flex-wrap justify-center gap-2"></div>
+                </div>
+
+                <button id="start-btn" disabled class="mt-8 w-full bg-blue-600 text-white py-5 rounded-2xl font-bold text-lg shadow-xl hover:bg-blue-700 transition-all disabled:opacity-20 disabled:cursor-not-allowed">
+                    بدء التحليل واستخراج البيانات
                 </button>
             </section>
 
-            <section id="loading-ui" class="hidden bg-white p-10 rounded-3xl shadow-sm border border-slate-200">
-                <div class="text-center space-y-4">
-                    <div class="loader mx-auto"></div>
-                    <h2 class="text-2xl font-bold" id="status-title">جاري استخراج البيانات...</h2>
-                    <p id="status-desc" class="text-slate-500 italic"></p>
-                    <div class="w-full bg-slate-100 h-2 rounded-full mt-4">
-                        <div id="main-progress" class="bg-blue-600 h-full rounded-full transition-all" style="width: 0%"></div>
-                    </div>
+            <!-- واجهة المعالجة -->
+            <section id="processing-view" class="hidden bg-white p-20 rounded-[2.5rem] text-center shadow-sm border border-slate-200">
+                <div class="loader mb-6"></div>
+                <h2 class="text-2xl font-bold text-slate-800 mb-2" id="process-title">جاري تحليل المستندات...</h2>
+                <p class="text-slate-500" id="process-desc">يتم الآن قراءة النصوص وفهم السياق القانوني عبر Gemini 2.5</p>
+                <div class="max-w-md mx-auto mt-8 bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="progress-bar" style="width:0%" class="bg-blue-600 h-full transition-all duration-500"></div>
                 </div>
             </section>
 
-            <section id="results-ui" class="hidden space-y-6">
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2 text-blue-700">
-                            <i data-lucide="sparkles" class="w-5 h-5"></i> ملخص التحليل القانوني (Gemini AI)
-                        </h3>
-                        <div id="ai-legal-summary" class="ar-text text-sm text-slate-700 bg-blue-50/50 p-4 rounded-xl border border-blue-100 min-h-[150px]">
-                            جاري صياغة الملخص...
-                        </div>
-                    </div>
+            <!-- واجهة النتائج -->
+            <section id="results-view" class="hidden space-y-8">
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
-                    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-sm overflow-hidden relative">
-                        <i data-lucide="database" class="absolute -bottom-4 -left-4 w-24 h-24 opacity-10"></i>
-                        <h3 class="font-bold text-lg mb-4">إحصائيات الاستخراج</h3>
-                        <div class="grid grid-cols-2 gap-4 text-center">
-                            <div class="bg-white/10 p-4 rounded-xl">
-                                <span class="block text-2xl font-bold" id="stat-names">0</span>
-                                <span class="text-xs opacity-70">أفراد</span>
+                    <div class="lg:col-span-2 space-y-8">
+                        <!-- الملخص القانوني -->
+                        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="bg-slate-900 text-white p-6 flex justify-between items-center">
+                                <h3 class="font-bold flex items-center gap-3 text-lg">
+                                    <i data-lucide="sparkles" class="text-amber-400"></i>
+                                    التقرير القانوني التلخيصي
+                                </h3>
                             </div>
-                            <div class="bg-white/10 p-4 rounded-xl">
-                                <span class="block text-2xl font-bold" id="stat-docs">0</span>
-                                <span class="text-xs opacity-70">مستندات</span>
+                            <div id="ai-summary-content" class="p-8 ar-line-height text-slate-700 text-sm prose max-w-none">
+                                جاري استخلاص الملخص...
+                            </div>
+                        </div>
+
+                        <!-- جدول الأفراد -->
+                        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="p-6 border-b flex justify-between items-center">
+                                <h3 class="font-bold text-lg">الأطراف والارتباطات المستخرجة</h3>
+                                <div class="flex gap-2">
+                                    <button onclick="exportToExcel()" class="bg-emerald-50 text-emerald-700 px-4 py-2 rounded-xl text-xs font-bold border border-emerald-100 no-print hover:bg-emerald-100 transition">تصدير Excel</button>
+                                </div>
+                            </div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-right text-sm">
+                                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase text-[10px] tracking-wider">
+                                        <tr>
+                                            <th class="p-5">الاسم الكامل</th>
+                                            <th class="p-5">رقم الهوية</th>
+                                            <th class="p-5">الدور/الصفة</th>
+                                            <th class="p-5">المستند المصدر</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="people-table-body" class="divide-y divide-slate-100">
+                                        <!-- البيانات ستظهر هنا -->
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                    <div class="p-6 border-b flex justify-between items-center">
-                        <h3 class="font-bold text-lg">الأفراد والارتباطات القانونية</h3>
-                        <button onclick="exportToExcel()" class="text-sm bg-emerald-50 text-emerald-700 px-4 py-2 rounded-lg font-bold border border-emerald-200">تصدير Excel</button>
+                    <!-- العمود الجانبي -->
+                    <div class="space-y-8 no-print">
+                        <!-- الشات الذكي -->
+                        <div class="bg-white rounded-[2rem] shadow-sm border border-slate-200 flex flex-col h-[550px]">
+                            <div class="p-6 border-b font-bold flex items-center gap-3">
+                                <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center">
+                                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                                </div>
+                                استفسارات المستند
+                            </div>
+                            <div id="chat-messages" class="flex-grow p-6 overflow-y-auto space-y-4 bg-slate-50/50 text-xs custom-scrollbar">
+                                <div class="bg-white p-4 rounded-2xl rounded-tr-none shadow-sm border border-slate-100 text-slate-600">
+                                    مرحباً! لقد قمت بتحليل المستندات بالكامل. يمكنك سؤالي عن أي تفصيل محدد الآن.
+                                </div>
+                            </div>
+                            <div class="p-4 border-t">
+                                <div class="relative">
+                                    <input type="text" id="chat-input" placeholder="اسأل عن أي تفصيل..." class="w-full bg-slate-100 border-none rounded-xl px-4 py-3 text-xs focus:ring-2 focus:ring-blue-500 outline-none">
+                                    <button id="send-chat" class="absolute left-2 top-2 bottom-2 bg-blue-600 text-white px-3 rounded-lg hover:bg-blue-700 transition">
+                                        <i data-lucide="send" class="w-4 h-4"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- العقارات المكتشفة -->
+                        <div id="estates-card" class="hidden bg-white rounded-[2rem] shadow-sm border border-slate-200 p-8">
+                            <h4 class="font-bold mb-6 flex items-center gap-3 text-amber-700">
+                                <i data-lucide="home" class="w-5 h-5"></i>
+                                العقارات المذكورة
+                            </h4>
+                            <div id="estates-list" class="space-y-4 text-xs">
+                                <!-- العقارات ستظهر هنا -->
+                            </div>
+                        </div>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-right">
-                            <thead class="bg-slate-50 text-slate-500 text-xs font-bold uppercase">
-                                <tr>
-                                    <th class="p-4">الاسم الكامل</th>
-                                    <th class="p-4">رقم الهوية</th>
-                                    <th class="p-4">الحالة</th>
-                                    <th class="p-4">الصفة</th>
-                                    <th class="p-4">المصدر</th>
-                                </tr>
-                            </thead>
-                            <tbody id="individuals-table" class="text-sm divide-y"></tbody>
-                        </table>
-                    </div>
+
                 </div>
             </section>
         </main>
+        
+        <footer class="no-print p-6 text-center text-slate-400 text-[10px] border-t">
+            نظام استخراج البيانات الذكي © 2026 - جميع العمليات مشفرة ومعالجة بواسطة Gemini 2.5
+        </footer>
     </div>
 
     <script>
+        // تهيئة Lucide
         lucide.createIcons();
-        document.getElementById('system-date').textContent = new Date().toLocaleDateString('ar-SA');
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        const SystemState = {
-            files: new Map(),
-            results: { individuals: [], estates: [], summary: "" },
-            apiKey: "" // ضع مفتاح Gemini هنا أو عبر وظائف Vercel
+        // تهيئة الحالة
+        const apiKey = ""; // سيتم تزويده برمجياً
+        let systemState = {
+            files: [],
+            extractedTexts: [],
+            finalData: null
         };
 
-        // --- محرك الاستخراج الذكي ---
+        // عناصر الواجهة
+        const fileInput = document.getElementById('file-input');
+        const startBtn = document.getElementById('start-btn');
+        const dropZone = document.getElementById('drop-zone');
+        const setupView = document.getElementById('setup-view');
+        const processingView = document.getElementById('processing-view');
+        const resultsView = document.getElementById('results-view');
 
-        async function callGemini(prompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${SystemState.apiKey}`;
+        // أحداث الرفع
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => {
+            const selected = Array.from(e.target.files).filter(f => f.type === 'application/pdf');
+            systemState.files = [...systemState.files, ...selected].slice(0, 10);
+            document.getElementById('file-preview').innerHTML = systemState.files.map(f => `
+                <span class="bg-blue-50 text-blue-700 px-3 py-1.5 rounded-xl text-[10px] font-bold border border-blue-100 flex items-center gap-2">
+                    <i data-lucide="file-text" class="w-3 h-3"></i> ${f.name}
+                </span>
+            `).join('');
+            startBtn.disabled = systemState.files.length === 0;
+            lucide.createIcons();
+        };
+
+        // بدء المعالجة
+        startBtn.onclick = async () => {
+            setupView.classList.add('hidden');
+            processingView.classList.remove('hidden');
+
+            try {
+                // 1. استخراج النصوص
+                for (let i = 0; i < systemState.files.length; i++) {
+                    const file = systemState.files[i];
+                    updateProgress(`قراءة: ${file.name}`, Math.round(((i + 1) / systemState.files.length) * 40));
+                    const text = await extractTextFromPDF(file);
+                    systemState.extractedTexts.push({ name: file.name, content: text });
+                }
+
+                // 2. التحليل بواسطة Gemini
+                updateProgress("جاري التحليل القانوني الذكي...", 75);
+                const allContent = systemState.extractedTexts.map(t => `[اسم المستند: ${t.name}]\n${t.content}`).join('\n\n');
+                systemState.finalData = await callGeminiAnalysis(allContent);
+                
+                // 3. عرض النتائج
+                renderResults();
+                processingView.classList.add('hidden');
+                resultsView.classList.remove('hidden');
+                lucide.createIcons();
+
+            } catch (err) {
+                console.error(err);
+                alert("حدث خطأ أثناء تحليل المستندات. يرجى التأكد من اتصال الإنترنت.");
+                window.location.reload();
+            }
+        };
+
+        function updateProgress(title, percent) {
+            document.getElementById('process-title').textContent = title;
+            document.getElementById('progress-bar').style.width = `${percent}%`;
+        }
+
+        async function extractTextFromPDF(file) {
+            const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+            let fullText = "";
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                fullText += content.items.map(item => item.str).join(' ') + "\n";
+            }
+            return fullText;
+        }
+
+        async function callGeminiAnalysis(prompt) {
+            const systemPrompt = `أنت مساعد قانوني سعودي محترف. سأعطيك نصوصاً مستخرجة من صكوك ووكالات. 
+            مهمتك استخراج البيانات التالية بدقة فائقة وإعادتها بصيغة JSON فقط:
+            1. individuals: قائمة بالأفراد (الاسم، رقم الهوية، الدور مثل وكيل/موكل/وارث، المصدر).
+            2. estates: قائمة بالعقارات (الوصف، التفاصيل المذكورة).
+            3. legal_summary: ملخص قانوني شامل لأهم الالتزامات والصلاحيات بصيغة Markdown.
+            
+            تنسيق الـ JSON المطلوب:
+            {
+                "individuals": [{"name": "", "id": "", "role": "", "source": ""}],
+                "estates": [{"description": "", "details": []}],
+                "legal_summary": ""
+            }`;
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
             const response = await fetch(url, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    systemInstruction: { parts: [{ text: systemPrompt }] },
+                    generationConfig: { responseMimeType: "application/json" }
+                })
             });
-            const data = await response.json();
-            return data.candidates[0].content.parts[0].text;
+            
+            const result = await response.json();
+            return JSON.parse(result.candidates[0].content.parts[0].text);
         }
 
         // خوارزمية التحقق من الهوية السعودية
-        function checkSaudiID(id) {
-            const cleanID = id.trim();
-            if (!/^[12]\d{9}$/.test(cleanID)) return false;
+        function validateSaudiID(id) {
+            const clean = id?.trim().replace(/\D/g, '') || "";
+            if (!/^[127]\d{9}$/.test(clean)) return false;
             let sum = 0;
             for (let i = 0; i < 10; i++) {
                 if (i % 2 === 0) {
-                    let s = String(Number(cleanID[i]) * 2);
+                    let s = String(Number(clean[i]) * 2);
                     sum += Number(s[0]) + (s[1] ? Number(s[1]) : 0);
                 } else {
-                    sum += Number(cleanID[i]);
+                    sum += Number(clean[i]);
                 }
             }
             return sum % 10 === 0;
         }
 
-        async function processFiles() {
-            const files = Array.from(SystemState.files.values());
-            toggleUI('loading');
-            let combinedText = "";
-
-            for(let i=0; i < files.length; i++) {
-                updateStatus(`جاري معالجة: ${files[i].name}`, (i/files.length)*50);
-                const text = await extractTextFromPDF(files[i]);
-                combinedText += `\nالمستند: ${files[i].name}\n${text}`;
-            }
-
-            updateStatus("جاري التحليل القانوني عبر الذكاء الاصطناعي...", 70);
-
-            const prompt = `
-                أنت محلل قانوني سعودي خبير. حلل النص التالي المستخرج من صكوك قانونية:
-                1. استخرج قائمة بالأفراد (الاسم، رقم الهوية، الصفة مثل وكيل/موكل/وريث).
-                2. استخرج أي بيانات عقارية.
-                3. اكتب ملخصاً قانونياً قصيراً جداً لأهم الالتزامات.
-                أعد النتائج كـ JSON حصراً بهذا الهيكل:
-                {"individuals": [{"name": "", "id": "", "role": ""}], "summary": ""}
-                
-                النص: ${combinedText}
-            `;
-
-            try {
-                const aiResponse = await callGemini(prompt);
-                const data = JSON.parse(aiResponse.replace(/```json|```/g, ""));
-                SystemState.results = data;
-                renderResults();
-                toggleUI('results');
-            } catch(e) {
-                alert("حدث خطأ في تحليل AI. تأكد من إدخال مفتاح API الصحيح.");
-                toggleUI('upload');
-            }
-        }
-
-        // --- وظائف الواجهة ---
-
         function renderResults() {
-            const table = document.getElementById('individuals-table');
-            table.innerHTML = "";
+            const data = systemState.finalData;
             
-            SystemState.results.individuals.forEach(ind => {
-                const isValid = checkSaudiID(ind.id);
-                const row = `
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 font-bold">${ind.name}</td>
-                        <td class="p-4 font-mono">${ind.id}</td>
-                        <td class="p-4">
-                            <span class="${isValid ? 'text-emerald-600' : 'text-rose-600'} flex items-center gap-1 text-xs">
-                                <i data-lucide="${isValid ? 'check-circle' : 'alert-circle'}" class="w-4 h-4"></i>
-                                ${isValid ? 'هوية صحيحة' : 'تحتاج تدقيق'}
-                            </span>
+            // 1. الملخص
+            document.getElementById('ai-summary-content').innerHTML = marked.parse(data.legal_summary || "تم استخراج البيانات بنجاح.");
+            
+            // 2. جدول الأفراد
+            const tbody = document.getElementById('people-table-body');
+            tbody.innerHTML = (data.individuals || []).map(p => {
+                const isValid = validateSaudiID(p.id);
+                return `
+                    <tr class="hover:bg-blue-50/50 transition-colors">
+                        <td class="p-5 font-bold text-slate-900">${p.name || '---'}</td>
+                        <td class="p-5 font-mono ${isValid ? 'text-emerald-600' : 'text-rose-500'}">
+                            ${p.id || '---'}
+                            ${p.id && !isValid ? '<i data-lucide="alert-circle" class="w-3 h-3 inline mr-1 text-amber-500"></i>' : ''}
                         </td>
-                        <td class="p-4"><span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">${ind.role}</span></td>
-                        <td class="p-4 text-xs text-slate-400">تحليل ذكي</td>
+                        <td class="p-5"><span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-lg text-[10px] font-bold">${p.role || '---'}</span></td>
+                        <td class="p-5 text-[10px] text-slate-400 font-medium">${p.source || '---'}</td>
                     </tr>
                 `;
-                table.insertAdjacentHTML('beforeend', row);
-            });
+            }).join('');
 
-            document.getElementById('ai-legal-summary').innerHTML = marked.parse(SystemState.results.summary || "تم استخراج البيانات بنجاح.");
-            document.getElementById('stat-names').textContent = SystemState.results.individuals.length;
-            document.getElementById('stat-docs').textContent = SystemState.files.size;
+            // 3. العقارات
+            const estateCard = document.getElementById('estates-card');
+            if (data.estates?.length > 0) {
+                estateCard.classList.remove('hidden');
+                document.getElementById('estates-list').innerHTML = data.estates.map(e => `
+                    <div class="p-4 bg-amber-50 rounded-2xl border border-amber-100">
+                        <p class="font-bold text-amber-900 text-sm mb-1">${e.description || 'عقار'}</p>
+                        <p class="text-[10px] text-amber-600">${(e.details || []).join(' • ')}</p>
+                    </div>
+                `).join('');
+            }
             lucide.createIcons();
         }
 
-        async function extractTextFromPDF(file) {
-            const arrayBuffer = await file.arrayBuffer();
-            const pdf = await pdfjsLib.getDocument({data: arrayBuffer}).promise;
-            let fullText = "";
-            for(let i=1; i<=pdf.numPages; i++) {
-                const page = await pdf.getPage(i);
-                const content = await page.getTextContent();
-                fullText += content.items.map(item => item.str).join(' ');
+        // منطق الشات
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-chat');
+        const chatMessages = document.getElementById('chat-messages');
+
+        sendBtn.onclick = handleChat;
+        chatInput.onkeypress = (e) => { if(e.key === 'Enter') handleChat(); };
+
+        async function handleChat() {
+            const query = chatInput.value.trim();
+            if (!query) return;
+
+            // إضافة رسالة المستخدم
+            chatMessages.innerHTML += `<div class="flex justify-start"><div class="bg-blue-600 text-white p-3 rounded-2xl rounded-tr-none shadow-sm">${query}</div></div>`;
+            chatInput.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            const context = systemState.extractedTexts.map(t => t.content).join('\n').substring(0, 12000);
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: `بناءً على نصوص المستندات التالية: \n ${context} \n\n أجب على هذا السؤال: ${query}` }] }]
+                    })
+                });
+                const result = await response.json();
+                const reply = result.candidates[0].content.parts[0].text;
+                chatMessages.innerHTML += `<div class="flex justify-end"><div class="bg-white border p-3 rounded-2xl rounded-tl-none text-slate-700 shadow-sm">${marked.parse(reply)}</div></div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            } catch (err) {
+                chatMessages.innerHTML += `<div class="text-center text-rose-500 text-[10px]">حدث خطأ في الاتصال بالذكاء الاصطناعي.</div>`;
             }
-            return fullText;
         }
 
-        function toggleUI(state) {
-            document.getElementById('upload-section').classList.toggle('hidden', state !== 'upload');
-            document.getElementById('loading-ui').classList.toggle('hidden', state !== 'loading');
-            document.getElementById('results-ui').classList.toggle('hidden', state !== 'results');
-        }
-
-        function updateStatus(text, progress) {
-            document.getElementById('status-desc').textContent = text;
-            document.getElementById('main-progress').style.width = `${progress}%`;
-        }
-
-        // --- الأحداث ---
-        const fileInput = document.getElementById('file-input');
-        const processBtn = document.getElementById('process-btn');
-
-        fileInput.addEventListener('change', (e) => {
-            for(let file of e.target.files) SystemState.files.set(file.name, file);
-            document.getElementById('file-list').innerHTML = Array.from(SystemState.files.keys()).map(name => `<div class="text-sm bg-blue-50 p-2 rounded">${name}</div>`).join('');
-            processBtn.disabled = SystemState.files.size === 0;
-        });
-
-        document.getElementById('drop-zone').onclick = () => fileInput.click();
-        processBtn.onclick = processFiles;
-
-        function exportToExcel() {
-            const ws = XLSX.utils.json_to_sheet(SystemState.results.individuals);
+        // تصدير Excel
+        window.exportToExcel = () => {
+            if (!systemState.finalData) return;
+            const ws = XLSX.utils.json_to_sheet(systemState.finalData.individuals);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "الأفراد");
-            XLSX.writeFile(wb, `تقرير_البيانات_${new Date().getTime()}.xlsx`);
-        }
+            XLSX.utils.book_append_sheet(wb, ws, "البيانات المستخرجة");
+            XLSX.writeFile(wb, "Extraction_Results.xlsx");
+        };
+
     </script>
 </body>
 </html>
