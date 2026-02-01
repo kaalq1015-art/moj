@@ -2,150 +2,76 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحلل العدلي الماسي | MOJ Diamond Parser</title>
-    
+    <title>المحلل العدلي - النسخة المحدثة (Smart Hunt)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #f3f4f6; color: #1f2937; }
-        
-        .drop-area {
-            border: 3px dashed #d1d5db;
-            transition: all 0.3s ease;
-            background: #ffffff;
-        }
-        .drop-area.active {
-            border-color: #10b981;
-            background: #ecfdf5;
-            transform: scale(1.01);
-        }
-        
-        .data-box {
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            overflow: hidden;
-            border: 1px solid #e5e7eb;
-        }
-        
-        .clause-text {
-            white-space: pre-wrap;
-            line-height: 1.8;
-            font-size: 0.95rem;
-            color: #374151;
-            max-height: 250px;
-            overflow-y: auto;
-            padding: 1rem;
-            background: #f9fafb;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        /* شارات الحالة */
-        .badge { padding: 4px 12px; border-radius: 99px; font-weight: 700; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 4px; }
-        .badge-heir { background: #dbeafe; color: #1e40af; } /* أزرق للورثة */
-        .badge-deceased { background: #fee2e2; color: #991b1b; } /* أحمر للمتوفى */
-        .badge-agent { background: #fef3c7; color: #92400e; } /* ذهبي للوكيل */
-        
-        .loader {
-            width: 48px; height: 48px;
-            border: 5px solid #10b981;
-            border-bottom-color: transparent;
-            border-radius: 50%;
-            display: inline-block;
-            box-sizing: border-box;
-            animation: rotation 1s linear infinite;
-        }
-        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        body { font-family: 'Tajawal', sans-serif; background: #f8fafc; }
+        .drop-box { border: 3px dashed #cbd5e1; transition: 0.3s; background: white; cursor: pointer; }
+        .drop-box.active { border-color: #10b981; background: #ecfdf5; }
+        .result-area { white-space: pre-wrap; line-height: 1.8; font-size: 0.95rem; color: #334155; }
+        .loading { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
-<body class="p-6 min-h-screen">
+<body class="p-6 md:p-12">
 
-    <div class="max-w-7xl mx-auto space-y-8">
+    <div class="max-w-6xl mx-auto space-y-8">
         
-        <header class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-emerald-600 flex flex-wrap justify-between items-center gap-4">
-            <div>
-                <h1 class="text-3xl font-black text-gray-800">المحلل العدلي <span class="text-emerald-600">الماسي</span></h1>
-                <p class="text-gray-500 font-medium mt-1">فصل المتوفى عن الورثة • تحديد الوكيل بدقة • سحب النطاق</p>
-            </div>
-            <button id="resetBtn" class="text-sm text-gray-400 hover:text-red-500 underline" onclick="location.reload()">بدء عملية جديدة</button>
+        <header class="text-center bg-white p-6 rounded-3xl shadow-sm border-b-4 border-emerald-600">
+            <h1 class="text-3xl font-black text-gray-800">نظام تحليل الصكوك <span class="text-emerald-600">(Smart Hunt)</span></h1>
+            <p class="text-gray-500 mt-2">يعتمد على البحث عن "مفاتيح الكلمات" لضمان سحب النص حتى لو كانت الصورة غير واضحة</p>
         </header>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div id="heirsZone" class="drop-area p-8 rounded-2xl text-center cursor-pointer group relative">
+            <div id="heirsZone" class="drop-box p-8 rounded-2xl text-center relative group">
                 <input type="file" id="heirsFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                <div class="icon text-5xl mb-3 opacity-50 group-hover:opacity-100 transition">📄</div>
-                <h3 class="text-lg font-bold text-gray-700">1. صك حصر الورثة</h3>
-                <p id="heirsMsg" class="text-sm text-gray-400 mt-2">اسحب الملف هنا</p>
+                <span class="text-4xl block mb-2">📄</span>
+                <h3 class="font-bold text-gray-700">1. صك حصر الورثة</h3>
+                <p id="heirsTxt" class="text-sm text-gray-400">اضغط أو اسحب الملف هنا</p>
             </div>
 
-            <div id="poaZone" class="drop-area p-8 rounded-2xl text-center cursor-pointer group relative">
+            <div id="poaZone" class="drop-box p-8 rounded-2xl text-center relative group">
                 <input type="file" id="poaFile" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                <div class="icon text-5xl mb-3 opacity-50 group-hover:opacity-100 transition">⚖️</div>
-                <h3 class="text-lg font-bold text-gray-700">2. وثيقة الوكالة</h3>
-                <p id="poaMsg" class="text-sm text-gray-400 mt-2">اسحب الملف هنا</p>
+                <span class="text-4xl block mb-2">⚖️</span>
+                <h3 class="font-bold text-gray-700">2. وثيقة الوكالة</h3>
+                <p id="poaTxt" class="text-sm text-gray-400">اضغط أو اسحب الملف هنا</p>
             </div>
         </div>
 
-        <div id="loadingSection" class="hidden text-center py-10">
-            <span class="loader"></span>
-            <p class="mt-4 text-emerald-800 font-bold animate-pulse">جاري تحليل النصوص وفصل البيانات...</p>
-        </div>
+        <div id="loader" class="hidden text-center py-4 text-emerald-600 font-bold loading">جاري المسح الضوئي وتحليل النصوص...</div>
 
-        <div id="resultsSection" class="hidden space-y-8 animate-fade-in">
+        <div id="results" class="hidden space-y-6">
             
-            <div class="data-box">
-                <div class="p-4 bg-gray-50 border-b flex justify-between items-center">
-                    <h2 class="font-bold text-xl text-gray-800">📊 تقرير الأطراف والمطابقة</h2>
-                    <span id="matchSummary" class="text-sm font-bold px-3 py-1 rounded-lg bg-gray-200"></span>
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="bg-gray-50 p-4 border-b font-bold text-gray-700 flex justify-between">
+                    <span>تقرير مطابقة الورثة</span>
+                    <span id="heirCountBadge" class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded"></span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right">
-                        <thead class="bg-gray-100 text-gray-600 text-xs uppercase">
-                            <tr>
-                                <th class="p-4">رقم الهوية</th>
-                                <th class="p-4">الصفة في الحصر</th>
-                                <th class="p-4">الدور في الوكالة</th>
-                                <th class="p-4 text-center">النتيجة</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsTable" class="divide-y divide-gray-100 text-sm font-medium"></tbody>
-                    </table>
+                <table class="w-full text-right text-sm">
+                    <thead class="bg-gray-100 text-gray-500">
+                        <tr><th class="p-3">الهوية</th><th class="p-3">الصفة</th><th class="p-3">الحالة</th></tr>
+                    </thead>
+                    <tbody id="tableBody" class="divide-y"></tbody>
+                </table>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-blue-500">
+                    <h3 class="font-bold text-blue-800 mb-2">🏠 العقارات (البيع والإفراغ)</h3>
+                    <div id="estateBox" class="result-area bg-blue-50 p-3 rounded-lg h-40 overflow-y-auto"></div>
+                </div>
+                <div class="bg-white p-5 rounded-xl shadow-sm border-t-4 border-red-500">
+                    <h3 class="font-bold text-red-800 mb-2">⚖️ المحاكم (قسمة التركة)</h3>
+                    <div id="legalBox" class="result-area bg-red-50 p-3 rounded-lg h-40 overflow-y-auto"></div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                <div class="data-box border-t-4 border-amber-500">
-                    <div class="p-4 flex items-center gap-2">
-                        <span class="text-2xl">📍</span>
-                        <h3 class="font-bold text-lg">نطاق الوكالة (Scope)</h3>
-                    </div>
-                    <div id="scopeText" class="clause-text">جاري الاستخراج...</div>
-                </div>
-
-                <div class="data-box border-t-4 border-blue-500">
-                    <div class="p-4 flex items-center gap-2">
-                        <span class="text-2xl">🏠</span>
-                        <h3 class="font-bold text-lg">بند العقارات (Real Estate)</h3>
-                    </div>
-                    <div id="estateText" class="clause-text">جاري الاستخراج...</div>
-                </div>
-
-                <div class="data-box border-t-4 border-red-500 lg:col-span-2">
-                    <div class="p-4 flex items-center gap-2">
-                        <span class="text-2xl">⚖️</span>
-                        <h3 class="font-bold text-lg">المطالبات والمحاكم وقسمة التركة</h3>
-                    </div>
-                    <div id="legalText" class="clause-text">جاري الاستخراج...</div>
-                </div>
-
-            </div>
+            <button onclick="document.getElementById('rawTextBox').classList.toggle('hidden')" class="text-xs text-gray-400 underline w-full text-center">عرض النص الخام (للمبرمج)</button>
+            <div id="rawTextBox" class="hidden bg-gray-900 text-green-400 p-4 rounded-lg text-xs font-mono h-40 overflow-auto dir-ltr text-left"></div>
         </div>
 
     </div>
@@ -153,262 +79,212 @@
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-        let files = { heirs: null, poa: null };
+        const files = { heirs: null, poa: null };
+        const zones = { heirs: document.getElementById('heirsZone'), poa: document.getElementById('poaZone') };
+        const texts = { heirs: document.getElementById('heirsTxt'), poa: document.getElementById('poaTxt') };
 
         // إعداد السحب والإفلات
         ['heirs', 'poa'].forEach(type => {
-            const zone = document.getElementById(`${type}Zone`);
-            const input = document.getElementById(`${type}File`);
-            const msg = document.getElementById(`${type}Msg`);
-
-            input.addEventListener('change', (e) => handleFile(e.target.files[0], type, zone, msg));
-            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('active'); });
-            zone.addEventListener('dragleave', () => zone.classList.remove('active'));
-            zone.addEventListener('drop', (e) => {
-                e.preventDefault();
-                zone.classList.remove('active');
-                handleFile(e.dataTransfer.files[0], type, zone, msg);
-            });
+            document.getElementById(`${type}File`).addEventListener('change', (e) => handleUpload(e.target.files[0], type));
         });
 
-        function handleFile(file, type, zone, msg) {
+        function handleUpload(file, type) {
             if(!file) return;
             files[type] = file;
-            zone.style.borderColor = type === 'heirs' ? '#10b981' : '#3b82f6';
-            zone.style.background = '#f0fdf4';
-            msg.innerHTML = `<span class="font-bold text-gray-800">${file.name}</span><br>✅ تم الرفع`;
-            checkAndRun();
+            zones[type].classList.add('active');
+            texts[type].innerText = `✅ ${file.name}`;
+            if(files.heirs && files.poa) processFiles();
         }
 
-        function checkAndRun() {
-            if(files.heirs && files.poa) startAnalysis();
-        }
-
-        async function startAnalysis() {
-            document.getElementById('loadingSection').classList.remove('hidden');
-            document.getElementById('resultsSection').classList.add('hidden');
+        async function processFiles() {
+            document.getElementById('loader').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
 
             try {
-                // 1. تحليل صك الحصر (فصل المتوفى عن الورثة)
+                // 1. استخراج النصوص
                 const hText = await extractText(files.heirs);
-                const heirsData = parseHeirshipDoc(hText);
-
-                // 2. تحليل الوكالة (فصل الوكيل عن الموكلين واستخراج البنود)
                 const pText = await extractText(files.poa);
-                const poaData = parsePOADoc(pText);
+
+                // عرض النص الخام للتصحيح
+                document.getElementById('rawTextBox').innerText = "--- POA TEXT ---\n" + pText;
+
+                // 2. تحليل البيانات
+                const heirsData = analyzeHeirs(hText);
+                const poaData = analyzePOA(pText);
 
                 // 3. عرض النتائج
-                renderResults(heirsData, poaData);
+                renderTable(heirsData, poaData);
+                renderClauses(pText); // نرسل النص الأصلي للبحث العميق
 
             } catch (err) {
+                alert("حدث خطأ: " + err.message);
                 console.error(err);
-                alert("حدث خطأ أثناء قراءة الملفات، تأكد من وضوح الصور.");
             } finally {
-                document.getElementById('loadingSection').classList.add('hidden');
-                document.getElementById('resultsSection').classList.remove('hidden');
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('results').classList.remove('hidden');
             }
         }
 
-        // --- محرك تحليل النصوص المتقدم ---
+        // --- محرك الاستخراج الذكي (Smart Hunt Engine) ---
 
-        function parseHeirshipDoc(text) {
-            const clean = normalizeText(text);
-            const enText = toEnglishDigits(clean);
+        function renderClauses(text) {
+            const clean = normalize(text);
             
-            // استراتيجية ذكية: المتوفى يأتي عادة في جدول "بيانات المتوفى" أو في الأعلى
-            // سنبحث عن أول هوية تظهر قبل كلمة "بيانات الورثة"
+            // 1. صيد بند العقارات (Estate Hunting)
+            // نبحث عن كلمات مفتاحية قوية جداً بدلاً من العنوان فقط
+            const estateKeywords = [
+                "البيع والافراغ", "استلام الثمن", "افراغ العقار", 
+                "تحديث الصكوك", "ادخال الصكوك", "كتابات العدل", "الاملاك العقاريه"
+            ];
             
-            const splitPoint = enText.indexOf("بيانات الورثة");
-            const deceasedSection = splitPoint > -1 ? enText.substring(0, splitPoint) : enText.substring(0, 300); // أول جزء
-            const heirsSection = splitPoint > -1 ? enText.substring(splitPoint) : enText;
-
-            // استخراج هوية المتوفى (أول هوية في القسم العلوي)
-            const deceasedMatch = deceasedSection.match(/1\d{9}/);
-            const deceasedId = deceasedMatch ? deceasedMatch[0] : null;
-
-            // استخراج الورثة (كل الهويات في القسم السفلي)
-            let heirsIds = [...new Set(heirsSection.match(/1\d{9}/g) || [])];
+            // نبحث عن موقع كلمة "العقارات" كبداية مفضلة، وإذا لم نجدها نبحث عن أول كلمة مفتاحية
+            let estateStart = clean.indexOf("العقارات");
+            if (estateStart === -1) estateStart = clean.indexOf("عقارات"); // بدون ال
             
-            // تنظيف: إذا تكررت هوية المتوفى في الأسفل، نحذفها
-            if(deceasedId) heirsIds = heirsIds.filter(id => id !== deceasedId);
+            // إذا لم نجد العنوان، نبحث عن أول ظهور لـ "البيع والإفراغ"
+            if (estateStart === -1) {
+                estateStart = clean.search(/(البيع والافراغ|استلام الثمن)/);
+                if (estateStart !== -1) estateStart -= 20; // نرجع قليلاً للخلف لنأخذ السياق
+            }
 
-            return { deceasedId, heirsIds };
+            // نقطة النهاية: نبحث عن البند التالي
+            let estateEnd = clean.indexOf("المطالبات", estateStart + 10);
+            if (estateEnd === -1) estateEnd = clean.indexOf("الشركات", estateStart + 10);
+            if (estateEnd === -1) estateEnd = clean.indexOf("البنوك", estateStart + 10);
+            if (estateEnd === -1) estateEnd = estateStart + 600; // حد أقصى للحروف
+
+            let estateText = "لم يتم العثور على صلاحيات بيع صريحة.";
+            if (estateStart !== -1) {
+                estateText = clean.substring(estateStart, estateEnd);
+                // تنظيف البداية
+                estateText = estateText.replace(/^.*?العقارات/s, ''); 
+            } else {
+                // محاولة أخيرة: البحث عن الجمل بغض النظر عن الموقع
+                const foundSentences = estateKeywords.filter(w => clean.includes(w));
+                if (foundSentences.length > 0) {
+                    estateText = "⚠️ تم التقاط الكلمات التالية من النص المتفرق: " + foundSentences.join("، ") + "... (يرجى مراجعة الصك يدوياً لأن النص غير متصل).";
+                }
+            }
+            document.getElementById('estateBox').innerText = estateText.trim();
+
+
+            // 2. صيد بند المحاكم (Legal Hunting)
+            let legalStart = clean.search(/(المطالبات والمحاكم|قسمه التركه|فرز النصيب)/);
+            let legalText = "لم يتم العثور على بند قسمة التركة.";
+            
+            if (legalStart !== -1) {
+                let legalEnd = clean.indexOf("الشركات", legalStart);
+                if (legalEnd === -1) legalEnd = clean.indexOf("البنوك", legalStart);
+                if (legalEnd === -1) legalEnd = legalStart + 400;
+                legalText = clean.substring(legalStart, legalEnd);
+            }
+            document.getElementById('legalBox').innerText = legalText.trim();
         }
 
-        function parsePOADoc(text) {
-            const clean = normalizeText(text);
-            const enText = toEnglishDigits(clean); // للأرقام
-            const rawText = text; // للنصوص (للحفاظ على البنود)
+        // --- دوال التحليل المساعدة ---
 
-            // 1. تحديد الوكيل
-            // نبحث عن الهوية التي يسبقها أو يتبعها كلمة "وكيل" بمسافة قريبة
-            // في جداول الوكالات، عمود "الطرف" يحدد الصفة
+        function analyzeHeirs(text) {
+            const clean = toEngDigits(normalize(text));
+            // نفترض أن المتوفى يظهر أولاً أو يتم ذكره بوضوح
+            // هنا سنقوم بجمع كل الهويات وفلترتها لاحقاً
+            const ids = [...new Set(clean.match(/1\d{9}/g) || [])];
+            // عادة في صك الحصر، المتوفى هو أول اسم، أو نبحث عن كلمة "المتوفى"
+            const deceasedIdx = clean.indexOf("المتوفى");
+            let deceasedId = null;
+            if (deceasedIdx !== -1) {
+                const afterDeceased = clean.substring(deceasedIdx, deceasedIdx + 100);
+                const match = afterDeceased.match(/1\d{9}/);
+                if(match) deceasedId = match[0];
+            }
+            // إذا لم نجد، نأخذ الهوية التي تتكرر بصيغة مختلفة أو أول هوية
+            return { deceasedId, heirs: ids.filter(id => id !== deceasedId) };
+        }
+
+        function analyzePOA(text) {
+            const clean = toEngDigits(normalize(text));
+            const ids = [...new Set(clean.match(/1\d{9}/g) || [])];
             
-            const allIds = [...new Set(enText.match(/1\d{9}/g) || [])];
+            // تحديد الوكيل: نبحث عن كلمة "وكيل" قرب الرقم
             let agentId = null;
-            let principals = [];
-
-            // البحث السياقي عن الوكيل
-            // نحول النص العربي لمصفوفة كلمات لنبحث بدقة
-            const normalizedForSearch = normalizeText(rawText);
-            
-            // خوارزمية البحث عن الوكيل:
-            // عادة الوكيل يذكر منفرداً باسم "الوكيل" أو "الطرف الثاني" أو في جدول بصفة "وكيل"
-            // سنفترض أن أي هوية يحيط بها كلمة "وكيل" هي للوكيل، والباقي موكلين
-            
-            // طريقة أبسط وأدق للوكالات السعودية: الوكيل عادة هو آخر اسم ذكر أو يتم تمييزه
-            // لكن سنستخدم البحث عن الكلمات:
-            
-            allIds.forEach(id => {
-                // نبحث عن موقع الرقم في النص الأصلي (بعد تحويل الأرقام فيه لإنجليزية للبحث)
-                const index = enText.indexOf(id);
-                if (index === -1) { principals.push(id); return; }
-
-                // نأخذ نافذة نصية حول الرقم (مثلاً 50 حرف قبله وبعده)
-                const window = normalizedForSearch.substring(Math.max(0, index - 100), Math.min(normalizedForSearch.length, index + 100));
-                
-                // مؤشرات الوكيل
-                if (window.includes("وكيل") && !window.includes("موكل")) {
-                    agentId = id; // وجدنا الوكيل
-                } else if (window.includes("عن نفسه") || window.includes("موكل")) {
-                    principals.push(id);
-                } else {
-                    principals.push(id); // الافتراضي موكل
-                }
+            ids.forEach(id => {
+                const idx = clean.indexOf(id);
+                const context = clean.substring(idx - 50, idx + 50);
+                if (context.includes("وكيل") && !context.includes("موكل")) agentId = id;
             });
 
-            // إذا فشل التحديد الدقيق، نفترض أول واحد في القائمة وكيل (نادر الحدوث في الجداول)
-            // ولكن سنعتمد على منطق المقارنة لاحقاً
-
-            // 2. استخراج البنود (النطاق، العقارات...)
-            // تحسين: نستخدم تعابير فضفاضة (Fuzzy Regex) لأن OCR قد يخطئ في المسافات
-            
-            const nitaq = extractSection(rawText, ["النطاق", "حدود الوكالة"], ["البنود", "العقارات", "المطالبات"]);
-            const estate = extractSection(rawText, ["العقارات", "عقارات"], ["المطالبات", "المحاكم", "البنوك", "صدرت"]);
-            const legal = extractSection(rawText, ["المطالبات والمحاكم", "المحاكم", "قسمة التركة"], ["البنوك", "الشركات", "صدرت"]);
-
-            return { agentId, principals, clauses: { nitaq, estate, legal } };
+            return { agentId, principals: ids.filter(id => id !== agentId) };
         }
 
-        // دالة استخراج ذكية للنصوص بين العناوين
-        function extractSection(text, startKeywords, endKeywords) {
-            // تنظيف النص قليلاً للبحث
-            const clean = text.replace(/\s+/g, ' ');
-            
-            // تكوين Regex ديناميكي
-            const startPattern = startKeywords.join("|");
-            const endPattern = endKeywords.join("|");
-            
-            // نبحث عن البداية
-            const regex = new RegExp(`(${startPattern})\\s*[:\\.-]?\\s*([\\s\\S]*?)(?=${endPattern}|$)`, 'i');
-            const match = clean.match(regex);
-            
-            if (match && match[2].trim().length > 5) {
-                return match[2].trim();
-            }
-            return "لم يتم العثور على النص بشكل صريح أو أن جودة الصورة ضعيفة.";
-        }
-
-        function renderResults(heirsData, poaData) {
-            const tbody = document.getElementById('resultsTable');
+        function renderTable(hData, pData) {
+            const tbody = document.getElementById('tableBody');
             tbody.innerHTML = "";
+            const allIds = [...new Set([...hData.heirs, ...pData.principals, pData.agentId, hData.deceasedId].filter(Boolean))];
             
-            // تجميع كل الهويات الفريدة
-            const allIds = [...new Set([heirsData.deceasedId, ...heirsData.heirsIds, ...poaData.principals, poaData.agentId].filter(Boolean))];
-
-            let heirsCovered = 0;
+            let matchCount = 0;
 
             allIds.forEach(id => {
-                const isDeceased = id === heirsData.deceasedId;
-                const isHeir = heirsData.heirsIds.includes(id);
-                const isAgent = id === poaData.agentId;
-                const isPrincipal = poaData.principals.includes(id);
+                const isDeceased = id === hData.deceasedId;
+                const isHeir = hData.heirs.includes(id);
+                const isPoa = pData.principals.includes(id) || id === pData.agentId;
 
-                // تحديد الصفة في الحصر
-                let heirBadge = "";
-                if (isDeceased) heirBadge = '<span class="badge badge-deceased">المتوفى ⚰️</span>';
-                else if (isHeir) heirBadge = '<span class="badge badge-heir">وارث 👤</span>';
-                else heirBadge = '<span class="text-gray-400 text-xs">-</span>';
-
-                // تحديد الدور في الوكالة
-                let poaRole = "";
-                if (isAgent) poaRole = '<span class="badge badge-agent">الوكيل الشرعي 🌟</span>';
-                else if (isPrincipal) poaRole = '<span class="text-gray-700 font-bold">موكل</span>';
-                else poaRole = '<span class="text-red-300 text-xs">غير موجود</span>';
-
-                // النتيجة
+                let role = isDeceased ? "المتوفى" : (isHeir ? "وارث" : "-");
                 let status = "";
+                let bgClass = "";
+
                 if (isDeceased) {
-                    status = '<span class="text-gray-400 font-bold">-</span>';
-                } else if (isPrincipal || isAgent) {
-                    status = '<span class="text-emerald-600 font-bold">✅ تم التوكيل</span>';
-                    if (isHeir) heirsCovered++;
+                    status = "-"; bgClass = "bg-gray-50 text-gray-400";
+                } else if (isPoa) {
+                    status = "✅ وكّل"; bgClass = "bg-green-50 text-green-700";
+                    if(isHeir) matchCount++;
                 } else if (isHeir) {
-                    status = '<span class="text-red-500 font-bold">❌ لم يوكل بعد</span>';
+                    status = "❌ لم يوكل"; bgClass = "bg-red-50 text-red-700";
                 } else {
-                    status = '<span class="text-gray-400 text-xs">طرف خارجي</span>';
+                    status = "طرف خارجي"; bgClass = "bg-yellow-50 text-yellow-700";
                 }
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 border-b last:border-0">
-                        <td class="p-4 font-mono text-gray-600">${id}</td>
-                        <td class="p-4">${heirBadge}</td>
-                        <td class="p-4">${poaRole}</td>
-                        <td class="p-4 text-center">${status}</td>
-                    </tr>
-                `;
+                    <tr class="${bgClass} border-b last:border-0">
+                        <td class="p-3 font-mono">${id}</td>
+                        <td class="p-3">${role}</td>
+                        <td class="p-3 font-bold">${status}</td>
+                    </tr>`;
             });
 
-            // ملخص
-            const totalHeirs = heirsData.heirsIds.length;
-            document.getElementById('matchSummary').innerText = `تم توكيل ${heirsCovered} من أصل ${totalHeirs} ورثة`;
-            
-            // تعبئة البنود
-            document.getElementById('scopeText').innerText = poaData.clauses.nitaq;
-            document.getElementById('estateText').innerText = poaData.clauses.estate;
-            document.getElementById('legalText').innerText = poaData.clauses.legal;
+            document.getElementById('heirCountBadge').innerText = `تمت المطابقة: ${matchCount} من ${hData.heirs.length}`;
         }
 
-        // --- أدوات مساعدة ---
+        // --- أدوات المعالجة (Tools) ---
 
         async function extractText(file) {
             if (file.type === 'application/pdf') {
-                const buffer = await file.arrayBuffer();
-                const pdf = await pdfjsLib.getDocument(buffer).promise;
-                let fullText = "";
-                // نقرأ جميع الصفحات
+                const pdf = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
+                let txt = "";
                 for (let i = 1; i <= pdf.numPages; i++) {
                     const page = await pdf.getPage(i);
                     const content = await page.getTextContent();
-                    // دمج النصوص مع مسافات للحفاظ على الكلمات
-                    fullText += content.items.map(item => item.str).join(" ") + " \n ";
+                    txt += content.items.map(s => s.str).join(" ") + " \n ";
                 }
-                // إذا كان النص قصيراً جداً (صورة داخل PDF)، نستخدم OCR
-                if (fullText.length < 100) return await runOCR(file);
-                return fullText;
-            } else {
-                return await runOCR(file);
+                if (txt.length < 50) return await ocr(file); // PDF صورة
+                return txt;
             }
+            return await ocr(file);
         }
 
-        async function runOCR(file) {
+        async function ocr(file) {
             const worker = await Tesseract.createWorker('ara');
-            const ret = await worker.recognize(file);
+            const res = await worker.recognize(file);
             await worker.terminate();
-            return ret.data.text;
+            return res.data.text;
         }
 
-        function toEnglishDigits(str) {
-            return str.replace(/[٠-٩]/g, d => "0123456789"['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]);
-        }
-
-        function normalizeText(text) {
+        function normalize(text) {
             return text
-                .replace(/(أ|إ|آ)/g, 'ا')
-                .replace(/(ة)/g, 'ه')
-                .replace(/(ى)/g, 'ي')
-                .replace(/[\u064B-\u065F\u0640]/g, '') // إزالة التشكيل
-                .replace(/\u200B/g, ''); // إزالة الفواصل الخفية
+                .replace(/(أ|إ|آ)/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي')
+                .replace(/\s+/g, ' '); // دمج المسافات
+        }
+
+        function toEngDigits(str) {
+            return str.replace(/[٠-٩]/g, d => "0123456789"['٠١٢٣٤٥٦٧٨٩'.indexOf(d)]);
         }
     </script>
 </body>
