@@ -3,1366 +3,1486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحلل العدلي البلاتيني | Platinum MOJ Parser</title>
+    <title>نظام استخراج البيانات الذكي - النسخة العربية</title>
+    
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: #f8fafc; color: #1e293b; }
-        .drop-zone {
-            border: 3px dashed #cbd5e1;
-            background: #ffffff;
-            transition: all 0.3s ease;
-            position: relative;
-            cursor: pointer;
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .drop-zone { 
+            border: 3px dashed #cbd5e1; 
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+            cursor: pointer; 
         }
-        .drop-zone:hover, .drop-zone.active {
-            border-color: #f97316;
-            background: linear-gradient(135deg, #fffbeb 0%, #fff7ed 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px -5px rgba(249, 115, 22, 0.1);
+        .drop-zone:hover, .drop-zone.dragover { 
+            border-color: #2563eb; 
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            transform: translateY(-4px); 
+            box-shadow: 0 20px 40px rgba(37, 99, 235, 0.1);
         }
-        .drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
-        .deceased-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: white;
-            border-radius: 16px;
-            position: relative;
-            overflow: hidden;
-        }
-        .agent-row {
-            background: linear-gradient(90deg, #ffedd5 0%, #fed7aa 100%) !important;
-            border-right: 4px solid #ea580c !important;
-            position: relative;
-        }
-        .agent-row::after {
-            content: "⭐";
-            position: absolute;
-            left: 8px;
-            top: 50%;
-            transform: translateY(-50%);
-            font-size: 1.2rem;
-        }
-        .agent-badge {
-            background: linear-gradient(135deg, #fdba74 0%, #f97316 100%);
-            color: #7c2d12;
-            border: 2px solid #ea580c;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 0.8rem;
-            box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
-        }
-        .clause-box {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 1.25rem;
-            font-size: 0.95rem;
-            line-height: 1.9;
-            max-height: 300px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            color: #475569;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .clause-box.found {
-            border-left: 5px solid #10b981;
-        }
-        .clause-box.not-found {
-            border-left: 5px solid #ef4444;
+        .drop-zone.has-files { 
+            border-color: #10b981;
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
         }
         .loader {
-            width: 60px;
-            height: 60px;
-            border: 6px solid #f97316;
-            border-bottom-color: transparent;
+            width: 50px; 
+            height: 50px; 
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #2563eb; 
             border-radius: 50%;
-            display: inline-block;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 
             0% { transform: rotate(0deg); } 
             100% { transform: rotate(360deg); } 
         }
-        .fade-in { animation: fadeIn 0.6s ease-out; }
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(20px); } 
-            to { opacity: 1; transform: translateY(0); } 
+        @media print { .no-print { display: none; } }
+        .file-list { 
+            max-height: 300px; 
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 #f1f5f9;
         }
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        .file-item { 
+            background: #f8fafc; 
+            border-radius: 1rem; 
+            padding: 0.75rem 1rem; 
+            margin: 0.25rem 0; 
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        .file-item:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+        }
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        .chip-blue { background: #dbeafe; color: #1e40af; }
+        .chip-green { background: #d1fae5; color: #065f46; }
+        .chip-red { background: #fee2e2; color: #991b1b; }
+        .chip-purple { background: #e9d5ff; color: #6b21a8; }
+        .text-gradient {
+            background: linear-gradient(135deg, #2563eb 0%, #10b981 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .clause-box {
+            line-height: 1.8; 
+            font-size: 0.95rem; 
+            white-space: pre-wrap;
+            border-radius: 1.5rem; 
+            padding: 1.5rem; 
+            border-right: 6px solid #cbd5e1;
+            background: #ffffff; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            text-align: justify;
+        }
+        .found-content { 
+            border-right-color: #10b981; 
+            background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+            border-right-width: 8px;
+        }
+        .result-card {
+            transition: all 0.3s ease;
             border: 1px solid #e2e8f0;
         }
-        .progress-ring {
-            transform: rotate(-90deg);
-        }
-        .progress-ring-circle {
-            transition: stroke-dashoffset 0.5s ease;
-        }
-        .notification {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            padding: 14px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            z-index: 1000;
-            animation: slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        .result-card:hover {
+            transform: translateY(-2px);
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            backdrop-filter: blur(10px);
         }
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .ar-text {
+            font-family: 'IBM Plex Sans Arabic', sans-serif;
+            line-height: 1.8;
         }
-        .highlight-text {
-            background: linear-gradient(120deg, #fef3c7 0%, #fde68a 100%);
-            padding: 2px 6px;
+        .id-number {
+            font-family: 'Courier New', monospace;
+            letter-spacing: 1px;
+        }
+        .highlight {
+            background-color: #fef3c7;
+            padding: 2px 4px;
             border-radius: 4px;
-            font-weight: 600;
-        }
-        .arabic-pattern {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.03;
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
     </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen bg-gradient-to-br from-slate-50 to-orange-50">
-    <div class="max-w-7xl mx-auto space-y-8">
-        <header class="bg-white p-6 md:p-8 rounded-2xl shadow-lg border border-orange-200 flex flex-col md:flex-row justify-between items-center gap-6">
-            <div class="text-center md:text-right">
-                <h1 class="text-3xl md:text-4xl font-bold text-gray-800 mb-2">المحلل العدلي <span class="text-transparent bg-clip-text bg-gradient-to-r from-orange-600 to-amber-500">البلاتيني</span></h1>
-                <p class="text-gray-600">نظام ذكي متقدم لاستخراج وتحليل وثائق المحاكم والوكالات الشرعية</p>
-            </div>
-            <div class="flex flex-wrap gap-3 justify-center">
-                <button onclick="location.reload()" class="px-5 py-2.5 bg-gradient-to-r from-gray-100 to-gray-200 hover:from-gray-200 hover:to-gray-300 rounded-xl text-gray-700 font-semibold shadow-sm transition-all">🔄 بدء جديد</button>
-                <button onclick="exportToExcel()" id="exportBtn" class="hidden px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white rounded-xl font-semibold shadow-md transition-all">📊 تصدير Excel</button>
-            </div>
-        </header>
+<body class="antialiased">
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div id="heirsZone" class="drop-zone p-8 rounded-2xl text-center group relative overflow-hidden">
-                <div class="arabic-pattern"></div>
-                <input type="file" id="heirsFile" accept="application/pdf,image/*" multiple="false">
-                <div class="text-6xl mb-4 opacity-60 group-hover:opacity-100 transition-all duration-300">📜</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">1. صك حصر الورثة</h3>
-                <p id="heirsMsg" class="text-sm text-gray-500">اسحب الملف أو انقر للاختيار</p>
-                <div class="mt-4 text-xs text-gray-400">يدعم: PDF, JPG, PNG, JPEG</div>
+    <div class="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 to-white">
+        <nav class="bg-white border-b border-slate-200 px-8 py-5 flex justify-between items-center sticky top-0 z-50 no-print shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-br from-blue-600 to-emerald-600 p-3 rounded-2xl text-white shadow-lg">
+                    <i data-lucide="brain" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-bold text-slate-800 tracking-tight">نظام استخراج البيانات الذكي</h1>
+                    <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">استخراج البيانات العربية من المستندات</p>
+                </div>
             </div>
+            <div class="flex items-center gap-4">
+                <button onclick="window.location.reload()" class="text-sm font-medium text-slate-600 hover:text-blue-600 transition flex items-center gap-2">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    تحليل جديد
+                </button>
+            </div>
+        </nav>
+
+        <main class="flex-grow p-4 md:p-10 max-w-7xl mx-auto w-full space-y-10">
             
-            <div id="poaZone" class="drop-zone p-8 rounded-2xl text-center group relative overflow-hidden">
-                <div class="arabic-pattern"></div>
-                <input type="file" id="poaFile" accept="application/pdf,image/*" multiple="false">
-                <div class="text-6xl mb-4 opacity-60 group-hover:opacity-100 transition-all duration-300">⚖️</div>
-                <h3 class="text-xl font-bold text-gray-800 mb-2">2. وثيقة الوكالة الشرعية</h3>
-                <p id="poaMsg" class="text-sm text-gray-500">اسحب الملف أو انقر للاختيار</p>
-                <div class="mt-4 text-xs text-gray-400">يدعم: PDF, JPG, PNG, JPEG</div>
-            </div>
-        </div>
-
-        <div id="loadingSection" class="hidden text-center py-12 px-4 bg-white/80 backdrop-blur-sm rounded-2xl shadow-sm">
-            <div class="relative inline-block">
-                <span class="loader"></span>
-                <div class="absolute inset-0 flex items-center justify-center">
-                    <span id="progressPercent" class="text-sm font-bold text-orange-600">0%</span>
+            <!-- منطقة رفع الملفات -->
+            <section id="upload-ui" class="no-print">
+                <div class="text-center mb-10">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-4">رفع جميع ملفات PDF</h2>
+                    <p class="text-slate-600 max-w-2xl mx-auto">
+                        قم برفع ملفات PDF العربية. النظام سيستخرج جميع البيانات العربية:
+                        <span class="font-bold text-blue-600">الأسماء - أرقام الهوية - العناوين - التفاصيل</span>
+                    </p>
                 </div>
-            </div>
-            <p id="loadingMessage" class="mt-6 text-lg font-semibold text-gray-700">جاري تهيئة النظام...</p>
-            <div class="mt-6 max-w-2xl mx-auto">
-                <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
-                    <div id="progressBar" class="h-full bg-gradient-to-r from-orange-500 to-amber-500 transition-all duration-300 ease-out" style="width: 0%"></div>
+                
+                <div id="drop-zone" class="drop-zone border-3 border-dashed rounded-[4rem] p-16 text-center relative">
+                    <input type="file" id="file-input" class="absolute inset-0 opacity-0 cursor-pointer" accept=".pdf" multiple>
+                    
+                    <div class="w-24 h-24 bg-gradient-to-br from-blue-50 to-emerald-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8">
+                        <i data-lucide="upload" class="text-blue-600 w-12 h-12"></i>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold text-slate-800 mb-4">اسحب وأفلت ملفات PDF هنا</h3>
+                    <p class="text-slate-500 mb-6">أو اضغط للاختيار يدوياً</p>
+                    
+                    <div class="flex justify-center gap-4 flex-wrap">
+                        <div class="chip chip-blue flex items-center gap-2">
+                            <i data-lucide="user" class="w-4 h-4"></i>
+                            <span>استخراج الأسماء العربية</span>
+                        </div>
+                        <div class="chip chip-green flex items-center gap-2">
+                            <i data-lucide="credit-card" class="w-4 h-4"></i>
+                            <span>استخراج أرقام الهوية</span>
+                        </div>
+                        <div class="chip chip-red flex items-center gap-2">
+                            <i data-lucide="home" class="w-4 h-4"></i>
+                            <span>استخراج بيانات العقارات</span>
+                        </div>
+                        <div class="chip chip-purple flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            <span>تحويل النتائج إلى ملفات</span>
+                        </div>
+                    </div>
+                    
+                    <p class="text-sm text-slate-400 mt-8">يدعم اللغة العربية فقط - يتم معالجة المستندات بالكامل</p>
                 </div>
-            </div>
-        </div>
-
-        <div id="resultsSection" class="hidden space-y-8 fade-in">
-            <div id="deceasedCard" class="hidden deceased-card p-6 md:p-8 shadow-2xl flex flex-col md:flex-row items-center gap-6 md:gap-8">
-                <div class="bg-white/20 p-5 rounded-full text-4xl">⚰️</div>
-                <div class="flex-1 text-center md:text-right">
-                    <h2 class="text-white/80 text-sm uppercase font-bold tracking-widest mb-2">المورث (المتوفى)</h2>
-                    <div class="flex flex-col md:flex-row items-center justify-center md:justify-start gap-4 mt-2">
-                        <span id="deceasedId" class="text-4xl md:text-5xl font-mono font-bold text-white tracking-tight">---</span>
-                        <div class="flex items-center gap-3">
-                            <span class="bg-white/20 text-white text-sm px-3 py-1.5 rounded-lg">رقم الهوية</span>
-                            <span id="deceasedName" class="text-white text-lg font-semibold bg-white/10 px-4 py-2 rounded-lg">غير معروف</span>
+                
+                <div id="file-list-section" class="mt-10">
+                    <div class="bg-white rounded-3xl shadow-lg p-8">
+                        <div class="flex justify-between items-center mb-6">
+                            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                                <i data-lucide="files" class="w-6 h-6 text-blue-600"></i>
+                                الملفات المرفوعة
+                                <span id="file-count" class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">0</span>
+                            </h3>
+                            <button onclick="clearAllFiles()" class="text-sm font-medium text-rose-600 hover:text-rose-700 flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                مسح الكل
+                            </button>
+                        </div>
+                        
+                        <div id="file-list" class="file-list space-y-3">
+                            <!-- سيتم إضافة الملفات هنا -->
+                        </div>
+                        
+                        <div class="mt-8 pt-8 border-t border-slate-200">
+                            <button onclick="processAllFiles()" id="process-btn" 
+                                class="w-full bg-gradient-to-r from-blue-600 to-emerald-600 hover:from-blue-700 hover:to-emerald-700 text-white font-bold py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                <span class="flex items-center justify-center gap-3 text-lg">
+                                    <i data-lucide="cpu" class="w-6 h-6"></i>
+                                    بدء الاستخراج الذكي للبيانات العربية
+                                </span>
+                            </button>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="stat-card">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="p-3 bg-blue-100 rounded-xl">
-                            <span class="text-2xl text-blue-600">👥</span>
+            <!-- واجهة التحميل -->
+            <div id="loading-ui" class="hidden">
+                <div class="bg-white rounded-[4rem] shadow-xl p-12 md:p-16">
+                    <div class="max-w-3xl mx-auto">
+                        <div class="text-center mb-12">
+                            <div class="loader mx-auto mb-8"></div>
+                            <h2 id="task-title" class="text-3xl font-bold text-slate-800 mb-4">جاري معالجة الملفات العربية...</h2>
+                            <p id="current-task" class="text-slate-600 text-lg">جاري استخراج البيانات العربية من المستندات</p>
                         </div>
-                        <h3 class="text-lg font-bold text-gray-800">الإحصائيات العامة</h3>
-                    </div>
-                    <div class="space-y-4">
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                            <span class="text-gray-700">عدد الورثة</span>
-                            <span id="totalHeirs" class="text-2xl font-bold text-blue-600">0</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                            <span class="text-gray-700">الورثة الموكِلين</span>
-                            <span id="appointedHeirs" class="text-2xl font-bold text-emerald-600">0</span>
-                        </div>
-                        <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
-                            <span class="text-gray-700">نسبة التوكيل</span>
-                            <span id="appointmentRate" class="text-2xl font-bold text-orange-600">0%</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="stat-card">
-                    <div class="flex items-center gap-3 mb-6">
-                        <div class="p-3 bg-amber-100 rounded-xl">
-                            <span class="text-2xl text-amber-600">📊</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-800">نتائج المطابقة</h3>
-                    </div>
-                    <div class="flex justify-center items-center">
-                        <div class="relative">
-                            <svg class="w-40 h-40" viewBox="0 0 100 100">
-                                <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" stroke-width="10"/>
-                                <circle id="matchCircle" cx="50" cy="50" r="45" fill="none" stroke="#10b981" 
-                                        stroke-width="10" stroke-linecap="round" 
-                                        stroke-dasharray="283" stroke-dashoffset="283"
-                                        transform="rotate(-90 50 50)"/>
-                            </svg>
-                            <div class="absolute inset-0 flex items-center justify-center flex-col">
-                                <span id="matchPercentage" class="text-3xl font-bold text-gray-800">0%</span>
-                                <span class="text-sm text-gray-500">مطابقة</span>
+                        
+                        <div class="space-y-8">
+                            <div>
+                                <div class="flex justify-between mb-2">
+                                    <span class="font-medium text-slate-700">تقدم المعالجة</span>
+                                    <span id="progress-text" class="font-bold text-blue-600">0%</span>
+                                </div>
+                                <div class="h-4 bg-slate-100 rounded-full overflow-hidden">
+                                    <div id="progress-bar" class="h-full bg-gradient-to-r from-blue-500 to-emerald-500 transition-all duration-500" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                                <div class="bg-slate-50 rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-sm font-medium text-slate-600">استخراج النص العربي</span>
+                                        <span id="text-progress" class="text-lg font-bold text-blue-600">0%</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div id="text-progress-bar" class="h-full bg-blue-500 transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-slate-50 rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-sm font-medium text-slate-600">معالجة الصور (OCR)</span>
+                                        <span id="ocr-progress" class="text-lg font-bold text-emerald-600">0%</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div id="ocr-progress-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-slate-50 rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-sm font-medium text-slate-600">تحليل البيانات</span>
+                                        <span id="analysis-progress" class="text-lg font-bold text-purple-600">0%</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div id="analysis-progress-bar" class="h-full bg-purple-500 transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                                
+                                <div class="bg-slate-50 rounded-2xl p-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <span class="text-sm font-medium text-slate-600">تحويل النتائج</span>
+                                        <span id="convert-progress" class="text-lg font-bold text-amber-600">0%</span>
+                                    </div>
+                                    <div class="h-2 bg-slate-200 rounded-full overflow-hidden">
+                                        <div id="convert-progress-bar" class="h-full bg-amber-500 transition-all duration-300" style="width: 0%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div id="current-file" class="text-center text-slate-500 italic">
+                                جاري تحليل الملف الأول...
+                            </div>
+                            
+                            <div id="extracted-info" class="hidden bg-blue-50 rounded-2xl p-6">
+                                <h4 class="font-bold text-blue-800 mb-3">البيانات المستخرجة حتى الآن:</h4>
+                                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-blue-600" id="extracted-names">0</div>
+                                        <div class="text-sm text-blue-800">أسماء</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-emerald-600" id="extracted-ids">0</div>
+                                        <div class="text-sm text-emerald-800">هويات</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-purple-600" id="extracted-addresses">0</div>
+                                        <div class="text-sm text-purple-800">عناوين</div>
+                                    </div>
+                                    <div class="text-center">
+                                        <div class="text-2xl font-bold text-amber-600" id="extracted-dates">0</div>
+                                        <div class="text-sm text-amber-800">تواريخ</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-                <div class="stat-card">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="p-3 bg-red-100 rounded-xl">
-                            <span class="text-2xl text-red-600">✅</span>
-                        </div>
-                        <h3 class="text-lg font-bold text-gray-800">التحقق الفوري</h3>
-                    </div>
-                    <div class="space-y-3">
-                        <div id="checkDeceased" class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-                            <span class="text-gray-700 font-medium">بيانات المتوفى</span>
-                            <span class="text-red-500 text-xl">❌</span>
-                        </div>
-                        <div id="checkAgent" class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-                            <span class="text-gray-700 font-medium">بيانات الوكيل</span>
-                            <span class="text-red-500 text-xl">❌</span>
-                        </div>
-                        <div id="checkClauses" class="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200">
-                            <span class="text-gray-700 font-medium">البنود الأساسية</span>
-                            <span class="text-red-500 text-xl">❌</span>
-                        </div>
-                    </div>
-                </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
-                <div class="p-6 border-b bg-gradient-to-r from-gray-50 to-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-blue-100 rounded-lg">
-                            <span class="text-xl text-blue-600">👥</span>
-                        </div>
-                        <h2 class="font-bold text-xl text-gray-800">جدول الورثة والوكلاء</h2>
-                    </div>
-                    <div class="flex gap-3">
-                        <button onclick="filterByRole('agent')" class="px-4 py-2 bg-amber-100 hover:bg-amber-200 text-amber-800 rounded-lg font-medium transition">عرض الوكلاء</button>
-                        <button onclick="filterByRole('heir')" class="px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-lg font-medium transition">عرض الورثة</button>
-                        <button onclick="resetFilter()" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 rounded-lg font-medium transition">إعادة تعيين</button>
-                    </div>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right">
-                        <thead class="bg-gray-100 text-gray-700 text-sm uppercase font-bold">
-                            <tr>
-                                <th class="p-4">رقم الهوية</th>
-                                <th class="p-4">الاسم الثلاثي</th>
-                                <th class="p-4">الصفة القانونية</th>
-                                <th class="p-4">النسبة الشرعية</th>
-                                <th class="p-4 text-center">حالة التوكيل</th>
-                                <th class="p-4 text-center">ملاحظات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsTable" class="divide-y divide-gray-200 text-sm font-medium"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div class="bg-white rounded-2xl shadow-lg border-t-4 border-blue-500 overflow-hidden">
-                    <div class="p-5 bg-gradient-to-r from-blue-50 to-blue-100 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-white rounded-lg shadow-sm">
-                                <span class="text-2xl text-blue-600">🏠</span>
+            <!-- نتائج التحليل -->
+            <div id="results-ui" class="hidden space-y-12">
+                
+                <!-- ملخص النتائج -->
+                <div class="bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-3xl shadow-2xl overflow-hidden">
+                    <div class="p-8 md:p-12">
+                        <div class="flex items-center gap-4 mb-6">
+                            <div class="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+                                <i data-lucide="check-circle" class="w-6 h-6 text-white"></i>
                             </div>
                             <div>
-                                <h3 class="font-bold text-blue-900">بند العقارات</h3>
-                                <p class="text-xs text-blue-700">البيع، الإفراغ، التسجيل</p>
+                                <h3 class="text-xl font-bold">اكتمل استخراج البيانات العربية</h3>
+                                <p class="text-slate-300 text-sm">تم استخراج جميع البيانات العربية بنجاح</p>
                             </div>
                         </div>
-                        <div id="estateScore" class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                                <span class="text-blue-800 font-bold">0%</span>
+                        
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            <div class="text-center">
+                                <div class="text-3xl font-bold mb-2" id="total-names">0</div>
+                                <p class="text-slate-300">اسم عربي</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold mb-2" id="total-ids">0</div>
+                                <p class="text-slate-300">رقم هوية</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold mb-2" id="total-addresses">0</div>
+                                <p class="text-slate-300">عنوان</p>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-3xl font-bold mb-2" id="total-dates">0</div>
+                                <p class="text-slate-300">تاريخ</p>
                             </div>
                         </div>
                     </div>
-                    <div id="estateText" class="clause-box not-found"></div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-lg border-t-4 border-red-500 overflow-hidden">
-                    <div class="p-5 bg-gradient-to-r from-red-50 to-red-100 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-white rounded-lg shadow-sm">
-                                <span class="text-2xl text-red-600">⚖️</span>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-red-900">بند المحاكم</h3>
-                                <p class="text-xs text-red-700">القسمة، المرافعة، الدعاوى</p>
-                            </div>
+                <!-- الأفراد المستخرجون -->
+                <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+                    <div class="p-8 border-b bg-gradient-to-r from-slate-50 to-blue-50/30">
+                        <h3 class="font-bold text-2xl text-slate-800 flex items-center gap-3 mb-2">
+                            <i data-lucide="users" class="w-7 h-7 text-blue-600"></i>
+                            الأفراد المستخرجون
+                        </h3>
+                        <p class="text-slate-600">تم استخراج الأسماء العربية وأرقام الهوية</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-right">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-700 text-sm font-bold">
+                                        <th class="p-4">#</th>
+                                        <th class="p-4">الاسم الكامل (عربي)</th>
+                                        <th class="p-4">رقم الهوية</th>
+                                        <th class="p-4">الصفة</th>
+                                        <th class="p-4">العنوان</th>
+                                        <th class="p-4">الجنسية</th>
+                                        <th class="p-4">المصدر</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="people-table" class="divide-y divide-slate-200">
+                                    <!-- سيتم إضافة الصفوف هنا -->
+                                </tbody>
+                            </table>
                         </div>
-                        <div id="legalScore" class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
-                                <span class="text-red-800 font-bold">0%</span>
+                        <div id="no-people" class="text-center py-16 hidden">
+                            <div class="w-24 h-24 bg-slate-100 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                                <i data-lucide="users" class="w-12 h-12 text-slate-400"></i>
                             </div>
+                            <h4 class="text-xl font-bold text-slate-700 mb-3">لم يتم العثور على أفراد</h4>
+                            <p class="text-slate-500 max-w-md mx-auto">تأكد من أن الملفات تحتوي على بيانات عربية واضحة</p>
                         </div>
                     </div>
-                    <div id="legalText" class="clause-box not-found"></div>
                 </div>
 
-                <div class="bg-white rounded-2xl shadow-lg border-t-4 border-emerald-500 overflow-hidden">
-                    <div class="p-5 bg-gradient-to-r from-emerald-50 to-emerald-100 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="p-2 bg-white rounded-lg shadow-sm">
-                                <span class="text-2xl text-emerald-600">💰</span>
+                <!-- البيانات العقارية -->
+                <div class="bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+                    <div class="p-8 border-b bg-gradient-to-r from-slate-50 to-emerald-50/30">
+                        <h3 class="font-bold text-2xl text-slate-800 flex items-center gap-3 mb-2">
+                            <i data-lucide="home" class="w-7 h-7 text-emerald-600"></i>
+                            البيانات العقارية المستخرجة
+                        </h3>
+                        <p class="text-slate-600">تم استخراج بيانات العقارات والممتلكات</p>
+                    </div>
+                    <div class="p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div id="estate-data" class="space-y-4">
+                                <!-- سيتم إضافة بيانات العقارات هنا -->
                             </div>
-                            <div>
-                                <h3 class="font-bold text-emerald-900">بند المطالبات</h3>
-                                <p class="text-xs text-emerald-700">المستحقات، الديون، التعويضات</p>
-                            </div>
-                        </div>
-                        <div id="claimsScore" class="flex items-center gap-2">
-                            <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <span class="text-emerald-800 font-bold">0%</span>
+                            <div id="property-details" class="space-y-4">
+                                <!-- سيتم إضافة تفاصيل العقارات هنا -->
                             </div>
                         </div>
                     </div>
-                    <div id="claimsText" class="clause-box not-found"></div>
+                </div>
+
+                <!-- البنود والنصوص المستخرجة -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="bg-white rounded-3xl shadow-lg border border-slate-200 p-8">
+                        <h4 class="font-bold text-xl text-slate-800 flex items-center gap-3 mb-6">
+                            <i data-lucide="file-text" class="w-6 h-6 text-blue-600"></i>
+                            النصوص العربية المستخرجة
+                        </h4>
+                        <div id="arabic-texts" class="clause-box ar-text max-h-[400px] overflow-y-auto">
+                            <div class="space-y-4">
+                                <!-- سيتم إضافة النصوص هنا -->
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-3xl shadow-lg border border-slate-200 p-8">
+                        <h4 class="font-bold text-xl text-slate-800 flex items-center gap-3 mb-6">
+                            <i data-lucide="calendar" class="w-6 h-6 text-amber-600"></i>
+                            التواريخ والأرقام المستخرجة
+                        </h4>
+                        <div id="dates-numbers" class="clause-box ar-text max-h-[400px] overflow-y-auto">
+                            <div class="space-y-4">
+                                <!-- سيتم إضافة التواريخ والأرقام هنا -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- خيارات تحويل النتائج -->
+                <div class="bg-gradient-to-r from-blue-800 to-blue-900 text-white rounded-3xl p-8">
+                    <h4 class="font-bold text-xl mb-6 flex items-center gap-3">
+                        <i data-lucide="download" class="w-6 h-6"></i>
+                        تحويل النتائج إلى ملفات
+                    </h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <button onclick="exportToExcel()" class="bg-white/10 hover:bg-white/20 rounded-2xl p-6 transition-all duration-300 group">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-emerald-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="file-spreadsheet" class="w-8 h-8 text-emerald-300"></i>
+                                </div>
+                                <h5 class="font-bold text-lg mb-2">تصدير Excel</h5>
+                                <p class="text-slate-300 text-sm text-center">تصدير جميع البيانات إلى ملف Excel</p>
+                            </div>
+                        </button>
+                        
+                        <button onclick="exportToPDF()" class="bg-white/10 hover:bg-white/20 rounded-2xl p-6 transition-all duration-300 group">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-red-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="file-text" class="w-8 h-8 text-red-300"></i>
+                                </div>
+                                <h5 class="font-bold text-lg mb-2">تصدير PDF</h5>
+                                <p class="text-slate-300 text-sm text-center">تصدير التقرير الكامل إلى PDF</p>
+                            </div>
+                        </button>
+                        
+                        <button onclick="exportToJSON()" class="bg-white/10 hover:bg-white/20 rounded-2xl p-6 transition-all duration-300 group">
+                            <div class="flex flex-col items-center">
+                                <div class="w-16 h-16 bg-purple-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                    <i data-lucide="code" class="w-8 h-8 text-purple-300"></i>
+                                </div>
+                                <h5 class="font-bold text-lg mb-2">تصدير JSON</h5>
+                                <p class="text-slate-300 text-sm text-center">تصدير البيانات الخام بتنسيق JSON</p>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- أزرار الإجراءات -->
+                <div class="no-print fixed bottom-8 left-1/2 transform -translate-x-1/2 w-full max-w-4xl px-4">
+                    <div class="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl border border-slate-200 p-6">
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <button onclick="window.print()" 
+                                class="bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-900 hover:to-black text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 flex-1">
+                                <i data-lucide="printer" class="w-5 h-5"></i>
+                                طباعة التقرير
+                            </button>
+                            <button onclick="downloadAllResults()" 
+                                class="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 flex-1">
+                                <i data-lucide="download" class="w-5 h-5"></i>
+                                تحميل جميع النتائج
+                            </button>
+                            <button onclick="window.location.reload()" 
+                                class="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 flex-1">
+                                <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                                تحليل جديد
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="bg-white rounded-2xl shadow-lg border-t-4 border-amber-500 overflow-hidden">
-                <div class="p-5 bg-gradient-to-r from-amber-50 to-amber-100 flex items-center justify-between">
-                    <div class="flex items-center gap-3">
-                        <div class="p-2 bg-white rounded-lg shadow-sm">
-                            <span class="text-2xl text-amber-600">📍</span>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-amber-900">نطاق الوكالة الشامل</h3>
-                            <p class="text-xs text-amber-700">الصلاحيات، التفويض، الإدارة</p>
-                        </div>
-                    </div>
-                    <div id="scopeScore" class="flex items-center gap-2">
-                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center">
-                            <span class="text-amber-800 font-bold">0%</span>
-                        </div>
-                    </div>
-                </div>
-                <div id="scopeText" class="clause-box not-found"></div>
-            </div>
-
-            <div class="text-center space-y-6 pt-6">
-                <div class="flex flex-wrap justify-center gap-4">
-                    <button onclick="downloadReport()" class="px-8 py-3.5 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
-                        <span>📥</span>
-                        <span>تحميل التقرير الكامل</span>
-                    </button>
-                    <button onclick="printResults()" class="px-8 py-3.5 bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
-                        <span>🖨️</span>
-                        <span>طباعة النتائج</span>
-                    </button>
-                    <button onclick="showAnalysisDetails()" class="px-8 py-3.5 bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white font-bold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2">
-                        <span>🔍</span>
-                        <span>تفاصيل التحليل</span>
-                    </button>
-                </div>
-                <div class="text-sm text-gray-500 max-w-2xl mx-auto p-4 bg-gray-50 rounded-xl border border-gray-200">
-                    <div class="flex items-center justify-center gap-2 mb-2">
-                        <span class="text-amber-500">⚠️</span>
-                        <span class="font-semibold text-gray-700">ملاحظة هامة</span>
-                    </div>
-                    <p>هذا التحليل ذو طبيعة مساعدة ويعتمد على الذكاء الاصطناعي. يوصى بمراجعة المحامي المختص للتأكد من صحة ودقة المعلومات قبل أي إجراء قانوني.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="analysisModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div class="p-6 border-b bg-gradient-to-r from-blue-50 to-blue-100 flex justify-between items-center">
-                <h3 class="text-xl font-bold text-gray-800">تفاصيل التحليل الفني</h3>
-                <button onclick="closeAnalysisDetails()" class="text-2xl text-gray-500 hover:text-gray-700">&times;</button>
-            </div>
-            <div class="p-6 overflow-y-auto max-h-[70vh]" id="analysisDetails"></div>
-        </div>
+        </main>
     </div>
 
     <script>
+        // تهيئة الأيقونات
+        lucide.createIcons();
+        
+        // تعيين مصدر العامل لـ PDF.js
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        let files = { heirs: null, poa: null };
-        let analysisResults = null;
-        let extractedTexts = { heirs: '', poa: '' };
-
-        setupDropZone('heirs');
-        setupDropZone('poa');
-
-        function setupDropZone(key) {
-            const zone = document.getElementById(`${key}Zone`);
-            const input = document.getElementById(`${key}File`);
-            const msg = document.getElementById(`${key}Msg`);
-            
-            const activate = () => { 
-                zone.classList.add('active');
-                zone.style.borderColor = '#f97316';
-            };
-            
-            const deactivate = () => { 
-                zone.classList.remove('active');
-                zone.style.borderColor = '#cbd5e1';
-            };
-            
-            zone.addEventListener('dragover', (e) => { 
-                e.preventDefault(); 
-                activate(); 
-            });
-            
-            zone.addEventListener('dragleave', (e) => {
-                if (!zone.contains(e.relatedTarget)) {
-                    deactivate();
+        
+        // حالة النظام
+        const SystemState = {
+            files: new Map(),
+            processing: false,
+            arabicResults: {
+                individuals: [],
+                realEstates: [],
+                texts: [],
+                dates: [],
+                addresses: [],
+                statistics: {
+                    names: 0,
+                    ids: 0,
+                    addresses: 0,
+                    dates: 0,
+                    totalPages: 0
                 }
-            });
+            }
+        };
+        
+        // =============== إدارة الملفات ===============
+        
+        function updateFileList() {
+            const fileList = document.getElementById('file-list');
+            const fileCount = document.getElementById('file-count');
+            const processBtn = document.getElementById('process-btn');
             
-            zone.addEventListener('drop', (e) => { 
-                e.preventDefault(); 
-                if (e.dataTransfer.files.length > 0) {
-                    handleFile(e.dataTransfer.files[0], key, msg); 
-                }
-                deactivate();
-            });
+            fileList.innerHTML = '';
             
-            input.addEventListener('change', (e) => {
-                if (e.target.files.length > 0) {
-                    handleFile(e.target.files[0], key, msg);
-                }
-            });
+            let index = 0;
+            for (const [key, file] of SystemState.files.entries()) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item flex justify-between items-center';
+                fileItem.innerHTML = `
+                    <div class="flex items-center gap-4 flex-1">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-blue-200 flex items-center justify-center">
+                            <i data-lucide="file-text" class="w-5 h-5 text-blue-600"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-slate-800 truncate">${file.name}</p>
+                            <p class="text-xs text-slate-500">${(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                        </div>
+                    </div>
+                    <button onclick="removeFile('${key}')" class="text-slate-400 hover:text-rose-500 transition-colors p-2">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                `;
+                fileList.appendChild(fileItem);
+                index++;
+            }
             
-            zone.addEventListener('click', () => {
-                input.click();
-            });
+            fileCount.textContent = SystemState.files.size;
+            processBtn.disabled = SystemState.files.size === 0;
+            
+            document.getElementById('file-list-section').classList.remove('hidden');
+            lucide.createIcons();
         }
-
-        function handleFile(file, key, msgElement) {
-            if (!file) return;
+        
+        function addFiles(newFiles) {
+            let added = false;
             
-            const validTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
-            if (!validTypes.includes(file.type)) {
-                showNotification('نوع الملف غير مدعوم. الرجاء رفع ملف PDF أو صورة.', 'error');
-                return;
+            for (const file of newFiles) {
+                const key = `${file.name}_${file.size}_${file.lastModified}`;
+                
+                if (!SystemState.files.has(key)) {
+                    SystemState.files.set(key, file);
+                    added = true;
+                }
             }
             
-            if (file.size > 20 * 1024 * 1024) {
-                showNotification('حجم الملف كبير جداً (الحد الأقصى 20MB)', 'error');
-                return;
-            }
-            
-            files[key] = file;
-            msgElement.innerHTML = `
-                <div class="space-y-1">
-                    <div class="font-bold text-orange-700 truncate">${file.name}</div>
-                    <div class="text-green-600 font-medium">✅ تم الرفع بنجاح</div>
-                    <div class="text-xs text-gray-500">${(file.size / 1024 / 1024).toFixed(2)} MB</div>
-                </div>
-            `;
-            
-            if (files.heirs && files.poa) {
-                setTimeout(() => processAllFiles(), 800);
+            if (added) {
+                updateFileList();
+                document.getElementById('drop-zone').classList.add('has-files');
             }
         }
-
+        
+        function removeFile(key) {
+            SystemState.files.delete(key);
+            updateFileList();
+            
+            if (SystemState.files.size === 0) {
+                document.getElementById('drop-zone').classList.remove('has-files');
+            }
+        }
+        
+        function clearAllFiles() {
+            if (SystemState.files.size > 0 && confirm('هل أنت متأكد من مسح جميع الملفات؟')) {
+                SystemState.files.clear();
+                updateFileList();
+                document.getElementById('drop-zone').classList.remove('has-files');
+            }
+        }
+        
+        // =============== استخراج البيانات العربية ===============
+        
+        // تطبيع النص العربي
+        function normalizeArabicText(text) {
+            if (!text) return '';
+            
+            // تحويل الأرقام العربية إلى إنجليزية
+            const arabicNumbers = ['٠', '١', '٢', '٣', '٤', '٥', '٦', '٧', '٨', '٩'];
+            arabicNumbers.forEach((num, index) => {
+                text = text.replace(new RegExp(num, 'g'), index.toString());
+            });
+            
+            // توحيد أشكال الحروف
+            const arabicNormalization = {
+                'إ': 'ا', 'أ': 'ا', 'آ': 'ا', 'ٱ': 'ا', 'ى': 'ي',
+                'ة': 'ه', 'ؤ': 'و', 'ئ': 'ي'
+            };
+            
+            Object.keys(arabicNormalization).forEach(char => {
+                text = text.replace(new RegExp(char, 'g'), arabicNormalization[char]);
+            });
+            
+            // إزالة التشكيل
+            text = text.replace(/[\u064B-\u065F]/g, '');
+            
+            // إزالة المسافات الزائدة
+            text = text.replace(/\s+/g, ' ').trim();
+            
+            return text;
+        }
+        
+        // استخراج النص من PDF
+        async function extractTextFromPDF(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                
+                document.getElementById('current-file').textContent = `جاري استخراج النص العربي من: ${file.name}`;
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const textContent = await page.getTextContent();
+                    
+                    const pageText = textContent.items
+                        .filter(item => item.str.trim().length > 0)
+                        .sort((a, b) => {
+                            // ترتيب النص العربي من اليمين لليسار
+                            if (Math.abs(a.transform[5] - b.transform[5]) > 5) {
+                                return b.transform[5] - a.transform[5]; // ترتيب عمودي
+                            }
+                            return b.transform[4] - a.transform[4]; // ترتيب أفقي
+                        })
+                        .map(item => item.str)
+                        .join(' ');
+                    
+                    fullText += pageText + '\n';
+                    
+                    // تحديث التقدم
+                    const progress = Math.round((i / pdf.numPages) * 100);
+                    updateProgress('text', progress);
+                    updateOverallProgress();
+                    
+                    // تحديث الإحصائيات
+                    SystemState.arabicResults.statistics.totalPages++;
+                }
+                
+                return normalizeArabicText(fullText);
+            } catch (error) {
+                console.error(`خطأ في استخراج النص:`, error);
+                return '';
+            }
+        }
+        
+        // استخراج النص من الصور باستخدام OCR
+        async function extractTextFromImages(file) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let ocrText = '';
+                
+                document.getElementById('current-file').textContent = `جاري تحليل الصور العربية من: ${file.name}`;
+                
+                // تهيئة Tesseract للغة العربية
+                const worker = await Tesseract.createWorker();
+                await worker.loadLanguage('ara+eng');
+                await worker.initialize('ara+eng');
+                await worker.setParameters({
+                    tessedit_char_whitelist: '0123456789ابتةثجحخدذرزسشصضطظعغفقكلمنهويءآأؤإئ ',
+                    preserve_interword_spaces: '1'
+                });
+                
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({ scale: 2.0 });
+                    
+                    // تحويل الصفحة إلى صورة
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.width = viewport.width;
+                    canvas.height = viewport.height;
+                    
+                    await page.render({
+                        canvasContext: ctx,
+                        viewport: viewport
+                    }).promise;
+                    
+                    // استخدام OCR لاستخراج النص العربي
+                    const { data: { text } } = await worker.recognize(canvas);
+                    ocrText += text + '\n';
+                    
+                    // تحديث التقدم
+                    const progress = Math.round((i / pdf.numPages) * 100);
+                    updateProgress('ocr', progress);
+                    updateOverallProgress();
+                }
+                
+                await worker.terminate();
+                return normalizeArabicText(ocrText);
+            } catch (error) {
+                console.error(`خطأ في استخراج OCR:`, error);
+                return '';
+            }
+        }
+        
+        // استخراج الأسماء العربية
+        function extractArabicNames(text) {
+            const names = new Set();
+            const lines = text.split('\n');
+            
+            // قائمة بأسماء عربية شائعة للتحقق
+            const commonArabicNames = [
+                'محمد', 'أحمد', 'علي', 'خالد', 'سعود', 'فهد', 'عبدالله', 'عبدالعزيز',
+                'عبدالرحمن', 'محمود', 'مصطفى', 'يوسف', 'ابراهيم', 'حسن', 'حسين',
+                'عمر', 'عثمان', 'سليمان', 'ياسر', 'وليد', 'راشد', 'نايف', 'فيصل'
+            ];
+            
+            // أنماط الأسماء العربية
+            const namePatterns = [
+                // اسم ثلاثي
+                /\b([\u0600-\u06FF]{2,}\s+[\u0600-\u06FF]{2,}\s+[\u0600-\u06FF]{2,})\b/g,
+                // اسم مع بن/بنت
+                /\b([\u0600-\u06FF]{2,}\s+(?:بن|بنت|ابن|ابنة)\s+[\u0600-\u06FF]{2,})\b/g,
+                // أسماء عربية شائعة
+                new RegExp(`\\b(${commonArabicNames.join('|')})\\s+[\\u0600-\\u06FF]{2,}(?:\\s+[\\u0600-\\u06FF]{2,})?\\b`, 'g')
+            ];
+            
+            lines.forEach(line => {
+                namePatterns.forEach(pattern => {
+                    const matches = line.match(pattern) || [];
+                    matches.forEach(match => {
+                        const name = match.trim();
+                        if (name.length >= 6 && !/\d/.test(name)) {
+                            names.add(name);
+                        }
+                    });
+                });
+            });
+            
+            return Array.from(names);
+        }
+        
+        // استخراج أرقام الهوية السعودية
+        function extractSaudiIDs(text) {
+            const ids = new Set();
+            
+            // أنماط أرقام الهوية السعودية
+            const patterns = [
+                /\b(1\d{9})\b/g,  // هوية مواطن (10 أرقام تبدأ بـ 1)
+                /\b(2\d{9})\b/g,  // هوية مواطن (10 أرقام تبدأ بـ 2)
+                /\b(7\d{9})\b/g,  // هوية مقيم (10 أرقام تبدأ بـ 7)
+                /رقم\s*الهوية(?:\s*الوطنية)?[:\s]*(\d{10})/gi,
+                /بطاقة\s*هوية[:\s]*(\d{10})/gi,
+                /ID[:\s]*(\d{10})/gi
+            ];
+            
+            patterns.forEach(pattern => {
+                const matches = text.match(pattern) || [];
+                matches.forEach(match => {
+                    const numbers = match.replace(/\D/g, '');
+                    if (numbers.length === 10) {
+                        ids.add(numbers);
+                    }
+                });
+            });
+            
+            return Array.from(ids);
+        }
+        
+        // استخراج العناوين العربية
+        function extractArabicAddresses(text) {
+            const addresses = new Set();
+            
+            // كلمات مفتاحية للعناوين
+            const addressKeywords = [
+                'شارع', 'طريق', 'حي', 'منطقة', 'مدينة', 'محافظة',
+                'مبنى', 'برج', 'دوار', 'تقاطع', 'مجمع', 'صندوق بريد'
+            ];
+            
+            const lines = text.split('\n');
+            
+            lines.forEach(line => {
+                if (line.length > 20) {
+                    let hasAddressKeyword = false;
+                    addressKeywords.forEach(keyword => {
+                        if (line.includes(keyword)) {
+                            hasAddressKeyword = true;
+                        }
+                    });
+                    
+                    if (hasAddressKeyword) {
+                        addresses.add(line.trim());
+                    }
+                }
+            });
+            
+            return Array.from(addresses);
+        }
+        
+        // استخراج التواريخ العربية
+        function extractArabicDates(text) {
+            const dates = new Set();
+            
+            // أنماط التواريخ العربية
+            const patterns = [
+                // تاريخ هجري
+                /\b(\d{1,2}\s*\/\s*\d{1,2}\s*\/\s*1[34]\d{2})\b/g,
+                /\b(\d{1,2}\s*-\s*\d{1,2}\s*-\s*1[34]\d{2})\b/g,
+                // تاريخ ميلادي
+                /\b(\d{1,2}\s*\/\s*\d{1,2}\s*\/\s*(?:19|20)\d{2})\b/g,
+                /\b(\d{1,2}\s*-\s*\d{1,2}\s*-\s*(?:19|20)\d{2})\b/g,
+                // تاريخ نصي
+                /\b(?:في|بتاريخ|يوم)\s+(\d{1,2}\s+(?:يناير|فبراير|مارس|أبريل|مايو|يونيو|يوليو|أغسطس|سبتمبر|أكتوبر|نوفمبر|ديسمبر)\s+\d{4})\b/gi
+            ];
+            
+            patterns.forEach(pattern => {
+                const matches = text.match(pattern) || [];
+                matches.forEach(match => {
+                    dates.add(match.trim());
+                });
+            });
+            
+            return Array.from(dates);
+        }
+        
+        // استخراج بيانات العقارات
+        function extractRealEstateData(text) {
+            const estates = [];
+            
+            // كلمات مفتاحية للعقارات
+            const estateKeywords = [
+                'عقار', 'أرض', 'مزرعة', 'فلة', 'شقة', 'محل', 'مكتب',
+                'ملك', 'تملك', 'ملكية', 'عقد', 'رهن', 'بيع', 'شراء',
+                'سجل', 'صك', 'وثيقة', 'مخطط', 'قطعة'
+            ];
+            
+            const lines = text.split('\n');
+            let currentEstate = null;
+            
+            lines.forEach((line, index) => {
+                const hasKeyword = estateKeywords.some(keyword => line.includes(keyword));
+                
+                if (hasKeyword && line.length > 10) {
+                    currentEstate = {
+                        description: line.trim(),
+                        details: []
+                    };
+                    
+                    // جمع التفاصيل من الأسطر التالية
+                    for (let i = 1; i <= 3; i++) {
+                        if (lines[index + i] && lines[index + i].trim().length > 5) {
+                            currentEstate.details.push(lines[index + i].trim());
+                        }
+                    }
+                    
+                    estates.push(currentEstate);
+                }
+            });
+            
+            return estates;
+        }
+        
+        // تحديث التقدم
+        function updateProgress(type, percentage) {
+            const progressBar = document.getElementById(`${type}-progress-bar`);
+            const progressText = document.getElementById(`${type}-progress`);
+            
+            if (progressBar) progressBar.style.width = `${percentage}%`;
+            if (progressText) progressText.textContent = `${percentage}%`;
+        }
+        
+        // تحديث التقدم العام
+        function updateOverallProgress() {
+            const totalFiles = SystemState.files.size;
+            if (totalFiles === 0) return;
+            
+            const textProgress = parseInt(document.getElementById('text-progress').textContent) || 0;
+            const ocrProgress = parseInt(document.getElementById('ocr-progress').textContent) || 0;
+            const analysisProgress = parseInt(document.getElementById('analysis-progress').textContent) || 0;
+            
+            const totalProgress = Math.round((textProgress + ocrProgress + analysisProgress) / 3);
+            document.getElementById('progress-bar').style.width = `${totalProgress}%`;
+            document.getElementById('progress-text').textContent = `${totalProgress}%`;
+            
+            // تحديث المعلومات المستخرجة
+            updateExtractedInfo();
+        }
+        
+        // تحديث المعلومات المستخرجة
+        function updateExtractedInfo() {
+            document.getElementById('extracted-info').classList.remove('hidden');
+            document.getElementById('extracted-names').textContent = SystemState.arabicResults.statistics.names;
+            document.getElementById('extracted-ids').textContent = SystemState.arabicResults.statistics.ids;
+            document.getElementById('extracted-addresses').textContent = SystemState.arabicResults.statistics.addresses;
+            document.getElementById('extracted-dates').textContent = SystemState.arabicResults.statistics.dates;
+        }
+        
+        // تحليل البيانات العربية
+        async function analyzeArabicData(textFromPDF, textFromOCR, filename) {
+            updateProgress('analysis', 20, 'جاري استخراج الأسماء العربية...');
+            
+            // استخراج الأسماء
+            const namesFromPDF = extractArabicNames(textFromPDF);
+            const namesFromOCR = extractArabicNames(textFromOCR);
+            const allNames = [...new Set([...namesFromPDF, ...namesFromOCR])];
+            
+            SystemState.arabicResults.statistics.names = allNames.length;
+            
+            updateProgress('analysis', 40, 'جاري استخراج أرقام الهوية...');
+            
+            // استخراج أرقام الهوية
+            const idsFromPDF = extractSaudiIDs(textFromPDF);
+            const idsFromOCR = extractSaudiIDs(textFromOCR);
+            const allIDs = [...new Set([...idsFromPDF, ...idsFromOCR])];
+            
+            SystemState.arabicResults.statistics.ids = allIDs.length;
+            
+            updateProgress('analysis', 60, 'جاري استخراج العناوين...');
+            
+            // استخراج العناوين
+            const addressesFromPDF = extractArabicAddresses(textFromPDF);
+            const addressesFromOCR = extractArabicAddresses(textFromOCR);
+            const allAddresses = [...new Set([...addressesFromPDF, ...addressesFromOCR])];
+            
+            SystemState.arabicResults.statistics.addresses = allAddresses.length;
+            
+            updateProgress('analysis', 80, 'جاري استخراج التواريخ...');
+            
+            // استخراج التواريخ
+            const datesFromPDF = extractArabicDates(textFromPDF);
+            const datesFromOCR = extractArabicDates(textFromOCR);
+            const allDates = [...new Set([...datesFromPDF, ...datesFromOCR])];
+            
+            SystemState.arabicResults.statistics.dates = allDates.length;
+            
+            // استخراج بيانات العقارات
+            const estatesFromPDF = extractRealEstateData(textFromPDF);
+            const estatesFromOCR = extractRealEstateData(textFromOCR);
+            const allEstates = [...estatesFromPDF, ...estatesFromOCR];
+            
+            // ربط الأسماء بالهويات
+            const individuals = [];
+            const combinedText = textFromPDF + '\n' + textFromOCR;
+            
+            allNames.forEach(name => {
+                // البحث عن أقرب هوية
+                let closestID = '';
+                let minDistance = Infinity;
+                
+                const nameIndex = combinedText.indexOf(name);
+                if (nameIndex !== -1) {
+                    allIDs.forEach(id => {
+                        const idIndex = combinedText.indexOf(id);
+                        if (idIndex !== -1) {
+                            const distance = Math.abs(nameIndex - idIndex);
+                            if (distance < minDistance && distance < 500) {
+                                minDistance = distance;
+                                closestID = id;
+                            }
+                        }
+                    });
+                }
+                
+                // البحث عن عنوان
+                let address = '';
+                allAddresses.forEach(addr => {
+                    if (combinedText.indexOf(addr) !== -1 && combinedText.indexOf(name) !== -1) {
+                        address = addr;
+                    }
+                });
+                
+                // تحديد الصفة
+                let role = 'غير معروف';
+                if (combinedText.includes('وكيل') && combinedText.indexOf('وكيل') < combinedText.indexOf(name) + 200) {
+                    role = 'وكيل';
+                } else if (combinedText.includes('موكل')) {
+                    role = 'موكل';
+                } else if (combinedText.includes('مورث') || combinedText.includes('متوفى')) {
+                    role = 'مورث';
+                }
+                
+                individuals.push({
+                    name: name,
+                    id: closestID || 'غير معروف',
+                    role: role,
+                    address: address || 'غير معروف',
+                    nationality: 'سعودي',
+                    source: filename
+                });
+            });
+            
+            // إضافة الأفراد الذين لديهم هويات فقط
+            allIDs.forEach(id => {
+                const exists = individuals.some(ind => ind.id === id);
+                if (!exists) {
+                    individuals.push({
+                        name: 'غير معروف (لهوية فقط)',
+                        id: id,
+                        role: 'غير معروف',
+                        address: 'غير معروف',
+                        nationality: 'غير معروف',
+                        source: filename
+                    });
+                }
+            });
+            
+            // تحديث النتائج
+            SystemState.arabicResults.individuals = [...SystemState.arabicResults.individuals, ...individuals];
+            SystemState.arabicResults.realEstates = [...SystemState.arabicResults.realEstates, ...allEstates];
+            SystemState.arabicResults.addresses = [...SystemState.arabicResults.addresses, ...allAddresses];
+            SystemState.arabicResults.dates = [...SystemState.arabicResults.dates, ...allDates];
+            SystemState.arabicResults.texts.push({
+                source: filename,
+                content: combinedText.substring(0, 1000) + '...'
+            });
+            
+            updateProgress('analysis', 100, 'اكتمل تحليل البيانات العربية!');
+        }
+        
+        // =============== المعالجة الرئيسية ===============
+        
         async function processAllFiles() {
-            document.getElementById('loadingSection').classList.remove('hidden');
-            document.getElementById('resultsSection').classList.add('hidden');
-            document.getElementById('exportBtn').classList.add('hidden');
+            if (SystemState.processing || SystemState.files.size === 0) return;
             
-            updateProgress(5, 'جاري تهيئة النظام...');
+            SystemState.processing = true;
+            
+            // إعادة تعيين النتائج
+            SystemState.arabicResults = {
+                individuals: [],
+                realEstates: [],
+                texts: [],
+                dates: [],
+                addresses: [],
+                statistics: {
+                    names: 0,
+                    ids: 0,
+                    addresses: 0,
+                    dates: 0,
+                    totalPages: 0
+                }
+            };
+            
+            // إظهار واجهة التحميل
+            document.getElementById('upload-ui').classList.add('hidden');
+            document.getElementById('loading-ui').classList.remove('hidden');
+            document.getElementById('results-ui').classList.add('hidden');
+            
+            document.getElementById('task-title').textContent = 'جاري معالجة الملفات العربية...';
+            
+            // إعادة تعيين أشرطة التقدم
+            updateProgress('text', 0);
+            updateProgress('ocr', 0);
+            updateProgress('analysis', 0);
+            updateProgress('convert', 0);
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('progress-text').textContent = '0%';
             
             try {
-                updateProgress(15, 'جاري قراءة صك الورثة...');
-                const hText = await extractText(files.heirs, 'heirs');
-                extractedTexts.heirs = hText;
+                const files = Array.from(SystemState.files.values());
                 
-                updateProgress(40, 'جاري قراءة وثيقة الوكالة...');
-                const pText = await extractText(files.poa, 'poa');
-                extractedTexts.poa = pText;
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    
+                    document.getElementById('current-task').textContent = `جاري معالجة الملف ${i + 1} من ${files.length}: ${file.name}`;
+                    document.getElementById('current-file').textContent = file.name;
+                    
+                    // 1. استخراج النص المباشر
+                    const textFromPDF = await extractTextFromPDF(file);
+                    
+                    // 2. استخراج النص من الصور
+                    const textFromOCR = await extractTextFromImages(file);
+                    
+                    // 3. تحليل البيانات العربية
+                    await analyzeArabicData(textFromPDF, textFromOCR, file.name);
+                    
+                    // 4. تحديث التقدم بعد كل ملف
+                    const fileProgress = Math.round(((i + 1) / files.length) * 100);
+                    updateProgress('convert', fileProgress);
+                }
                 
-                updateProgress(60, 'جاري تحليل بيانات الورثة...');
-                const heirsData = analyzeHeirship(hText);
+                // تحويل النتائج
+                updateProgress('convert', 100, 'جاري تحويل النتائج...');
+                await convertResults();
                 
-                updateProgress(75, 'جاري تحليل وثيقة الوكالة...');
-                const poaData = analyzePOA(pText);
+                // عرض النتائج
+                displayArabicResults();
                 
-                updateProgress(90, 'جاري استخراج البنود وتحليلها...');
-                const clausesData = extractAndAnalyzeClauses(pText);
+                // إخفاء واجهة التحميل وإظهار النتائج
+                document.getElementById('loading-ui').classList.add('hidden');
+                document.getElementById('results-ui').classList.remove('hidden');
                 
-                updateProgress(95, 'جاري إعداد النتائج...');
+            } catch (error) {
+                console.error('خطأ في المعالجة:', error);
+                alert(`حدث خطأ أثناء المعالجة: ${error.message}`);
                 
-                analysisResults = { 
-                    heirsData, 
-                    poaData, 
-                    clausesData,
-                    timestamp: new Date().toISOString()
+                document.getElementById('loading-ui').classList.add('hidden');
+                document.getElementById('upload-ui').classList.remove('hidden');
+            } finally {
+                SystemState.processing = false;
+            }
+        }
+        
+        // تحويل النتائج
+        async function convertResults() {
+            // إزالة التكرارات
+            const uniqueIndividuals = [];
+            const seen = new Set();
+            
+            SystemState.arabicResults.individuals.forEach(ind => {
+                const key = `${ind.name}_${ind.id}`;
+                if (!seen.has(key)) {
+                    seen.add(key);
+                    uniqueIndividuals.push(ind);
+                }
+            });
+            
+            SystemState.arabicResults.individuals = uniqueIndividuals;
+            
+            // تحديث الإحصائيات النهائية
+            SystemState.arabicResults.statistics.names = SystemState.arabicResults.individuals.length;
+            SystemState.arabicResults.statistics.ids = SystemState.arabicResults.individuals.filter(i => i.id !== 'غير معروف').length;
+            SystemState.arabicResults.statistics.addresses = [...new Set(SystemState.arabicResults.addresses)].length;
+            SystemState.arabicResults.statistics.dates = [...new Set(SystemState.arabicResults.dates)].length;
+        }
+        
+        // عرض النتائج العربية
+        function displayArabicResults() {
+            // تحديث الإحصائيات
+            document.getElementById('total-names').textContent = SystemState.arabicResults.statistics.names;
+            document.getElementById('total-ids').textContent = SystemState.arabicResults.statistics.ids;
+            document.getElementById('total-addresses').textContent = SystemState.arabicResults.statistics.addresses;
+            document.getElementById('total-dates').textContent = SystemState.arabicResults.statistics.dates;
+            
+            // عرض الأفراد
+            const peopleTable = document.getElementById('people-table');
+            const noPeople = document.getElementById('no-people');
+            
+            peopleTable.innerHTML = '';
+            
+            if (SystemState.arabicResults.individuals.length === 0) {
+                noPeople.classList.remove('hidden');
+            } else {
+                noPeople.classList.add('hidden');
+                
+                SystemState.arabicResults.individuals.forEach((person, index) => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-slate-50';
+                    
+                    // تحديد لون الصفة
+                    let roleColor = 'chip-blue';
+                    if (person.role === 'وكيل') roleColor = 'chip-green';
+                    else if (person.role === 'موكل') roleColor = 'chip-red';
+                    else if (person.role === 'مورث') roleColor = 'chip-purple';
+                    
+                    row.innerHTML = `
+                        <td class="p-4 font-medium">${index + 1}</td>
+                        <td class="p-4 font-bold ar-text">${person.name}</td>
+                        <td class="p-4 font-mono font-bold id-number">${person.id}</td>
+                        <td class="p-4">
+                            <span class="chip ${roleColor}">${person.role}</span>
+                        </td>
+                        <td class="p-4 ar-text text-sm">${person.address}</td>
+                        <td class="p-4">${person.nationality}</td>
+                        <td class="p-4 text-sm text-slate-600">${person.source}</td>
+                    `;
+                    
+                    peopleTable.appendChild(row);
+                });
+            }
+            
+            // عرض بيانات العقارات
+            const estateData = document.getElementById('estate-data');
+            const propertyDetails = document.getElementById('property-details');
+            
+            estateData.innerHTML = '';
+            propertyDetails.innerHTML = '';
+            
+            if (SystemState.arabicResults.realEstates.length > 0) {
+                SystemState.arabicResults.realEstates.forEach((estate, index) => {
+                    if (index < 5) { // عرض أول 5 عقارات فقط
+                        const estateCard = document.createElement('div');
+                        estateCard.className = 'result-card bg-slate-50 rounded-2xl p-4';
+                        estateCard.innerHTML = `
+                            <div class="flex items-start gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                    <i data-lucide="home" class="w-5 h-5 text-emerald-600"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <h5 class="font-bold text-slate-800 mb-2">عقار ${index + 1}</h5>
+                                    <p class="text-sm text-slate-600 ar-text">${estate.description}</p>
+                                </div>
+                            </div>
+                        `;
+                        estateData.appendChild(estateCard);
+                        
+                        // عرض التفاصيل
+                        if (estate.details.length > 0) {
+                            const detailsCard = document.createElement('div');
+                            detailsCard.className = 'result-card bg-blue-50 rounded-2xl p-4';
+                            detailsCard.innerHTML = `
+                                <h6 class="font-bold text-blue-800 mb-2">تفاصيل العقار ${index + 1}:</h6>
+                                <ul class="text-sm text-blue-700 space-y-1">
+                                    ${estate.details.map(detail => `<li class="ar-text">• ${detail}</li>`).join('')}
+                                </ul>
+                            `;
+                            propertyDetails.appendChild(detailsCard);
+                        }
+                    }
+                });
+            } else {
+                estateData.innerHTML = '<p class="text-slate-500 text-center py-8">لم يتم العثور على بيانات عقارية</p>';
+                propertyDetails.innerHTML = '<p class="text-slate-500 text-center py-8">لا توجد تفاصيل إضافية</p>';
+            }
+            
+            // عرض النصوص العربية
+            const arabicTexts = document.getElementById('arabic-texts').querySelector('.space-y-4');
+            arabicTexts.innerHTML = '';
+            
+            SystemState.arabicResults.texts.forEach((text, index) => {
+                const textCard = document.createElement('div');
+                textCard.className = 'result-card bg-white border border-slate-200 rounded-xl p-4';
+                textCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="text-xs font-medium text-slate-500">${text.source}</span>
+                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">نص ${index + 1}</span>
+                    </div>
+                    <p class="text-sm text-slate-700 ar-text line-clamp-3">${text.content}</p>
+                `;
+                arabicTexts.appendChild(textCard);
+            });
+            
+            // عرض التواريخ والأرقام
+            const datesNumbers = document.getElementById('dates-numbers').querySelector('.space-y-4');
+            datesNumbers.innerHTML = '';
+            
+            const uniqueDates = [...new Set(SystemState.arabicResults.dates)];
+            uniqueDates.slice(0, 10).forEach((date, index) => {
+                const dateCard = document.createElement('div');
+                dateCard.className = 'flex items-center justify-between p-3 bg-amber-50 rounded-xl';
+                dateCard.innerHTML = `
+                    <span class="text-sm font-medium text-amber-800">${date}</span>
+                    <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">تاريخ</span>
+                `;
+                datesNumbers.appendChild(dateCard);
+            });
+            
+            // تحديث الأيقونات
+            lucide.createIcons();
+        }
+        
+        // =============== تصدير النتائج ===============
+        
+        function exportToExcel() {
+            try {
+                // تحضير البيانات
+                const data = [
+                    ['#', 'الاسم', 'رقم الهوية', 'الصفة', 'العنوان', 'الجنسية', 'المصدر']
+                ];
+                
+                SystemState.arabicResults.individuals.forEach((person, index) => {
+                    data.push([
+                        index + 1,
+                        person.name,
+                        person.id,
+                        person.role,
+                        person.address,
+                        person.nationality,
+                        person.source
+                    ]);
+                });
+                
+                // إنشاء ورقة عمل
+                const ws = XLSX.utils.aoa_to_sheet(data);
+                
+                // إنشاء مصنف
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'الأفراد');
+                
+                // إضافة ورقة للعقارات
+                if (SystemState.arabicResults.realEstates.length > 0) {
+                    const estateData = [
+                        ['#', 'الوصف', 'التفاصيل']
+                    ];
+                    
+                    SystemState.arabicResults.realEstates.forEach((estate, index) => {
+                        estateData.push([
+                            index + 1,
+                            estate.description,
+                            estate.details.join(' | ')
+                        ]);
+                    });
+                    
+                    const ws2 = XLSX.utils.aoa_to_sheet(estateData);
+                    XLSX.utils.book_append_sheet(wb, ws2, 'العقارات');
+                }
+                
+                // حفظ الملف
+                XLSX.writeFile(wb, 'النتائج_العربية.xlsx');
+                
+                alert('تم تصدير البيانات إلى ملف Excel بنجاح!');
+            } catch (error) {
+                console.error('خطأ في تصدير Excel:', error);
+                alert('حدث خطأ أثناء تصدير البيانات إلى Excel');
+            }
+        }
+        
+        function exportToPDF() {
+            try {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                
+                // إضافة عنوان التقرير
+                doc.setFont('helvetica', 'bold');
+                doc.setFontSize(20);
+                doc.text('تقرير استخراج البيانات العربية', 105, 20, { align: 'center' });
+                
+                doc.setFontSize(12);
+                doc.text(`تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}`, 105, 30, { align: 'center' });
+                doc.text(`عدد الأفراد: ${SystemState.arabicResults.individuals.length}`, 105, 37, { align: 'center' });
+                
+                // إضافة جدول الأفراد
+                let y = 50;
+                doc.setFontSize(14);
+                doc.text('الأفراد المستخرجون:', 20, y);
+                y += 10;
+                
+                doc.setFontSize(10);
+                doc.setFont('helvetica', 'normal');
+                
+                SystemState.arabicResults.individuals.forEach((person, index) => {
+                    if (y > 280) {
+                        doc.addPage();
+                        y = 20;
+                    }
+                    
+                    doc.text(`${index + 1}. ${person.name}`, 20, y);
+                    doc.text(`رقم الهوية: ${person.id}`, 100, y);
+                    doc.text(`الصفة: ${person.role}`, 150, y);
+                    y += 7;
+                });
+                
+                // إضافة بيانات العقارات
+                if (SystemState.arabicResults.realEstates.length > 0) {
+                    y += 10;
+                    doc.setFontSize(14);
+                    doc.setFont('helvetica', 'bold');
+                    doc.text('البيانات العقارية:', 20, y);
+                    y += 10;
+                    
+                    doc.setFontSize(10);
+                    doc.setFont('helvetica', 'normal');
+                    
+                    SystemState.arabicResults.realEstates.forEach((estate, index) => {
+                        if (y > 280) {
+                            doc.addPage();
+                            y = 20;
+                        }
+                        
+                        doc.text(`عقار ${index + 1}: ${estate.description}`, 20, y);
+                        y += 7;
+                    });
+                }
+                
+                // حفظ الملف
+                doc.save('تقرير_البيانات_العربية.pdf');
+                
+                alert('تم تصدير التقرير إلى PDF بنجاح!');
+            } catch (error) {
+                console.error('خطأ في تصدير PDF:', error);
+                alert('حدث خطأ أثناء تصدير التقرير إلى PDF');
+            }
+        }
+        
+        function exportToJSON() {
+            try {
+                const data = {
+                    metadata: {
+                        generatedAt: new Date().toISOString(),
+                        totalFiles: SystemState.files.size,
+                        statistics: SystemState.arabicResults.statistics
+                    },
+                    individuals: SystemState.arabicResults.individuals,
+                    realEstates: SystemState.arabicResults.realEstates,
+                    addresses: [...new Set(SystemState.arabicResults.addresses)],
+                    dates: [...new Set(SystemState.arabicResults.dates)],
+                    texts: SystemState.arabicResults.texts
                 };
                 
-                renderUI(heirsData, poaData, clausesData);
-                updateProgress(100, 'اكتمل التحليل بنجاح!');
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
                 
-                setTimeout(() => {
-                    document.getElementById('loadingSection').classList.add('hidden');
-                    document.getElementById('resultsSection').classList.remove('hidden');
-                    document.getElementById('exportBtn').classList.remove('hidden');
-                    showNotification('✅ تم التحليل بنجاح! يمكنك تصدير النتائج.', 'success');
-                }, 600);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'البيانات_العربية.json';
+                a.style.display = 'none';
                 
-            } catch (err) {
-                console.error('Error in processing:', err);
-                showNotification('❌ حدث خطأ في التحليل. تأكد من وضوح الملفات وصحتها.', 'error');
-                document.getElementById('loadingSection').classList.add('hidden');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                URL.revokeObjectURL(url);
+                
+                alert('تم تصدير البيانات إلى JSON بنجاح!');
+            } catch (error) {
+                console.error('خطأ في تصدير JSON:', error);
+                alert('حدث خطأ أثناء تصدير البيانات إلى JSON');
             }
         }
-
-        function analyzeHeirship(text) {
-            const normalizedText = normalizeArabicText(text);
-            const lines = text.split('\n').filter(line => line.trim().length > 3);
-            
-            let decId = null;
-            let decName = 'غير معروف';
-            const heirs = [];
-            const heirDetails = {};
-            const names = {};
-            const shares = {};
-            
-            const idPattern = /\b(1\d{9})\b/g;
-            const namePattern = /([\u0600-\u06FF\s]{3,} بن(ت)?[\s\u0600-\u06FF]{2,})|([\u0600-\u06FF]{2,}\s[\u0600-\u06FF]{2,}\s[\u0600-\u06FF]{2,})/;
-            const sharePattern = /(ربع|ثلث|نصف|سدس|ثمن|تسع|عشر|ثلثان|نصفان|سدسان)/;
-            
-            let foundHeirsSection = false;
-            
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-                const cleanLine = line.trim();
-                
-                if (cleanLine.includes('بيانات الورثة') || cleanLine.includes('أسماء الورثة') || 
-                    cleanLine.includes('الورثة') || cleanLine.includes('المستحقين')) {
-                    foundHeirsSection = true;
-                }
-                
-                const ids = [...cleanLine.matchAll(idPattern)].map(m => m[1]);
-                
-                for (const id of ids) {
-                    if (!decId && (cleanLine.includes('متوفى') || cleanLine.includes('تاريخ الوفاة') || 
-                        cleanLine.includes('المتوفى') || cleanLine.includes('المورث'))) {
-                        decId = id;
-                        const nameMatch = cleanLine.match(namePattern);
-                        if (nameMatch) {
-                            decName = nameMatch[0].trim();
-                        }
-                    } else if (foundHeirsSection || !decId) {
-                        if (!heirs.includes(id) && id !== decId) {
-                            heirs.push(id);
-                            
-                            const nameMatch = cleanLine.match(namePattern);
-                            if (nameMatch) {
-                                names[id] = nameMatch[0].trim();
-                            } else {
-                                names[id] = extractNameFromContext(lines, i, id);
-                            }
-                            
-                            const shareMatch = cleanLine.match(sharePattern);
-                            shares[id] = shareMatch ? shareMatch[1] : 'غير محدد';
-                            
-                            heirDetails[id] = {
-                                name: names[id],
-                                share: shares[id],
-                                isDeceased: false
-                            };
-                        }
-                    }
-                }
-            }
-            
-            if (!decId && heirs.length > 0) {
-                decId = heirs.shift();
-            }
-            
-            return { 
-                decId, 
-                decName,
-                heirs, 
-                heirDetails,
-                names, 
-                shares,
-                totalHeirs: heirs.length
-            };
+        
+        function downloadAllResults() {
+            // تصدير جميع الصيغ في مرة واحدة
+            exportToExcel();
+            setTimeout(exportToPDF, 1000);
+            setTimeout(exportToJSON, 2000);
         }
-
-        function analyzePOA(text) {
-            const normalizedText = normalizeArabicText(text);
-            const lines = text.split('\n').filter(line => line.trim().length > 5);
+        
+        // =============== أحداث DOM ===============
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
             
-            let agentId = null;
-            let agentName = 'غير معروف';
-            const principals = [];
-            const principalDetails = [];
+            // أحداث رفع الملفات
+            const fileInput = document.getElementById('file-input');
+            const dropZone = document.getElementById('drop-zone');
             
-            const idPattern = /\b(1\d{9})\b/g;
-            const agentKeywords = ['وكيل', 'الوكيل', 'مفوض', 'المفوض', 'نيابة', 'النيابة'];
-            const principalKeywords = ['موكل', 'الموكل', 'عن نفسه', 'اصليه', 'أصيله'];
-            
-            let inAgentSection = false;
-            let inPrincipalSection = false;
-            
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i];
-                const cleanLine = line.trim();
-                const normalizedLine = normalizeArabicText(cleanLine);
-                
-                if (agentKeywords.some(kw => normalizedLine.includes(kw))) {
-                    inAgentSection = true;
-                    inPrincipalSection = false;
-                }
-                
-                if (principalKeywords.some(kw => normalizedLine.includes(kw))) {
-                    inPrincipalSection = true;
-                    inAgentSection = false;
-                }
-                
-                const ids = [...cleanLine.matchAll(idPattern)].map(m => m[1]);
-                
-                for (const id of ids) {
-                    if (inAgentSection && !agentId) {
-                        agentId = id;
-                        agentName = extractNameFromContext(lines, i, id) || 'غير معروف';
-                    } else if (inPrincipalSection || (!agentId && ids.length > 1)) {
-                        if (id !== agentId && !principals.includes(id)) {
-                            principals.push(id);
-                            principalDetails.push({
-                                id: id,
-                                name: extractNameFromContext(lines, i, id) || 'غير معروف'
-                            });
-                        }
-                    }
-                }
-            }
-            
-            return { 
-                agentId, 
-                agentName,
-                principals,
-                principalDetails,
-                totalPrincipals: principals.length
-            };
-        }
-
-        function extractAndAnalyzeClauses(text) {
-            const normalizedText = normalizeArabicText(text);
-            const paragraphs = text.split(/\n\s*\n/).filter(p => p.length > 20);
-            
-            const estateKeywords = [
-                'عقار', 'عقارات', 'بيع', 'شراء', 'إفراغ', 'تسجيل', 'رهن', 'تأجير',
-                'شيك', 'ثمن', 'مبلغ', 'مشتر', 'بائع', 'سجل عقاري', 'طابو'
-            ];
-            
-            const legalKeywords = [
-                'محكمة', 'محاكم', 'دعوى', 'دعاوى', 'قسمة', 'تركة', 'نزاع',
-                'مرافعة', 'حكم', 'قاضي', 'استئناف', 'تمييز', 'تنفيذ'
-            ];
-            
-            const claimsKeywords = [
-                'مطالبة', 'مطالبات', 'دين', 'ديون', 'مستحقات', 'أموال',
-                'وديعة', 'مبلغ', 'تعويض', 'مستحق', 'حق', 'مستحقه'
-            ];
-            
-            const scopeKeywords = [
-                'نطاق', 'صلاحية', 'تفويض', 'وكالة', 'إدارة', 'تصرف',
-                'توزيع', 'بيع', 'شراء', 'استلام', 'تسلم', 'إبرام'
-            ];
-            
-            let estateText = '';
-            let legalText = '';
-            let claimsText = '';
-            let scopeText = '';
-            
-            let estateScore = 0;
-            let legalScore = 0;
-            let claimsScore = 0;
-            let scopeScore = 0;
-            
-            paragraphs.forEach(para => {
-                const normalizedPara = normalizeArabicText(para);
-                
-                estateKeywords.forEach(keyword => {
-                    if (normalizedPara.includes(keyword)) {
-                        if (para.length > estateText.length) {
-                            estateText = para;
-                        }
-                        estateScore += 5;
-                    }
-                });
-                
-                legalKeywords.forEach(keyword => {
-                    if (normalizedPara.includes(keyword)) {
-                        if (para.length > legalText.length) {
-                            legalText = para;
-                        }
-                        legalScore += 5;
-                    }
-                });
-                
-                claimsKeywords.forEach(keyword => {
-                    if (normalizedPara.includes(keyword)) {
-                        if (para.length > claimsText.length) {
-                            claimsText = para;
-                        }
-                        claimsScore += 5;
-                    }
-                });
-                
-                scopeKeywords.forEach(keyword => {
-                    if (normalizedPara.includes(keyword)) {
-                        if (para.length > scopeText.length) {
-                            scopeText = para;
-                        }
-                        scopeScore += 5;
-                    }
-                });
+            fileInput.addEventListener('change', (e) => {
+                addFiles(e.target.files);
             });
             
-            estateScore = Math.min(estateScore, 100);
-            legalScore = Math.min(legalScore, 100);
-            claimsScore = Math.min(claimsScore, 100);
-            scopeScore = Math.min(scopeScore, 100);
-            
-            return {
-                estate: estateText || 'لم يتم العثور على بنود العقارات في الوثيقة.',
-                legal: legalText || 'لم يتم العثور على بنود المحاكم في الوثيقة.',
-                claims: claimsText || 'لم يتم العثور على بنود المطالبات المالية في الوثيقة.',
-                scope: scopeText || 'لم يتم العثور على نطاق الوكالة بشكل مفصل في الوثيقة.',
-                scores: {
-                    estate: estateScore,
-                    legal: legalScore,
-                    claims: claimsScore,
-                    scope: scopeScore
-                }
-            };
-        }
-
-        function renderUI(hData, pData, cData) {
-            renderDeceasedCard(hData);
-            renderStats(hData, pData);
-            renderChecks(hData, pData, cData);
-            renderTable(hData, pData);
-            renderClauses(cData);
-            updateMatchCircle(hData, pData);
-        }
-
-        function renderDeceasedCard(hData) {
-            if (hData.decId) {
-                document.getElementById('deceasedCard').classList.remove('hidden');
-                document.getElementById('deceasedId').innerText = hData.decId;
-                document.getElementById('deceasedName').innerText = hData.decName || 'غير معروف';
-            }
-        }
-
-        function renderStats(hData, pData) {
-            const totalHeirs = hData.totalHeirs || 0;
-            const appointedHeirs = pData.principals.filter(id => hData.heirs.includes(id)).length;
-            const appointmentRate = totalHeirs > 0 ? Math.round((appointedHeirs / totalHeirs) * 100) : 0;
-            
-            document.getElementById('totalHeirs').innerText = totalHeirs;
-            document.getElementById('appointedHeirs').innerText = appointedHeirs;
-            document.getElementById('appointmentRate').innerText = `${appointmentRate}%`;
-        }
-
-        function renderChecks(hData, pData, cData) {
-            const hasDeceased = !!hData.decId;
-            const hasAgent = !!pData.agentId;
-            const hasClauses = cData.scores.estate > 0 || cData.scores.legal > 0 || 
-                              cData.scores.claims > 0 || cData.scores.scope > 0;
-            
-            document.getElementById('checkDeceased').innerHTML = `
-                <span class="text-gray-700 font-medium">بيانات المتوفى</span>
-                <span class="${hasDeceased ? 'text-green-500' : 'text-red-500'} text-xl">
-                    ${hasDeceased ? '✅' : '❌'}
-                </span>
-            `;
-            
-            document.getElementById('checkAgent').innerHTML = `
-                <span class="text-gray-700 font-medium">بيانات الوكيل</span>
-                <span class="${hasAgent ? 'text-green-500' : 'text-red-500'} text-xl">
-                    ${hasAgent ? '✅' : '❌'}
-                </span>
-            `;
-            
-            document.getElementById('checkClauses').innerHTML = `
-                <span class="text-gray-700 font-medium">البنود الأساسية</span>
-                <span class="${hasClauses ? 'text-green-500' : 'text-red-500'} text-xl">
-                    ${hasClauses ? '✅' : '❌'}
-                </span>
-            `;
-        }
-
-        function renderTable(hData, pData) {
-            const tbody = document.getElementById('resultsTable');
-            tbody.innerHTML = '';
-            
-            const allIds = [...new Set([
-                ...hData.heirs,
-                ...pData.principals,
-                pData.agentId
-            ].filter(Boolean))];
-            
-            allIds.forEach(id => {
-                const isHeir = hData.heirs.includes(id);
-                const isAgent = id === pData.agentId;
-                const isPrincipal = pData.principals.includes(id);
-                
-                let name = 'غير معروف';
-                let share = 'غير محدد';
-                let notes = '';
-                
-                if (isHeir && hData.heirDetails[id]) {
-                    name = hData.heirDetails[id].name;
-                    share = hData.heirDetails[id].share;
-                } else if (isAgent) {
-                    name = pData.agentName;
-                    notes = 'الوكيل المفوض';
-                } else if (isPrincipal) {
-                    const principal = pData.principalDetails.find(p => p.id === id);
-                    name = principal ? principal.name : 'غير معروف';
-                    notes = 'موكل';
-                }
-                
-                let roles = [];
-                let rowClass = "hover:bg-gray-50 transition";
-                
-                if (isHeir) roles.push("وارث");
-                if (isAgent) {
-                    roles.push("وكيل شرعي");
-                    rowClass = "agent-row hover:bg-amber-50";
-                } else if (isPrincipal) {
-                    roles.push("موكل");
-                }
-                
-                const roleDisplay = roles.map(role => {
-                    if (role === "وكيل شرعي") return `<span class="agent-badge">⭐ وكيل</span>`;
-                    if (role === "وارث") return `<span class="text-blue-600 bg-blue-50 px-3 py-1 rounded-lg text-xs font-bold">وارث</span>`;
-                    return `<span class="text-gray-600 bg-gray-100 px-3 py-1 rounded-lg text-xs">${role}</span>`;
-                }).join(' ');
-                
-                const status = isPrincipal || isAgent 
-                    ? '<span class="inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 font-bold">✅ تم التوكيل</span>'
-                    : isHeir 
-                    ? '<span class="inline-flex items-center px-3 py-1.5 rounded-full bg-gradient-to-r from-red-100 to-rose-100 text-red-800 font-bold">❌ لم يوكل</span>'
-                    : '<span class="text-gray-400">-</span>';
-                
-                tbody.innerHTML += `
-                    <tr class="${rowClass} border-b last:border-0">
-                        <td class="p-4 font-mono text-gray-800 font-bold text-lg">${id}</td>
-                        <td class="p-4 font-medium">${name}</td>
-                        <td class="p-4">${roleDisplay}</td>
-                        <td class="p-4 font-semibold ${share !== 'غير محدد' ? 'text-blue-600' : 'text-gray-500'}">${share}</td>
-                        <td class="p-4 text-center">${status}</td>
-                        <td class="p-4 text-center text-gray-600 text-sm">${notes}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderClauses(cData) {
-            const estateBox = document.getElementById('estateText');
-            const legalBox = document.getElementById('legalText');
-            const claimsBox = document.getElementById('claimsText');
-            const scopeBox = document.getElementById('scopeText');
-            
-            estateBox.innerText = cData.estate;
-            legalBox.innerText = cData.legal;
-            claimsBox.innerText = cData.claims;
-            scopeBox.innerText = cData.scope;
-            
-            updateClauseBoxStyle(estateBox, cData.scores.estate);
-            updateClauseBoxStyle(legalBox, cData.scores.legal);
-            updateClauseBoxStyle(claimsBox, cData.scores.claims);
-            updateClauseBoxStyle(scopeBox, cData.scores.scope);
-            
-            document.getElementById('estateScore').innerHTML = `
-                <div class="w-12 h-12 rounded-full ${getScoreColor(cData.scores.estate)} flex items-center justify-center">
-                    <span class="font-bold">${cData.scores.estate}%</span>
-                </div>
-            `;
-            
-            document.getElementById('legalScore').innerHTML = `
-                <div class="w-12 h-12 rounded-full ${getScoreColor(cData.scores.legal)} flex items-center justify-center">
-                    <span class="font-bold">${cData.scores.legal}%</span>
-                </div>
-            `;
-            
-            document.getElementById('claimsScore').innerHTML = `
-                <div class="w-12 h-12 rounded-full ${getScoreColor(cData.scores.claims)} flex items-center justify-center">
-                    <span class="font-bold">${cData.scores.claims}%</span>
-                </div>
-            `;
-            
-            document.getElementById('scopeScore').innerHTML = `
-                <div class="w-12 h-12 rounded-full ${getScoreColor(cData.scores.scope)} flex items-center justify-center">
-                    <span class="font-bold">${cData.scores.scope}%</span>
-                </div>
-            `;
-        }
-
-        function updateClauseBoxStyle(box, score) {
-            box.className = box.className.replace(' not-found', '').replace(' found', '');
-            if (score > 0) {
-                box.classList.add('found');
-            } else {
-                box.classList.add('not-found');
-            }
-        }
-
-        function getScoreColor(score) {
-            if (score >= 80) return 'bg-emerald-100 text-emerald-800';
-            if (score >= 50) return 'bg-amber-100 text-amber-800';
-            if (score >= 20) return 'bg-orange-100 text-orange-800';
-            return 'bg-red-100 text-red-800';
-        }
-
-        function updateMatchCircle(hData, pData) {
-            const totalHeirs = hData.totalHeirs || 0;
-            const appointedHeirs = pData.principals.filter(id => hData.heirs.includes(id)).length;
-            const appointmentRate = totalHeirs > 0 ? Math.round((appointedHeirs / totalHeirs) * 100) : 0;
-            
-            const circle = document.getElementById('matchCircle');
-            const percentageText = document.getElementById('matchPercentage');
-            
-            const circumference = 2 * Math.PI * 45;
-            const offset = circumference - (appointmentRate / 100) * circumference;
-            
-            circle.style.strokeDashoffset = offset;
-            percentageText.innerText = `${appointmentRate}%`;
-            
-            let color = '#ef4444';
-            if (appointmentRate >= 80) color = '#10b981';
-            else if (appointmentRate >= 50) color = '#f59e0b';
-            
-            circle.style.stroke = color;
-        }
-
-        function extractNameFromContext(lines, currentIndex, targetId) {
-            const contextLines = [];
-            const start = Math.max(0, currentIndex - 2);
-            const end = Math.min(lines.length - 1, currentIndex + 2);
-            
-            for (let i = start; i <= end; i++) {
-                contextLines.push(lines[i]);
-            }
-            
-            const context = contextLines.join(' ');
-            const namePattern = /([\u0600-\u06FF]{2,}\s[\u0600-\u06FF]{2,}(\s[\u0600-\u06FF]{2,})?)/;
-            const nameMatch = context.match(namePattern);
-            
-            if (nameMatch) {
-                const name = nameMatch[1].trim();
-                if (!name.includes(targetId) && name.length > 4) {
-                    return name;
-                }
-            }
-            
-            return null;
-        }
-
-        function normalizeArabicText(text) {
-            return text
-                .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
-                .replace(/(أ|إ|آ|ٱ)/g, 'ا')
-                .replace(/ة/g, 'ه')
-                .replace(/ى/g, 'ي')
-                .replace(/ؤ/g, 'و')
-                .replace(/ئ/g, 'ي')
-                .replace(/\s+/g, ' ')
-                .replace(/[^\u0600-\u06FF0-9\s]/g, '')
-                .trim();
-        }
-
-        async function extractText(file, type) {
-            updateProgress(type === 'heirs' ? 20 : 35, `جاري قراءة ${type === 'heirs' ? 'صك الورثة' : 'وثيقة الوكالة'}...`);
-            
-            if (file.type === 'application/pdf') {
-                try {
-                    const arrayBuffer = await file.arrayBuffer();
-                    const doc = await pdfjsLib.getDocument(arrayBuffer).promise;
-                    let fullText = "";
-                    
-                    for (let i = 1; i <= doc.numPages; i++) {
-                        updateProgress(
-                            type === 'heirs' ? 25 + (i * 5) : 40 + (i * 5),
-                            `جاري معالجة الصفحة ${i} من ${doc.numPages}...`
-                        );
-                        
-                        const page = await doc.getPage(i);
-                        const textContent = await page.getTextContent();
-                        const pageText = textContent.items
-                            .map(item => item.str)
-                            .join(' ')
-                            .replace(/\s+/g, ' ')
-                            .trim();
-                        
-                        fullText += pageText + '\n\n';
-                    }
-                    
-                    return fullText;
-                } catch (err) {
-                    console.warn('PDF extraction failed, falling back to OCR:', err);
-                    return await runOCR(file);
-                }
-            } else {
-                return await runOCR(file);
-            }
-        }
-
-        async function runOCR(file) {
-            updateProgress(50, 'جاري استخدام OCR لاستخراج النص العربي...');
-            
-            try {
-                const worker = await Tesseract.createWorker();
-                await worker.loadLanguage('ara');
-                await worker.initialize('ara');
-                
-                await worker.setParameters({
-                    tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK,
-                    preserve_interword_spaces: '1',
-                });
-                
-                const result = await worker.recognize(file);
-                await worker.terminate();
-                
-                return result.data.text;
-            } catch (err) {
-                console.error('OCR failed:', err);
-                throw new Error('فشل في استخراج النص من الصورة');
-            }
-        }
-
-        function updateProgress(percent, message) {
-            const progressBar = document.getElementById('progressBar');
-            const progressPercent = document.getElementById('progressPercent');
-            const loadingMessage = document.getElementById('loadingMessage');
-            
-            progressBar.style.width = `${percent}%`;
-            progressPercent.innerText = `${percent}%`;
-            loadingMessage.innerText = message;
-        }
-
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `notification ${type === 'error' ? 'bg-gradient-to-r from-red-500 to-rose-500' : 'bg-gradient-to-r from-emerald-500 to-green-500'}`;
-            notification.innerText = message;
-            notification.style.color = 'white';
-            document.body.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideIn 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55) reverse';
-                setTimeout(() => {
-                    if (notification.parentNode) {
-                        notification.remove();
-                    }
-                }, 400);
-            }, 3000);
-        }
-
-        function filterByRole(role) {
-            const rows = document.querySelectorAll('#resultsTable tr');
-            rows.forEach(row => {
-                const roleCell = row.querySelector('td:nth-child(3)');
-                if (roleCell) {
-                    const hasRole = roleCell.textContent.includes(role === 'agent' ? 'وكيل' : 'وارث');
-                    row.style.display = hasRole ? '' : 'none';
-                }
-            });
-        }
-
-        function resetFilter() {
-            const rows = document.querySelectorAll('#resultsTable tr');
-            rows.forEach(row => {
-                row.style.display = '';
-            });
-        }
-
-        function exportToExcel() {
-            if (!analysisResults) {
-                showNotification('❌ لا توجد بيانات للتصدير', 'error');
-                return;
-            }
-            
-            const { heirsData, poaData } = analysisResults;
-            let csv = 'رقم الهوية,الاسم,الصفة,النسبة,حالة التوكيل,ملاحظات\n';
-            
-            const allIds = [...new Set([
-                ...heirsData.heirs,
-                ...poaData.principals,
-                poaData.agentId
-            ].filter(Boolean))];
-            
-            allIds.forEach(id => {
-                const isHeir = heirsData.heirs.includes(id);
-                const isAgent = id === poaData.agentId;
-                const isPrincipal = poaData.principals.includes(id);
-                
-                let name = 'غير معروف';
-                let share = 'غير محدد';
-                let role = 'طرف خارجي';
-                let status = 'غير معروف';
-                let notes = '';
-                
-                if (isHeir && heirsData.heirDetails[id]) {
-                    name = heirsData.heirDetails[id].name;
-                    share = heirsData.heirDetails[id].share;
-                    role = 'وارث';
-                }
-                
-                if (isAgent) {
-                    name = poaData.agentName;
-                    role = 'وكيل';
-                    notes = 'الوكيل المفوض';
-                } else if (isPrincipal) {
-                    const principal = poaData.principalDetails.find(p => p.id === id);
-                    name = principal ? principal.name : 'غير معروف';
-                    role = 'موكل';
-                }
-                
-                status = isPrincipal || isAgent ? 'مكلف' : isHeir ? 'غير مكلف' : 'غير معروف';
-                
-                csv += `"${id}","${name}","${role}","${share}","${status}","${notes}"\n`;
+            dropZone.addEventListener('click', () => {
+                fileInput.click();
             });
             
-            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `تقرير_الوكالة_${new Date().toISOString().split('T')[0]}.csv`;
-            link.click();
-            showNotification('✅ تم تصدير البيانات إلى Excel', 'success');
-        }
-
-        function downloadReport() {
-            if (!analysisResults) {
-                showNotification('❌ لا توجد بيانات للتقرير', 'error');
-                return;
-            }
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('dragover');
+            });
             
-            const { heirsData, poaData } = analysisResults;
-            const report = `
-                ===========================================
-                تقرير تحليل الوكالة الشرعية - المحلل البلاتيني
-                ===========================================
-                التاريخ: ${new Date().toLocaleDateString('ar-SA')}
-                الوقت: ${new Date().toLocaleTimeString('ar-SA')}
-                
-                ====================
-                بيانات المتوفى:
-                ====================
-                رقم الهوية: ${heirsData.decId || 'غير معروف'}
-                الاسم: ${heirsData.decName || 'غير معروف'}
-                عدد الورثة: ${heirsData.totalHeirs}
-                
-                ====================
-                بيانات الوكيل:
-                ====================
-                رقم الهوية: ${poaData.agentId || 'غير معروف'}
-                الاسم: ${poaData.agentName || 'غير معروف'}
-                عدد الموكِلين: ${poaData.totalPrincipals}
-                
-                ====================
-                الورثة والوكلاء:
-                ====================
-                ${document.querySelector('#resultsTable').innerText.replace(/\t/g, '  ')}
-                
-                ====================
-                البنود المستخرجة:
-                ====================
-                1. بند العقارات:
-                ${document.querySelector('#estateText').innerText}
-                
-                2. بند المحاكم:
-                ${document.querySelector('#legalText').innerText}
-                
-                3. بند المطالبات المالية:
-                ${document.querySelector('#claimsText').innerText}
-                
-                4. نطاق الوكالة:
-                ${document.querySelector('#scopeText').innerText}
-                
-                ====================
-                ملاحظات:
-                ====================
-                * تم إنشاء هذا التقرير بواسطة المحلل العدلي البلاتيني
-                * النظام يعتمد على الذكاء الاصطناعي لتحليل الوثائق
-                * يوصى بمراجعة المحامي المختص للتأكد من صحة المعلومات
-                * هذا التقرير ذو طبيعة مساعدة ولا يغني عن الاستشارة القانونية
-                
-                ===========================================
-                تم الإنشاء في: ${new Date().toLocaleString('ar-SA')}
-                ===========================================
-            `;
+            dropZone.addEventListener('dragleave', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+            });
             
-            const blob = new Blob(['\uFEFF' + report], { type: 'text/plain;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `تقرير_الوكالة_${new Date().getTime()}.txt`;
-            link.click();
-            showNotification('✅ تم تحميل التقرير بنجاح', 'success');
-        }
-
-        function printResults() {
-            window.print();
-        }
-
-        function showAnalysisDetails() {
-            if (!analysisResults) {
-                showNotification('❌ لا توجد بيانات للتحليل', 'error');
-                return;
-            }
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('dragover');
+                
+                if (e.dataTransfer.files.length > 0) {
+                    addFiles(e.dataTransfer.files);
+                }
+            });
             
-            const modal = document.getElementById('analysisModal');
-            const detailsDiv = document.getElementById('analysisDetails');
-            
-            const { heirsData, poaData, clausesData } = analysisResults;
-            
-            const details = `
-                <div class="space-y-6">
-                    <div class="bg-gray-50 p-4 rounded-xl">
-                        <h4 class="font-bold text-lg text-gray-800 mb-2">📊 معلومات المعالجة</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div>
-                                <span class="text-gray-600">تاريخ التحليل:</span>
-                                <span class="font-medium">${new Date(analysisResults.timestamp).toLocaleString('ar-SA')}</span>
-                            </div>
-                            <div>
-                                <span class="text-gray-600">نظام التحليل:</span>
-                                <span class="font-medium">النظام الذكي البلاتيني</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-blue-50 p-4 rounded-xl">
-                        <h4 class="font-bold text-lg text-blue-800 mb-2">👥 نتائج استخراج الورثة</h4>
-                        <div class="space-y-2">
-                            <div><span class="text-blue-600">عدد الورثة:</span> <span class="font-bold">${heirsData.totalHeirs}</span></div>
-                            <div><span class="text-blue-600">المتوفى:</span> <span class="font-bold">${heirsData.decId || 'غير معروف'}</span></div>
-                            <div><span class="text-blue-600">الأسماء المستخرجة:</span> <span class="font-bold">${Object.keys(heirsData.names).length}</span></div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-amber-50 p-4 rounded-xl">
-                        <h4 class="font-bold text-lg text-amber-800 mb-2">⚖️ نتائج تحليل الوكالة</h4>
-                        <div class="space-y-2">
-                            <div><span class="text-amber-600">الوكيل:</span> <span class="font-bold">${poaData.agentId || 'غير معروف'}</span></div>
-                            <div><span class="text-amber-600">عدد الموكِلين:</span> <span class="font-bold">${poaData.totalPrincipals}</span></div>
-                            <div><span class="text-amber-600">نسبة المطابقة:</span> <span class="font-bold">${calculateMatchRate(heirsData, poaData)}%</span></div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-green-50 p-4 rounded-xl">
-                        <h4 class="font-bold text-lg text-green-800 mb-2">📝 جودة استخراج البنود</h4>
-                        <div class="grid grid-cols-2 gap-4">
-                            <div class="text-center p-3 bg-white rounded-lg">
-                                <div class="text-2xl font-bold ${clausesData.scores.estate >= 50 ? 'text-green-600' : 'text-red-600'}">${clausesData.scores.estate}%</div>
-                                <div class="text-sm text-gray-600">العقارات</div>
-                            </div>
-                            <div class="text-center p-3 bg-white rounded-lg">
-                                <div class="text-2xl font-bold ${clausesData.scores.legal >= 50 ? 'text-green-600' : 'text-red-600'}">${clausesData.scores.legal}%</div>
-                                <div class="text-sm text-gray-600">المحاكم</div>
-                            </div>
-                            <div class="text-center p-3 bg-white rounded-lg">
-                                <div class="text-2xl font-bold ${clausesData.scores.claims >= 50 ? 'text-green-600' : 'text-red-600'}">${clausesData.scores.claims}%</div>
-                                <div class="text-sm text-gray-600">المطالبات</div>
-                            </div>
-                            <div class="text-center p-3 bg-white rounded-lg">
-                                <div class="text-2xl font-bold ${clausesData.scores.scope >= 50 ? 'text-green-600' : 'text-red-600'}">${clausesData.scores.scope}%</div>
-                                <div class="text-sm text-gray-600">النطاق</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="bg-purple-50 p-4 rounded-xl">
-                        <h4 class="font-bold text-lg text-purple-800 mb-2">🔍 ملاحظات تقنية</h4>
-                        <ul class="space-y-2 text-gray-700">
-                            <li class="flex items-start gap-2">
-                                <span class="text-purple-500">•</span>
-                                <span>تم استخدام خوارزميات متقدمة لمعالجة النصوص العربية</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="text-purple-500">•</span>
-                                <span>تم تطبيق تصحيح تلقائي للأخطاء الإملائية الشائعة</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="text-purple-500">•</span>
-                                <span>تم تحسين استخراج الأسماء العربية الثلاثية</span>
-                            </li>
-                            <li class="flex items-start gap-2">
-                                <span class="text-purple-500">•</span>
-                                <span>تم استخدام تقنيات الذكاء الاصطناعي لتحليل السياق</span>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            `;
-            
-            detailsDiv.innerHTML = details;
-            modal.classList.remove('hidden');
-        }
-
-        function closeAnalysisDetails() {
-            document.getElementById('analysisModal').classList.add('hidden');
-        }
-
-        function calculateMatchRate(heirsData, poaData) {
-            const totalHeirs = heirsData.totalHeirs || 0;
-            const matchedHeirs = poaData.principals.filter(id => heirsData.heirs.includes(id)).length;
-            return totalHeirs > 0 ? Math.round((matchedHeirs / totalHeirs) * 100) : 0;
-        }
-
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape') {
-                closeAnalysisDetails();
-            }
+            // زر المعالجة
+            document.getElementById('process-btn').addEventListener('click', processAllFiles);
         });
-
-        window.addEventListener('load', () => {
-            showNotification('مرحباً بك في المحلل العدلي البلاتيني! قم برفع الملفات لبدء التحليل.', 'success');
-        });
+        
+        // جعل الدوال متاحة عالمياً
+        window.removeFile = removeFile;
+        window.clearAllFiles = clearAllFiles;
+        window.processAllFiles = processAllFiles;
+        window.exportToExcel = exportToExcel;
+        window.exportToPDF = exportToPDF;
+        window.exportToJSON = exportToJSON;
+        window.downloadAllResults = downloadAllResults;
+        
     </script>
 </body>
 </html>
