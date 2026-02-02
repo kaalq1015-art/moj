@@ -1,12 +1,219 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>نظام منفذ عمليات الورثة </title>
-  </head>
-  <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>منصة تدقيق التركات الذكية</title>
+    <!-- المكتبات الأساسية ليعمل الملف بشكل مستقل -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Noto Sans Arabic', sans-serif; background-color: #f8fafc; }
+        .spinner { border: 3px solid rgba(255, 255, 255, 0.3); border-radius: 50%; border-top: 3px solid #fff; width: 20px; height: 20px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
     <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // المفتاح الذي زودتني به
+        const API_KEY = "AIzaSyB051BQjnc-35XdnawKEIWDyNxOBYNL9WE";
+        // الموديل المطلوب
+        const MODEL = "gemini-2.0-flash";
+
+        // أيقونات SVG للعمل بدون مكتبات خارجية
+        const Icons = {
+            Shield: () => <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>,
+            Upload: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>,
+            Play: () => <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"></path></svg>,
+            Check: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path></svg>,
+            Alert: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>,
+            Trash: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v2m3 4h.01"></path></svg>
+        };
+
+        const App = () => {
+            const [docs, setDocs] = useState([]);
+            const [queue, setQueue] = useState([]);
+            const [results, setResults] = useState([]);
+            const [loading, setLoading] = useState(false);
+            const [status, setStatus] = useState({ current: 0, total: 0 });
+            const fileInput = useRef(null);
+
+            // المنطق القانوني (أ) و (ب)
+            useEffect(() => {
+                if (docs.length === 0) return;
+                
+                const sorted = [...docs].sort((a, b) => new Date(a.issueDate) - new Date(b.issueDate));
+                const inheritanceDocs = sorted.filter(d => d.docType === 'HOSR');
+                if (inheritanceDocs.length === 0) return;
+
+                const firstDeceased = inheritanceDocs[0].deceasedName;
+                const poaDocs = sorted.filter(d => d.docType === 'POA');
+
+                const summary = [];
+                inheritanceDocs.forEach(doc => {
+                    const isMain = doc.deceasedName === firstDeceased;
+                    doc.heirs.forEach(heir => {
+                        const poa = poaDocs.find(p => p.principals.some(pr => pr.includes(heir.name) || heir.name.includes(pr)));
+                        const isAgent = poaDocs.some(p => p.agentName.includes(heir.name));
+                        
+                        let text = isMain 
+                            ? `الوكالة يجب أن تكون خاصة بالإرث من المورث الأساسي (${firstDeceased})`
+                            : `الوكالة يجب أن تكون خاصة بالإرث من (${doc.deceasedName}) والعائد له من (${firstDeceased}) وتوارثوه بينهم`;
+
+                        summary.push({
+                            name: heir.name,
+                            idNo: heir.idNo,
+                            deceased: doc.deceasedName,
+                            isMain,
+                            isAuth: !!poa,
+                            isAgent,
+                            agent: isAgent ? "نفسه (وكيل)" : (poa ? poa.agentName : "-"),
+                            note: text
+                        });
+                    });
+                });
+                setResults(summary);
+            }, [docs]);
+
+            const toBase64 = (f) => new Promise((res) => {
+                const r = new FileReader();
+                r.readAsDataURL(f);
+                r.onload = () => res(r.result.split(',')[1]);
+            });
+
+            const callAI = async (base64, mime) => {
+                const prompt = `Extract JSON: docType (HOSR/POA), issueDate (YYYY-MM-DD), deceasedName, heirs [{name, idNo}], agentName, principals []. JSON ONLY.`;
+                const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }, { inlineData: { mimeType: mime, data: base64 } }] }],
+                        generationConfig: { responseMimeType: "application/json" }
+                    })
+                });
+                const data = await resp.json();
+                return JSON.parse(data.candidates[0].content.parts[0].text);
+            };
+
+            const handleProcess = async () => {
+                setLoading(true);
+                setStatus({ current: 0, total: queue.length });
+                for (let i = 0; i < queue.length; i++) {
+                    try {
+                        const b64 = await toBase64(queue[i].file);
+                        const res = await callAI(b64, queue[i].type);
+                        setDocs(prev => [...prev, { ...res, fileName: queue[i].name, id: Math.random() }]);
+                    } catch (e) { console.error(e); }
+                    setStatus(prev => ({ ...prev, current: i + 1 }));
+                }
+                setQueue([]);
+                setLoading(false);
+            };
+
+            return (
+                <div className="max-w-7xl mx-auto">
+                    {/* Header */}
+                    <header className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6 mb-8 mt-4">
+                        <div className="flex items-center gap-4">
+                            <div className="bg-emerald-600 p-4 rounded-2xl text-white shadow-lg"><Icons.Shield /></div>
+                            <div>
+                                <h1 className="text-2xl font-black text-slate-800">منظومة تدقيق التركات</h1>
+                                <p className="text-slate-500 text-xs">نظام ذكي لتحليل التناسخ ومطابقة الوكالات</p>
+                            </div>
+                        </div>
+                        <div className="flex gap-4 w-full md:w-auto">
+                            <button onClick={() => fileInput.current.click()} className="flex-1 md:flex-none bg-slate-100 px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2">
+                                <Icons.Upload /> إرفاق ملفات
+                            </button>
+                            {queue.length > 0 && (
+                                <button onClick={handleProcess} disabled={loading} className="flex-1 md:flex-none bg-emerald-600 text-white px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl">
+                                    {loading ? <div className="spinner"></div> : <Icons.Play />}
+                                    {loading ? `جاري العمل (${status.current}/${status.total})` : `تحليل المرفقات (${queue.length})`}
+                                </button>
+                            )}
+                            <input type="file" ref={fileInput} onChange={(e) => setQueue(Array.from(e.target.files).map(f => ({file: f, name: f.name, type: f.type})))} className="hidden" multiple accept=".pdf,image/*" />
+                        </div>
+                    </header>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        {/* Sidebar */}
+                        <div className="lg:col-span-3 space-y-6">
+                            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+                                <h2 className="text-lg font-bold mb-6 border-b pb-4">تسلسل الصكوك</h2>
+                                {docs.length === 0 ? <p className="text-center py-10 text-slate-300 italic text-xs">لا توجد ملفات معالجة</p> : (
+                                    <div className="space-y-4 relative before:absolute before:right-4 before:top-0 before:bottom-0 before:w-0.5 before:bg-slate-50">
+                                        {docs.sort((a,b) => new Date(a.issueDate) - new Date(b.issueDate)).map(doc => (
+                                            <div key={doc.id} className="relative pr-9 group">
+                                                <div className="absolute right-2.5 top-3 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white ring-4 ring-white"></div>
+                                                <div className="bg-slate-50 p-4 rounded-2xl border hover:border-emerald-200 relative transition-all">
+                                                    <button onClick={() => setDocs(prev => prev.filter(d => d.id !== doc.id))} className="absolute left-2 top-2 text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100"><Icons.Trash /></button>
+                                                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">{doc.docType === 'HOSR' ? 'حصر ورثة' : 'وكالة'}</span>
+                                                    <h4 className="font-bold text-slate-800 text-[11px] mt-1 truncate">{doc.fileName}</h4>
+                                                    <div className="text-[9px] text-slate-400 mt-1">{doc.issueDate}</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Main Table */}
+                        <div className="lg:col-span-9 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+                            <div className="p-8 border-b border-slate-100 flex justify-between">
+                                <h2 className="text-xl font-bold text-slate-800">مراجعة وتحليل الورثة</h2>
+                                <div className="flex gap-4">
+                                    <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-green-500"></div><span className="text-[10px] font-bold text-slate-500">موكل</span></div>
+                                    <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-red-500"></div><span className="text-[10px] font-bold text-slate-500">متبقي</span></div>
+                                </div>
+                            </div>
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-right">
+                                    <thead className="bg-slate-50 text-slate-500 text-[11px] font-black uppercase tracking-widest border-b">
+                                        <tr>
+                                            <th className="p-6">المتوفى</th>
+                                            <th className="p-6">الوارث</th>
+                                            <th className="p-6 text-center">التوكيل</th>
+                                            <th className="p-6">الوكيل</th>
+                                            <th className="p-6">المتطلب القانوني</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-50">
+                                        {results.map((h, i) => (
+                                            <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                                                <td className="p-6"><span className={`text-[10px] font-bold px-3 py-1.5 rounded-xl border ${h.isMain ? 'bg-amber-100 text-amber-700' : 'bg-indigo-100 text-indigo-700'}`}>{h.deceased}</span></td>
+                                                <td className="p-6 font-bold text-sm text-slate-800">{h.name}<div className="text-[10px] text-slate-400 mt-1 font-mono">{h.idNo}</div></td>
+                                                <td className="p-6 text-center">
+                                                    <div className={`w-11 h-11 rounded-2xl mx-auto flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 ${h.isAuth ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
+                                                        {h.isAuth ? <Icons.Check /> : <Icons.Alert />}
+                                                    </div>
+                                                </td>
+                                                <td className="p-6">
+                                                    <div className="text-sm font-bold text-slate-700">{h.agent}</div>
+                                                    {h.isAgent && <div className="mt-2 inline-flex items-center gap-1.5 text-[10px] font-black text-orange-600 bg-orange-50 px-2 py-1 rounded-lg border border-orange-100">المفترض يحضر</div>}
+                                                </td>
+                                                <td className="p-6 text-[10px] text-slate-500 leading-relaxed italic max-w-[250px]">{h.note}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                                {results.length === 0 && !loading && <div className="py-40 text-center text-slate-300 font-bold italic">ارفع صكوك الحصر والوكالات للبدء</div>}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
 </html>
