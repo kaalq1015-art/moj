@@ -3,423 +3,452 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المحلل العدلي البلاتيني v2026 | Platinum MOJ Parser</title>
+    <title>المحلل العدلي البلاتيني | Platinum MOJ Parser</title>
+    
+    <!-- مكتبات المعالجة (محدثة ومستقرة) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+    <!-- مكتبة التنسيق -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- خطوط عربية -->
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: #f8fafc; color: #1e293b; }
+        body { font-family: 'IBM Plex Sans Arabic', sans-serif; background: #f3f4f6; color: #1f2937; }
+        
+        /* مناطق السحب والإفلات */
         .drop-zone {
-            border: 2px dashed #cbd5e1;
+            border: 3px dashed #d1d5db;
             background: #ffffff;
             transition: all 0.3s ease;
             position: relative;
             cursor: pointer;
         }
         .drop-zone:hover, .drop-zone.active {
-            border-color: #f97316;
+            border-color: #f97316; /* برتقالي */
             background: #fff7ed;
-            transform: translateY(-2px);
+            transform: scale(1.01);
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
         }
         .drop-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+        
+        /* بطاقة المتوفى */
         .deceased-card {
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            background: linear-gradient(to left, #374151, #111827);
             color: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
         }
-        .agent-row { background-color: #fff7ed !important; border-right: 4px solid #f97316 !important; }
-        .agent-badge { background-color: #ffedd5; color: #9a3412; border: 1px solid #fdba74; padding: 2px 8px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; }
+        
+        /* تمييز الوكيل (برتقالي) */
+        .agent-row {
+            background-color: #fff7ed !important;
+            border-right: 4px solid #f97316 !important;
+        }
+        .agent-badge {
+            background-color: #ffedd5;
+            color: #9a3412;
+            border: 1px solid #fdba74;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+
+        /* صناديق البنود */
         .clause-box {
             background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
             padding: 1rem;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
             line-height: 1.8;
-            max-height: 200px;
+            max-height: 250px;
             overflow-y: auto;
             white-space: pre-wrap;
-            color: #475569;
+            color: #4b5563;
         }
+
+        /* لودر */
         .loader {
-            width: 40px; height: 40px;
-            border: 4px solid #f97316;
+            width: 48px; height: 48px;
+            border: 5px solid #f97316;
             border-bottom-color: transparent;
             border-radius: 50%;
             display: inline-block;
             animation: spin 1s linear infinite;
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .notification {
-            position: fixed; top: 20px; left: 20px; padding: 12px 24px;
-            border-radius: 12px; font-weight: bold; z-index: 1000;
-            animation: slideIn 0.3s ease-out; color: white;
-        }
-        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div class="max-w-7xl mx-auto space-y-6">
+<body class="p-6 min-h-screen">
+
+    <div class="max-w-7xl mx-auto space-y-8">
         
-        <header class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-orange-500 flex flex-wrap justify-between items-center gap-4">
+        <!-- الرأس -->
+        <header class="bg-white p-6 rounded-2xl shadow-sm border-b-4 border-orange-500 flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-slate-800 tracking-tight">المحلل العدلي <span class="text-orange-600">البلاتيني</span></h1>
-                <p class="text-slate-500 mt-1 flex items-center gap-2">
-                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    نظام ذكي لفحص صكوك الورثة والوكالات العقارية
-                </p>
+                <h1 class="text-3xl font-bold text-gray-800">المحلل العدلي <span class="text-orange-600">البلاتيني</span></h1>
+                <p class="text-gray-500 mt-1">سحب دقيق للبنود • تمييز الوكيل بالبرتقالي • فصل المورث</p>
             </div>
-            <div class="flex gap-3">
-                <button onclick="location.reload()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 rounded-xl text-slate-700 font-semibold transition">بدء فحص جديد</button>
-                <button onclick="exportToExcel()" id="exportBtn" class="hidden px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold shadow-lg shadow-emerald-200 transition">تصدير التقرير</button>
-            </div>
+            <button onclick="location.reload()" class="text-sm text-gray-400 hover:text-orange-600 underline">بدء جديد</button>
         </header>
 
+        <!-- منطقة السحب والإفلات -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div id="heirsZone" class="drop-zone p-8 rounded-2xl text-center group">
+            <!-- صك الحصر -->
+            <div id="heirsZone" class="drop-zone p-10 rounded-2xl text-center group">
                 <input type="file" id="heirsFile" accept="application/pdf,image/*">
-                <div class="text-4xl mb-3 opacity-40 group-hover:opacity-100 transition duration-300">📄</div>
-                <h3 class="text-lg font-bold text-slate-700">صك حصر الورثة</h3>
-                <p id="heirsMsg" class="text-sm text-slate-400 mt-2">اسحب الوثيقة هنا أو انقر للاختيار</p>
+                <div class="text-5xl mb-3 opacity-50 group-hover:opacity-100 transition grayscale group-hover:grayscale-0">📄</div>
+                <h3 class="text-lg font-bold text-gray-700">1. صك حصر الورثة</h3>
+                <p id="heirsMsg" class="text-sm text-gray-400 mt-2">اسحب الملف هنا</p>
             </div>
-            <div id="poaZone" class="drop-zone p-8 rounded-2xl text-center group">
+
+            <!-- الوكالة -->
+            <div id="poaZone" class="drop-zone p-10 rounded-2xl text-center group">
                 <input type="file" id="poaFile" accept="application/pdf,image/*">
-                <div class="text-4xl mb-3 opacity-40 group-hover:opacity-100 transition duration-300">⚖️</div>
-                <h3 class="text-lg font-bold text-slate-700">وثيقة الوكالة</h3>
-                <p id="poaMsg" class="text-sm text-slate-400 mt-2">اسحب الوثيقة هنا أو انقر للاختيار</p>
+                <div class="text-5xl mb-3 opacity-50 group-hover:opacity-100 transition grayscale group-hover:grayscale-0">⚖️</div>
+                <h3 class="text-lg font-bold text-gray-700">2. وثيقة الوكالة</h3>
+                <p id="poaMsg" class="text-sm text-gray-400 mt-2">اسحب الملف هنا</p>
             </div>
         </div>
 
-        <div id="loadingSection" class="hidden bg-white p-10 rounded-2xl shadow-inner text-center border">
+        <!-- التحميل -->
+        <div id="loadingSection" class="hidden text-center py-10">
             <span class="loader"></span>
-            <p id="progressText" class="mt-4 text-slate-800 font-bold tracking-wide">جاري تحليل البيانات...</p>
-            <div class="mt-6 w-full max-w-lg mx-auto bg-slate-100 rounded-full h-3 overflow-hidden border">
-                <div id="progressBar" class="bg-orange-500 h-full transition-all duration-500 shadow-[0_0_10px_rgba(249,115,22,0.5)]" style="width: 0%"></div>
-            </div>
+            <p class="mt-4 text-orange-800 font-bold animate-pulse">جاري تحليل البيانات واستخراج البنود...</p>
         </div>
 
-        <div id="resultsSection" class="hidden space-y-6 animate-fade-in">
+        <!-- النتائج -->
+        <div id="resultsSection" class="hidden space-y-8 animate-fade-in">
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div id="deceasedCard" class="lg:col-span-2 deceased-card p-6 flex flex-wrap items-center justify-between gap-6">
-                    <div class="flex items-center gap-5">
-                        <div class="bg-white/10 p-4 rounded-2xl text-3xl shadow-inner">👤</div>
-                        <div>
-                            <h2 class="text-slate-400 text-xs uppercase font-bold tracking-tighter">المورث (صاحب التركة)</h2>
-                            <div class="flex items-center gap-3 mt-1">
-                                <span id="deceasedId" class="text-2xl font-mono font-bold text-white">---</span>
-                                <span class="bg-orange-500/20 text-orange-400 text-[10px] px-2 py-1 rounded-md border border-orange-500/30">رقم الهوية</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="bg-white/5 p-4 rounded-xl border border-white/10">
-                        <h2 class="text-slate-400 text-[10px] uppercase font-bold mb-1">حالة ربط الوثائق</h2>
-                        <div id="linkingStatus" class="text-sm font-bold text-white italic">جاري التحقق من الربط...</div>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border p-6 flex items-center justify-between">
-                    <div>
-                        <h3 class="text-slate-500 text-sm font-bold">نسبة اكتمال التوكيل</h3>
-                        <p id="appointmentRate" class="text-4xl font-black text-orange-600 mt-1">0%</p>
-                    </div>
-                    <div id="matchCircle" class="w-16 h-16 rounded-full border-4 border-slate-100 flex items-center justify-center font-bold text-xs text-slate-400">
-                        Score
+            <!-- 1. بطاقة المورث (المتوفى) -->
+            <div id="deceasedCard" class="hidden deceased-card p-6 shadow-lg flex items-center gap-6">
+                <div class="bg-white/20 p-4 rounded-full text-3xl">⚰️</div>
+                <div>
+                    <h2 class="text-gray-300 text-xs uppercase font-bold tracking-widest">المورث (المتوفى)</h2>
+                    <div class="flex items-center gap-4 mt-1">
+                        <span id="deceasedId" class="text-3xl font-mono font-bold text-white tracking-wider">---</span>
+                        <span class="bg-gray-700 text-gray-300 text-xs px-2 py-1 rounded">رقم الهوية</span>
                     </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
-                <div class="p-4 bg-slate-50 border-b flex justify-between items-center">
-                    <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                        <span class="p-1.5 bg-orange-100 rounded-lg">👥</span> جدول مطابقة الأطراف
-                    </h2>
-                    <span id="totalHeirsCount" class="text-xs font-bold bg-slate-200 px-3 py-1 rounded-full text-slate-600">0 ورثة</span>
+            <!-- 2. جدول الأطراف -->
+            <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-5 border-b bg-gray-50 flex justify-between items-center">
+                    <h2 class="font-bold text-xl text-gray-800">📊 جدول الورثة والوكلاء</h2>
+                    <span id="matchStats" class="text-xs font-bold px-3 py-1 rounded-full bg-blue-100 text-blue-800"></span>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right">
-                        <thead class="bg-slate-50 text-slate-400 text-[10px] uppercase font-bold">
-                            <tr>
-                                <th class="p-4">الهوية الوطنية</th>
-                                <th class="p-4">الاسم (المكتشف)</th>
-                                <th class="p-4">الصفة</th>
-                                <th class="p-4 text-center">حالة الوكالة</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsTable" class="divide-y divide-slate-100 text-sm font-semibold text-slate-700"></tbody>
-                    </table>
+                <table class="w-full text-right">
+                    <thead class="bg-gray-100 text-gray-600 text-xs uppercase font-bold">
+                        <tr>
+                            <th class="p-4">رقم الهوية</th>
+                            <th class="p-4">الصفة القانونية</th>
+                            <th class="p-4 text-center">حالة التوكيل</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTable" class="divide-y divide-gray-100 text-sm font-medium"></tbody>
+                </table>
+            </div>
+
+            <!-- 3. البنود المستخرجة -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- العقارات -->
+                <div class="bg-white rounded-xl shadow-sm border-t-4 border-blue-500 overflow-hidden">
+                    <div class="p-4 bg-blue-50 flex items-center gap-2">
+                        <span class="text-xl">🏠</span>
+                        <h3 class="font-bold text-blue-900">بند العقارات (البيع والإفراغ)</h3>
+                    </div>
+                    <div id="estateText" class="clause-box border-none rounded-none"></div>
+                </div>
+
+                <!-- المحاكم -->
+                <div class="bg-white rounded-xl shadow-sm border-t-4 border-red-500 overflow-hidden">
+                    <div class="p-4 bg-red-50 flex items-center gap-2">
+                        <span class="text-xl">⚖️</span>
+                        <h3 class="font-bold text-red-900">بند المحاكم (قسمة التركة)</h3>
+                    </div>
+                    <div id="legalText" class="clause-box border-none rounded-none"></div>
+                </div>
+
+                <!-- النطاق -->
+                <div class="bg-white rounded-xl shadow-sm border-t-4 border-amber-500 overflow-hidden lg:col-span-2">
+                    <div class="p-4 bg-amber-50 flex items-center gap-2">
+                        <span class="text-xl">📍</span>
+                        <h3 class="font-bold text-amber-900">نطاق الوكالة</h3>
+                    </div>
+                    <div id="scopeText" class="clause-box border-none rounded-none"></div>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <div class="bg-white rounded-2xl shadow-sm border-t-4 border-blue-500 flex flex-col">
-                    <div class="p-4 bg-blue-50/50 flex items-center justify-between border-b">
-                        <h3 class="font-bold text-blue-900 text-sm">🏠 بند العقارات</h3>
-                        <span id="estateScore" class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0%</span>
-                    </div>
-                    <div id="estateText" class="clause-box flex-grow border-none text-[11px]"></div>
-                </div>
-                <div class="bg-white rounded-2xl shadow-sm border-t-4 border-red-500 flex flex-col">
-                    <div class="p-4 bg-red-50/50 flex items-center justify-between border-b">
-                        <h3 class="font-bold text-red-900 text-sm">⚖️ بند المحاكم</h3>
-                        <span id="legalScore" class="bg-red-100 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0%</span>
-                    </div>
-                    <div id="legalText" class="clause-box flex-grow border-none text-[11px]"></div>
-                </div>
-                <div class="bg-white rounded-2xl shadow-sm border-t-4 border-emerald-500 flex flex-col">
-                    <div class="p-4 bg-emerald-50/50 flex items-center justify-between border-b">
-                        <h3 class="font-bold text-emerald-900 text-sm">💰 بند الأموال</h3>
-                        <span id="claimsScore" class="bg-emerald-100 text-emerald-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0%</span>
-                    </div>
-                    <div id="claimsText" class="clause-box flex-grow border-none text-[11px]"></div>
-                </div>
-                <div class="bg-white rounded-2xl shadow-sm border-t-4 border-amber-500 flex flex-col">
-                    <div class="p-4 bg-amber-50/50 flex items-center justify-between border-b">
-                        <h3 class="font-bold text-amber-900 text-sm">📍 نطاق الوكالة</h3>
-                        <span id="scopeScore" class="bg-amber-100 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-full">0%</span>
-                    </div>
-                    <div id="scopeText" class="clause-box flex-grow border-none text-[11px]"></div>
-                </div>
-            </div>
-
-            <div class="flex flex-wrap justify-center gap-4 py-4">
-                <button onclick="window.print()" class="px-8 py-3 bg-slate-800 text-white font-bold rounded-xl shadow-lg hover:bg-slate-700 transition">🖨️ طباعة التقرير الفني</button>
-                <button onclick="downloadJSON()" class="px-8 py-3 bg-white text-slate-700 border font-bold rounded-xl shadow-sm hover:bg-slate-50 transition">💾 حفظ كملف بيانات</button>
+            <!-- زر للمبرمجين (اختياري) -->
+            <div class="text-center mt-4">
+                 <button onclick="document.getElementById('debugLog').classList.toggle('hidden')" class="text-xs text-gray-400 underline">عرض النص الخام</button>
+                 <div id="debugLog" class="hidden mt-4 p-4 bg-gray-900 text-green-400 text-left dir-ltr font-mono text-xs h-40 overflow-auto rounded"></div>
             </div>
         </div>
     </div>
 
     <script>
-        // إعداد المحركات
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-        let files = { heirs: null, poa: null };
-        let finalResults = null;
 
-        // إعداد مناطق الإسقاط
-        setupDropZone('heirs'); setupDropZone('poa');
+        let files = { heirs: null, poa: null };
+
+        // تفعيل السحب والإفلات
+        setupDropZone('heirs');
+        setupDropZone('poa');
 
         function setupDropZone(key) {
             const zone = document.getElementById(`${key}Zone`);
             const input = document.getElementById(`${key}File`);
             const msg = document.getElementById(`${key}Msg`);
-            
-            zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('active'); });
-            zone.addEventListener('dragleave', () => zone.classList.remove('active'));
-            zone.addEventListener('drop', (e) => { 
-                e.preventDefault(); zone.classList.remove('active');
-                handleFile(e.dataTransfer.files[0], key, msg);
-            });
+
+            const activate = () => { zone.classList.add('active'); zone.style.borderColor = '#f97316'; zone.style.background = '#fff7ed'; };
+            const deactivate = () => { zone.classList.remove('active'); zone.style.borderColor = '#d1d5db'; zone.style.background = '#fff'; };
+
+            zone.addEventListener('dragover', (e) => { e.preventDefault(); activate(); });
+            zone.addEventListener('dragleave', deactivate);
+            zone.addEventListener('drop', (e) => { e.preventDefault(); handleFile(e.dataTransfer.files[0], key, msg); });
             input.addEventListener('change', (e) => handleFile(e.target.files[0], key, msg));
         }
 
         function handleFile(file, key, msgElement) {
             if (!file) return;
             files[key] = file;
-            msgElement.innerHTML = `<span class="font-bold text-orange-600">${file.name}</span><br><span class="text-[10px] text-green-600 font-bold uppercase tracking-widest">✅ Ready to Analyze</span>`;
-            if (files.heirs && files.poa) {
-                document.getElementById('loadingSection').classList.remove('hidden');
-                setTimeout(processDocuments, 500);
-            }
+            msgElement.innerHTML = `<span class="font-bold text-orange-700">${file.name}</span><br>✅ تم الرفع`;
+            if (files.heirs && files.poa) processAllFiles();
         }
 
-        async function processDocuments() {
+        async function processAllFiles() {
+            document.getElementById('loadingSection').classList.remove('hidden');
+            document.getElementById('resultsSection').classList.add('hidden');
+
             try {
-                updateProgress(15, "جاري استخراج بيانات صك الحصر...");
+                // 1. استخراج النصوص
                 const hText = await extractText(files.heirs);
-                
-                updateProgress(45, "جاري استخراج بيانات الوكالة...");
                 const pText = await extractText(files.poa);
-                
-                updateProgress(70, "جاري مطابقة الأطراف وفحص الصلاحيات...");
-                const heirsData = analyzeInheritance(hText);
-                const poaData = analyzePOA(pText, heirsData);
-                
-                finalResults = { heirsData, poaData };
-                renderDashboard(heirsData, poaData);
-                
-                updateProgress(100, "اكتمل التحليل بنجاح");
-                setTimeout(() => {
-                    document.getElementById('loadingSection').classList.add('hidden');
-                    document.getElementById('resultsSection').classList.remove('hidden');
-                    document.getElementById('exportBtn').classList.remove('hidden');
-                }, 500);
+
+                document.getElementById('debugLog').innerText = "--- POA START ---\n" + pText + "\n--- POA END ---";
+
+                // 2. التحليل الذكي
+                const heirsData = analyzeHeirship(hText);
+                const poaData = analyzePOA(pText);
+
+                // 3. العرض
+                renderUI(heirsData, poaData);
+
             } catch (err) {
+                alert("حدث خطأ في القراءة، تأكد من وضوح الملفات.");
                 console.error(err);
-                showNotification("فشل التحليل: تأكد من جودة الملفات", "bg-red-600");
+            } finally {
                 document.getElementById('loadingSection').classList.add('hidden');
+                document.getElementById('resultsSection').classList.remove('hidden');
             }
         }
 
-        // --- محرك الاستخراج الهجين ---
-        async function extractText(file) {
-            if (file.type === 'application/pdf') {
-                const doc = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
-                let text = "";
-                for (let i = 1; i <= doc.numPages; i++) {
-                    const page = await doc.getPage(i);
-                    const content = await page.getTextContent();
-                    text += content.items.map(s => s.str).join(" ") + "\n";
-                }
-                if (text.trim().length > 100) return text;
-            }
-            return await runOCR(file);
-        }
+        // --- محرك التحليل (Analysis Engine) ---
 
-        async function runOCR(file) {
-            const worker = await Tesseract.createWorker('ara');
-            const { data: { text } } = await worker.recognize(file);
-            await worker.terminate();
-            return text;
-        }
-
-        // --- محرك التحليل القانوني ---
-        function analyzeInheritance(text) {
+        function analyzeHeirship(text) {
             const clean = normalize(text);
-            const idMatch = clean.match(/1\d{9}/);
-            const decId = idMatch ? idMatch[0] : null;
-            
-            // استخراج رقم الصك
-            const docNumMatch = clean.match(/(صك|رقم)\s*(\d{10,12})/);
-            const docNumber = docNumMatch ? docNumMatch[2] : null;
+            // البحث عن نقطة الفصل بين المتوفى والورثة
+            // عادة المتوفى يذكر في الأعلى مع كلمة "بيانات المتوفى" أو "تاريخ الوفاة"
+            let splitIndex = clean.indexOf("بيانات الورثة");
+            if (splitIndex === -1) splitIndex = clean.indexOf("صلة القرابة");
+            if (splitIndex === -1) splitIndex = clean.length * 0.35;
 
-            const allIds = [...new Set(clean.match(/1\d{9}/g) || [])];
-            const heirs = allIds.filter(id => id !== decId);
+            const topPart = clean.substring(0, splitIndex);
+            const bottomPart = clean.substring(splitIndex);
+
+            // استخراج هوية المتوفى (أول هوية في الجزء العلوي)
+            const decId = (topPart.match(/1\d{9}/) || [])[0];
             
-            return { decId, heirs, docNumber, raw: text };
+            // استخراج الورثة (كل الهويات في الجزء السفلي)
+            let heirs = [...new Set(bottomPart.match(/1\d{9}/g) || [])];
+            
+            // تنظيف القائمة (حذف المتوفى إذا تكرر)
+            if (decId) heirs = heirs.filter(id => id !== decId);
+
+            return { decId, heirs };
         }
 
-        function analyzePOA(text, hData) {
+        function analyzePOA(text) {
             const clean = normalize(text);
-            const allIds = [...new Set(clean.match(/1\d{9}/g) || [])];
-            
-            // كشف رقم الصك المذكور في الوكالة للربط
-            const linkedDocMatch = clean.match(/(حصر|ورثه|رقم)\s*(\d{10,12})/);
-            const linkedDocNumber = linkedDocMatch ? linkedDocMatch[2] : null;
-            const isLinked = hData.docNumber && linkedDocNumber && hData.docNumber.slice(-5) === linkedDocNumber.slice(-5);
+            const raw = text; // نحتفظ بالنص الأصلي بمسافاته للبحث
 
+            // 1. استخراج الأطراف وتحديد الأدوار
+            const allIds = [...new Set(clean.match(/1\d{9}/g) || [])];
             let agentId = null;
-            const principals = [];
+            let principals = [];
+
+            // خوارزمية تحديد الوكيل (Agent Detection Algorithm)
+            // 1. نبحث عن كلمة "وكيل" صريحة
+            // 2. إذا لم نجد، نبحث عن الرقم الذي يقع في سطر يحتوي على كلمة "وكيل"
+            // بما أن الـ Text Extraction قد يدمج الأسطر، سنستخدم نافذة (Window)
             
+            // تحسين: في جداول الوكالات، الوكيل غالباً هو آخر اسم، لكن سنبحث عن الكلمة
             allIds.forEach(id => {
                 const idx = clean.indexOf(id);
-                const context = clean.substring(idx - 100, idx + 100);
-                if (context.includes("وكيل") && !context.includes("موكل")) agentId = id;
-                else principals.push(id);
+                const window = clean.substring(Math.max(0, idx - 80), Math.min(clean.length, idx + 80));
+                
+                // شروط قوية للوكيل
+                if (window.includes("وكيل") && !window.includes("موكل")) {
+                    agentId = id;
+                } else if (window.includes("عن نفسه") || window.includes("موكل")) {
+                    principals.push(id);
+                } else {
+                    principals.push(id); // الافتراضي
+                }
             });
 
-            // تحليل البنود
-            const clauses = {
-                estate: findClause(text, ['عقار', 'بيع', 'افراغ', 'شراء', 'صكوك']),
-                legal: findClause(text, ['محكمه', 'دعوي', 'قضاء', 'ترافع', 'خلاف']),
-                claims: findClause(text, ['ماليه', 'استلام', 'شيكات', 'صرف', 'بنوك']),
-                scope: findClause(text, ['نطاق', 'صلاحيه', 'تفويض', 'عام', 'خاص'])
-            };
-
-            return { agentId, principals, clauses, isLinked, linkedDocNumber };
-        }
-
-        function findClause(text, keywords) {
-            const paragraphs = text.split(/\n\s*\n/);
-            return paragraphs.find(p => keywords.some(k => normalize(p).includes(k))) || "لم يتم العثور على بند صريح.";
-        }
-
-        // --- محرك الواجهة ---
-        function renderDashboard(h, p) {
-            document.getElementById('deceasedId').innerText = h.decId || "غير مكتشف";
-            
-            const linkEl = document.getElementById('linkingStatus');
-            if (p.isLinked) {
-                linkEl.innerHTML = "✅ مرتبطة بصك الحصر رقم " + h.docNumber;
-                linkEl.className = "text-sm font-bold text-emerald-400 italic";
-            } else {
-                linkEl.innerHTML = "⚠️ الربط غير مؤكد (صك الحصر: " + (p.linkedDocNumber || "لم يذكر") + ")";
-                linkEl.className = "text-sm font-bold text-amber-400 italic";
+            // Fallback: إذا لم نحدد وكيل وكان هناك أطراف، نعتبر آخر واحد وكيل (نمط شائع) إذا لم نجد كلمة وكيل
+            if (!agentId && allIds.length > 1 && clean.includes("وكيل")) {
+                 // هنا نعتمد على المنطق: آخر رقم هوية ذكر قبل البنود غالباً هو الوكيل
+                 // لكن للأمان سنتركها فارغة ليظهر "طرف" بدل تخمين خاطئ
             }
 
-            const total = h.heirs.length;
-            const signed = h.heirs.filter(id => p.principals.includes(id) || id === p.agentId).length;
-            const rate = total > 0 ? Math.round((signed/total)*100) : 0;
-            
-            document.getElementById('appointmentRate').innerText = rate + "%";
-            document.getElementById('totalHeirsCount').innerText = total + " ورثة مستخرجين";
+            // 2. استخراج البنود (Clause Mining)
+            // نقوم بتقسيم النص لفقرات ونبحث عن الكثافة
+            const estate = mineText(raw, ["بيع", "افراغ", "ثمن", "مشتري", "صكوك", "عقار", "شيك"]);
+            const legal = mineText(raw, ["محاكم", "تركة", "قسمة", "نصيب", "دعاوى", "مرافعة"]);
+            const scope = mineText(raw, ["نطاق", "ارث", "عائد", "مورث", "حصر"]);
 
-            const table = document.getElementById('resultsTable');
-            table.innerHTML = "";
-            h.heirs.forEach(id => {
-                const isSigned = p.principals.includes(id);
-                const isAgent = id === p.agentId;
-                table.innerHTML += `
-                    <tr class="${isAgent ? 'agent-row' : ''} border-b">
-                        <td class="p-4 font-mono">${id}</td>
-                        <td class="p-4 text-slate-400 text-xs italic">استخراج تلقائي...</td>
-                        <td class="p-4">${isAgent ? '<span class="agent-badge">الوكيل</span>' : 'وارث'}</td>
-                        <td class="p-4 text-center">
-                            ${isSigned || isAgent ? '<span class="text-emerald-600">✅ مكتمل</span>' : '<span class="text-red-500">❌ مفقود</span>'}
-                        </td>
+            return { agentId, principals, clauses: { estate, legal, scope } };
+        }
+
+        // دالة التنقيب عن النصوص (Text Mining)
+        function mineText(text, keywords) {
+            // تنظيف خفيف للبحث
+            const cleanText = text.replace(/(أ|إ|آ)/g, 'ا').replace(/ة/g, 'ه');
+            
+            // تقسيم النص إلى جمل طويلة
+            const chunks = cleanText.split(/(\.|-|\n\n)/).filter(c => c.length > 30);
+            let bestChunk = "";
+            let maxScore = 0;
+
+            chunks.forEach(chunk => {
+                let score = 0;
+                keywords.forEach(kw => {
+                    if (chunk.includes(kw)) score += 1;
+                });
+                
+                if (score > maxScore) {
+                    maxScore = score;
+                    bestChunk = chunk;
+                } else if (score > 0 && score === maxScore) {
+                    // دمج الفقرات إذا كانت بنفس القوة
+                    bestChunk += " ... " + chunk;
+                }
+            });
+
+            if (maxScore > 0) return bestChunk;
+            
+            // محاولة بحث شاملة إذا فشل التقطيع
+            const joinedKeywords = keywords.join("|");
+            const regex = new RegExp(`.{0,50}(${joinedKeywords}).{0,200}`, "i");
+            const match = cleanText.match(regex);
+            return match ? "..." + match[0] + "..." : "لم يتم العثور على نص صريح.";
+        }
+
+        function renderUI(hData, pData) {
+            // 1. المتوفى
+            if (hData.decId) {
+                document.getElementById('deceasedCard').classList.remove('hidden');
+                document.getElementById('deceasedId').innerText = hData.decId;
+            }
+
+            // 2. الجدول
+            const tbody = document.getElementById('resultsTable');
+            tbody.innerHTML = "";
+            
+            const allIds = [...new Set([...hData.heirs, ...pData.principals, pData.agentId].filter(Boolean))];
+            let matchedCount = 0;
+
+            allIds.forEach(id => {
+                const isHeir = hData.heirs.includes(id);
+                const isAgent = id === pData.agentId;
+                const isPrincipal = pData.principals.includes(id);
+
+                let roles = [];
+                let rowClass = "hover:bg-gray-50"; // افتراضي
+
+                // بناء الصفة
+                if (isHeir) roles.push("وارث");
+                
+                if (isAgent) {
+                    roles.push("وكيل شرعي");
+                    rowClass = "agent-row"; // تلوين الوكيل بالبرتقالي
+                } else if (isPrincipal) {
+                    roles.push("موكل");
+                }
+
+                // تنسيق الصفة للعرض
+                let roleDisplay = roles.map(r => {
+                    if (r === "وكيل شرعي") return `<span class="agent-badge">★ وكيل</span>`;
+                    if (r === "وارث") return `<span class="text-blue-600 bg-blue-50 px-2 rounded text-xs font-bold">وارث</span>`;
+                    return `<span class="text-gray-500 text-xs">${r}</span>`;
+                }).join(" + ");
+
+                if (roles.length === 0) roleDisplay = '<span class="text-gray-400 text-xs">طرف خارجي</span>';
+
+                // الحالة
+                let status = "";
+                if (isPrincipal || isAgent) {
+                    status = '<span class="text-emerald-600 font-bold bg-green-50 px-2 py-1 rounded">✅ تم التوكيل</span>';
+                    if (isHeir) matchedCount++;
+                } else if (isHeir) {
+                    status = '<span class="text-red-500 font-bold bg-red-50 px-2 py-1 rounded">❌ لم يوكل</span>';
+                } else {
+                    status = '<span class="text-gray-400">-</span>';
+                }
+
+                tbody.innerHTML += `
+                    <tr class="${rowClass} border-b last:border-0 transition-colors">
+                        <td class="p-4 font-mono text-gray-700 font-bold">${id}</td>
+                        <td class="p-4">${roleDisplay}</td>
+                        <td class="p-4 text-center">${status}</td>
                     </tr>
                 `;
             });
 
-            // البنود
-            renderClauseBox('estate', p.clauses.estate, ['بيع', 'افراغ', 'عقار']);
-            renderClauseBox('legal', p.clauses.legal, ['محكمه', 'ترافع']);
-            renderClauseBox('claims', p.clauses.claims, ['استلام', 'شيكات', 'مبالغ']);
-            renderClauseBox('scope', p.clauses.scope, ['وكاله', 'تفويض']);
+            document.getElementById('matchStats').innerText = `تمت المطابقة: ${matchedCount} من ${hData.heirs.length} ورثة`;
+            
+            // 3. البنود
+            document.getElementById('estateText').innerText = pData.clauses.estate;
+            document.getElementById('legalText').innerText = pData.clauses.legal;
+            document.getElementById('scopeText').innerText = pData.clauses.scope;
         }
 
-        function renderClauseBox(id, text, keys) {
-            const box = document.getElementById(id + 'Text');
-            box.innerText = text;
-            const score = keys.filter(k => normalize(text).includes(k)).length;
-            const pct = Math.min(Math.round((score/keys.length)*100), 100);
-            document.getElementById(id + 'Score').innerText = pct + "%";
+        // --- أدوات تقنية ---
+        async function extractText(file) {
+            if (file.type === 'application/pdf') {
+                const doc = await pdfjsLib.getDocument(await file.arrayBuffer()).promise;
+                let full = "";
+                for (let i = 1; i <= doc.numPages; i++) {
+                    const p = await doc.getPage(i);
+                    const c = await p.getTextContent();
+                    full += c.items.map(s => s.str).join(" ") + " \n ";
+                }
+                if (full.length < 50) return await runOCR(file);
+                return full;
+            }
+            return await runOCR(file);
         }
 
-        // --- دوال مساعدة ---
+        async function runOCR(f) {
+            const w = await Tesseract.createWorker('ara');
+            const r = await w.recognize(f);
+            await w.terminate();
+            return r.data.text;
+        }
+
         function normalize(s) {
             return s.replace(/[٠-٩]/g, d => "0123456789"['٠١٢٣٤٥٦٧٨٩'.indexOf(d)])
-                    .replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي')
-                    .replace(/\s+/g, ' ').toLowerCase();
-        }
-
-        function updateProgress(pct, msg) {
-            document.getElementById('progressBar').style.width = pct + "%";
-            document.getElementById('progressText').innerText = msg;
-        }
-
-        function showNotification(msg, colorClass) {
-            const div = document.createElement('div');
-            div.className = `notification ${colorClass} shadow-xl`;
-            div.innerText = msg;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 3000);
-        }
-
-        function exportToExcel() {
-            let csv = "ID,Status\n";
-            finalResults.heirsData.heirs.forEach(id => {
-                const status = finalResults.poaData.principals.includes(id) ? "Included" : "Missing";
-                csv += `${id},${status}\n`;
-            });
-            const blob = new Blob([csv], {type: 'text/csv'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.setAttribute('href', url);
-            a.setAttribute('download', 'analysis_report.csv');
-            a.click();
-        }
-
-        function downloadJSON() {
-            const blob = new Blob([JSON.stringify(finalResults, null, 2)], {type: 'application/json'});
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = "legal_analysis_data.json";
-            a.click();
+                    .replace(/(أ|إ|آ)/g, 'ا')
+                    .replace(/ة/g, 'ه')
+                    .replace(/ى/g, 'ي')
+                    .replace(/\s+/g, ' ');
         }
     </script>
 </body>
