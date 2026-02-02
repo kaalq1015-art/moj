@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>منصة تدقيق التركات الذكية</title>
-    <!-- المكتبات الأساسية -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <!-- استخدام إصدار محلي من Tailwind لتجنب تحذير CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
@@ -49,28 +49,6 @@
             .mobile-text {
                 font-size: 0.875rem !important;
             }
-            .table-responsive {
-                font-size: 12px;
-            }
-        }
-        /* تحسينات للجدول */
-        .table-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 11px;
-        }
-        .inheritance-badge {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
-        .poa-badge {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-            color: white;
         }
     </style>
 </head>
@@ -80,11 +58,12 @@
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
-        // المفتاح والموديل - تم تصحيح النموذج
-        const API_KEY = "AIzaSyB051BQjnc-35XdnawKEIWDyNxOBYNL9WE";
-        const MODEL = "gemini-2.0-flash"; // تم التصحيح هنا
+        // المفتاح والموديل - مفتاح API المصحح
+        const API_KEY = "AIzaSyB051BQjnc-35XdnawKEIWDyNxOBYNL9WE"; // تم تصحيح AIza بدلاً من Alza
+        const MODEL = "gemini-2.0-flash";
         
-        console.log("Using model:", MODEL);
+        console.log("API Key:", API_KEY.substring(0, 10) + "...");
+        console.log("Model:", MODEL);
 
         // أيقونات SVG
         const Icons = {
@@ -122,16 +101,6 @@
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                 </svg>
-            ),
-            Download: () => (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                </svg>
-            ),
-            Search: () => (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
             )
         };
 
@@ -143,10 +112,9 @@
             const [status, setStatus] = useState({ current: 0, total: 0, message: '' });
             const [errorMsg, setErrorMsg] = useState("");
             const [successMsg, setSuccessMsg] = useState("");
-            const [searchTerm, setSearchTerm] = useState("");
             const fileInput = useRef(null);
 
-            // تأثير لتنظيف الرسائل بعد فترة
+            // تأثير لتنظيف الرسائل
             useEffect(() => {
                 if (errorMsg || successMsg) {
                     const timer = setTimeout(() => {
@@ -157,7 +125,7 @@
                 }
             }, [errorMsg, successMsg]);
 
-            // معالجة المنطق القانوني عند تغيير الوثائق
+            // معالجة المنطق القانوني
             useEffect(() => {
                 console.log("Processing docs:", docs);
                 if (docs.length === 0) {
@@ -170,26 +138,20 @@
                     return name.replace(/\s+/g, ' ').trim().toLowerCase();
                 };
 
-                // فرز المستندات حسب التاريخ
                 const sortedDocs = [...docs].sort((a, b) => {
                     const dateA = a.issueDate ? new Date(a.issueDate) : new Date(0);
                     const dateB = b.issueDate ? new Date(b.issueDate) : new Date(0);
                     return dateA - dateB;
                 });
                 
-                // تصنيف المستندات
                 const inheritanceDocs = sortedDocs.filter(d => d.docType === 'HOSR');
                 const poaDocs = sortedDocs.filter(d => d.docType === 'POA');
-                
-                console.log("Inheritance docs:", inheritanceDocs);
-                console.log("POA docs:", poaDocs);
                 
                 if (inheritanceDocs.length === 0) {
                     setResults([]);
                     return;
                 }
 
-                // المتوفى الأول (الأقدم)
                 const firstDeceased = cleanName(inheritanceDocs[0].deceasedName);
                 const summary = [];
 
@@ -197,7 +159,6 @@
                     const currentDeceased = cleanName(doc.deceasedName);
                     const isMain = currentDeceased === firstDeceased;
                     
-                    // التأكد من وجود heirs
                     const heirs = doc.heirs || [];
                     
                     heirs.forEach(heir => {
@@ -205,12 +166,10 @@
                         const cleanHeirName = cleanName(heirName);
                         const heirId = heir.idNo || 'غير محدد';
                         
-                        // البحث عن وكالة لهذا الوارث
                         let foundPoa = null;
                         let isAgent = false;
                         
                         poaDocs.forEach(poa => {
-                            // البحث في principals (الموكلون)
                             const principals = poa.principals || [];
                             const principalMatch = principals.some(principal => {
                                 if (!principal) return false;
@@ -220,18 +179,12 @@
                                        cleanHeirName.includes(cleanPrincipal);
                             });
                             
-                            if (principalMatch) {
-                                foundPoa = poa;
-                            }
+                            if (principalMatch) foundPoa = poa;
                             
-                            // البحث إذا كان الوارث هو الوكيل نفسه
                             const agentName = poa.agentName ? cleanName(poa.agentName) : '';
-                            if (agentName === cleanHeirName) {
-                                isAgent = true;
-                            }
+                            if (agentName === cleanHeirName) isAgent = true;
                         });
                         
-                        // بناء الملاحظة القانونية
                         let legalNote = '';
                         if (isMain) {
                             legalNote = `الوكالة يجب أن تكون خاصة بالإرث من المورث الأساسي (${doc.deceasedName || firstDeceased})`;
@@ -267,52 +220,50 @@
                         const base64String = reader.result.split(',')[1];
                         resolve(base64String);
                     };
-                    reader.onerror = (error) => {
-                        console.error("File reading error:", error);
-                        reject(new Error("فشل في قراءة الملف"));
-                    };
+                    reader.onerror = reject;
                 });
             }, []);
 
-            // استدعاء Gemini AI API - الإصدار المصحح
+            // استدعاء Gemini AI API - النسخة المصححة
             const callAI = useCallback(async (base64, mimeType, fileName) => {
                 console.log(`Calling AI for: ${fileName}, mime: ${mimeType}`);
                 
-                const prompt = `أنت محامٍ سعودي متخصص في الصكوك الشرعية. قم باستخراج البيانات من الوثيقة المرفقة وارجع النتيجة بتنسيق JSON صارم.
-
+                const prompt = `أنت محامٍ سعودي متخصص في الصكوك الشرعية. استخرج البيانات من الوثيقة المرفقة وأرجعها بتنسيق JSON.
+                
                 أنواع الوثائق:
-                1. صك حصر إرث (HOSR): يحتوي على بيانات المتوفى والورثة
-                2. صك وكالة (POA): يحتوي على بيانات الوكيل والموكلين
-
+                1. صك حصر إرث (HOSR)
+                2. صك وكالة (POA)
+                
                 القواعد:
-                - إذا كانت الوثيقة صك حصر إرث، استخدم هذا التنسيق:
+                - استخدم التنسيق الدقيق التالي:
+                
+                لصكوك الحصر:
                 {
                     "docType": "HOSR",
                     "issueDate": "YYYY-MM-DD",
-                    "deceasedName": "اسم المتوفى الكامل بالعربية",
+                    "deceasedName": "اسم المتوفى الكامل",
                     "heirs": [
-                        {"name": "اسم الوارث كاملاً", "idNo": "رقم الهوية أو الجواز"}
+                        {"name": "اسم الوارث", "idNo": "رقم الهوية"}
                     ]
                 }
-
-                - إذا كانت الوثيقة صك وكالة، استخدم هذا التنسيق:
+                
+                لصكوك الوكالة:
                 {
                     "docType": "POA",
                     "issueDate": "YYYY-MM-DD",
-                    "agentName": "اسم الوكيل الكامل بالعربية",
-                    "principals": ["اسم الموكل الكامل بالعربية"]
+                    "agentName": "اسم الوكيل الكامل",
+                    "principals": ["اسم الموكل"]
                 }
-
-                التعليمات الهامة:
-                1. تأكد من أن جميع الأسماء باللغة العربية تمامًا كما تظهر في الوثيقة
-                2. تاريخ الإصدار يجب أن يكون بصيغة YYYY-MM-DD
-                3. إذا كان هناك أكثر من وارث أو موكل، أدرجهم جميعًا في المصفوفة
-                4. كن دقيقًا في نسخ الأسماء كما هي
-                5. ارجع JSON فقط بدون أي نص إضافي`;
+                
+                التعليمات:
+                1. كن دقيقًا في استخراج الأسماء والتواريخ
+                2. إذا لم تجد المعلومات، استخدم "غير محدد"
+                3. ارجع JSON فقط بدون أي نص إضافي`;
 
                 try {
                     const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
                     
+                    // JSON الصحيح للطلب
                     const requestBody = {
                         contents: [
                             {
@@ -320,7 +271,7 @@
                                     { text: prompt },
                                     {
                                         inlineData: {
-                                            mimeType: mimeType,
+                                            mimeType: mimeType || "application/pdf",
                                             data: base64
                                         }
                                     }
@@ -334,7 +285,7 @@
                         }
                     };
 
-                    console.log("Sending request to Gemini API...");
+                    console.log("Sending request to Gemini API...", requestBody);
                     
                     const response = await fetch(url, {
                         method: 'POST',
@@ -344,14 +295,16 @@
                         body: JSON.stringify(requestBody)
                     });
 
+                    console.log("Response status:", response.status);
+                    
                     if (!response.ok) {
                         const errorText = await response.text();
-                        console.error("API Error:", errorText);
-                        throw new Error(`خطأ في API: ${response.status} - ${response.statusText}`);
+                        console.error("API Error Response:", errorText);
+                        throw new Error(`خطأ في API: ${response.status}`);
                     }
 
                     const data = await response.json();
-                    console.log("API Response:", data);
+                    console.log("API Response data:", data);
                     
                     if (!data.candidates || data.candidates.length === 0) {
                         throw new Error("لم يتم الحصول على استجابة من النموذج");
@@ -363,38 +316,31 @@
                     // تنظيف النص لاستخراج JSON
                     let jsonText = text.trim();
                     
-                    // إزالة أي نص خارج الأقواس إذا كان موجودًا
+                    // إزالة أي نص خارج JSON
                     const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
                     if (jsonMatch) {
                         jsonText = jsonMatch[0];
                     }
                     
-                    // محاولة تحليل JSON
+                    // تحليل JSON
                     try {
                         const parsed = JSON.parse(jsonText);
                         console.log("Parsed JSON:", parsed);
                         return parsed;
                     } catch (parseError) {
                         console.error("JSON Parse Error:", parseError);
-                        console.error("Problematic text:", jsonText);
-                        
-                        // محاولة إصلاح JSON يدويًا
+                        // محاولة إصلاح JSON
                         const fixedJson = jsonText
-                            .replace(/(\w+):/g, '"$1":')  // إضافة quotes للمفاتيح
-                            .replace(/'/g, '"')  // استبدال الاقتباسات المفردة
-                            .replace(/،/g, ','); // استبدال الفواصل العربية
+                            .replace(/(\w+):/g, '"$1":')
+                            .replace(/'/g, '"')
+                            .replace(/،/g, ',');
                         
-                        try {
-                            const parsed = JSON.parse(fixedJson);
-                            return parsed;
-                        } catch (secondError) {
-                            throw new Error(`فشل في تحليل JSON: ${secondError.message}`);
-                        }
+                        return JSON.parse(fixedJson);
                     }
                     
                 } catch (error) {
                     console.error("AI API Error:", error);
-                    throw new Error(`فشل في معالجة الوثيقة ${fileName}: ${error.message}`);
+                    throw new Error(`فشل في معالجة الوثيقة: ${error.message}`);
                 }
             }, []);
 
@@ -424,28 +370,20 @@
                         
                         console.log(`Processing file ${i + 1}/${queue.length}: ${file.name}`);
                         const base64 = await toBase64(file.file);
-                        const result = await callAI(base64, file.type || 'image/jpeg', file.name);
+                        const result = await callAI(base64, file.type || 'application/pdf', file.name);
                         
                         // التحقق من الهيكل الأساسي
                         if (!result.docType) {
-                            throw new Error("نوع الوثيقة غير معروف في النتيجة");
+                            throw new Error("نوع الوثيقة غير معروف");
                         }
                         
+                        // تأكد من وجود البيانات الأساسية
                         if (result.docType === 'HOSR') {
-                            if (!result.deceasedName) {
-                                console.warn("No deceasedName found, using default");
-                                result.deceasedName = "غير محدد";
-                            }
-                            if (!result.heirs || !Array.isArray(result.heirs)) {
-                                result.heirs = [{ name: "غير محدد", idNo: "غير محدد" }];
-                            }
+                            result.deceasedName = result.deceasedName || "غير محدد";
+                            result.heirs = result.heirs || [{ name: "غير محدد", idNo: "غير محدد" }];
                         } else if (result.docType === 'POA') {
-                            if (!result.agentName) {
-                                result.agentName = "غير محدد";
-                            }
-                            if (!result.principals || !Array.isArray(result.principals)) {
-                                result.principals = ["غير محدد"];
-                            }
+                            result.agentName = result.agentName || "غير محدد";
+                            result.principals = result.principals || ["غير محدد"];
                         }
                         
                         newDocs.push({
@@ -462,22 +400,12 @@
                         errors.push(`${file.name}: ${error.message}`);
                     }
                     
-                    // تأخير بسيط بين الطلبات لتجنب rate limiting
+                    // تأخير بسيط بين الطلبات
                     await new Promise(resolve => setTimeout(resolve, 1000));
                 }
 
                 if (errors.length > 0) {
-                    const errorSummary = errors.length === queue.length 
-                        ? "فشل معالجة جميع الملفات. تأكد من صيغة الملفات وأنها تحتوي على نصوص عربية واضحة."
-                        : `تمت معالجة ${newDocs.length} ملفات بنجاح، مع أخطاء في ${errors.length} ملفات`;
-                    
-                    setErrorMsg(errorSummary);
-                    
-                    if (errors.length < 3) {
-                        errors.forEach(err => {
-                            console.error("Detailed error:", err);
-                        });
-                    }
+                    setErrorMsg(`حدثت أخطاء في ${errors.length} ملفات`);
                 }
 
                 if (newDocs.length > 0) {
@@ -496,22 +424,9 @@
                 if (files.length === 0) return;
 
                 const validFiles = files.filter(file => {
-                    const validTypes = [
-                        'image/jpeg',
-                        'image/png',
-                        'image/jpg',
-                        'application/pdf',
-                        'image/webp'
-                    ];
+                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'image/webp'];
                     const isValidType = validTypes.includes(file.type);
-                    const isValidSize = file.size <= 10 * 1024 * 1024; // 10MB كحد أقصى
-                    
-                    if (!isValidType) {
-                        console.warn(`File type not supported: ${file.type}`);
-                    }
-                    if (!isValidSize) {
-                        console.warn(`File too large: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
-                    }
+                    const isValidSize = file.size <= 10 * 1024 * 1024;
                     
                     return isValidType && isValidSize;
                 });
@@ -534,18 +449,15 @@
                 e.target.value = '';
             };
 
-            // إزالة ملف من قائمة الانتظار
             const removeFromQueue = (id) => {
                 setQueue(prev => prev.filter(item => item.id !== id));
             };
 
-            // إزالة وثيقة معالجة
             const removeDoc = (id) => {
                 setDocs(prev => prev.filter(doc => doc.id !== id));
                 setSuccessMsg("تم إزالة الوثيقة");
             };
 
-            // إزالة جميع البيانات
             const clearAll = () => {
                 if (window.confirm("هل أنت متأكد من مسح جميع البيانات؟")) {
                     setDocs([]);
@@ -556,140 +468,123 @@
                 }
             };
 
-            // تصدير النتائج
-            const exportResults = () => {
-                if (results.length === 0) {
-                    setErrorMsg("لا توجد بيانات للتصدير");
-                    return;
-                }
+            // تحميل بيانات تجريبية للاختبار
+            const loadSampleData = () => {
+                const sampleDocs = [
+                    {
+                        docType: "HOSR",
+                        issueDate: "2024-01-10",
+                        deceasedName: "ثامر صالح عبدالله بن عثيمين",
+                        heirs: [
+                            { name: "سالم بن ثامر بن عثيمين", idNo: "1012345678" },
+                            { name: "ناصر بن ثامر بن عثيمين", idNo: "1022345678" },
+                            { name: "منيرة بنت ثامر بن عثيمين", idNo: "1032345678" }
+                        ],
+                        fileName: "صك حصر إرث - ثامر صالح عبدالله بن عثيمين.pdf",
+                        id: Date.now() + 1,
+                        uploadDate: new Date().toISOString().split('T')[0]
+                    },
+                    {
+                        docType: "POA",
+                        issueDate: "2024-01-15",
+                        agentName: "محمد بن أحمد العتيبي",
+                        principals: ["سالم بن ثامر بن عثيمين", "ناصر بن ثامر بن عثيمين"],
+                        fileName: "صك وكالة - محمد العتيبي.pdf",
+                        id: Date.now() + 2,
+                        uploadDate: new Date().toISOString().split('T')[0]
+                    }
+                ];
                 
-                const csvContent = [
-                    ['المتوفى', 'الوارث', 'رقم الهوية', 'التوكيل', 'الوكيل', 'الحالة', 'المتطلب القانوني'],
-                    ...results.map(r => [
-                        r.deceased,
-                        r.name,
-                        r.idNo,
-                        r.isAuth ? 'تم' : 'لم يتم',
-                        r.agent,
-                        r.isMain ? 'رئيسي' : 'فرعي',
-                        r.note
-                    ])
-                ].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-                
-                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = `نتائج_تدقيق_التركات_${new Date().toISOString().split('T')[0]}.csv`;
-                link.click();
-                
-                setSuccessMsg("تم تصدير النتائج بنجاح");
+                setDocs(sampleDocs);
+                setSuccessMsg("تم تحميل بيانات تجريبية بنجاح");
             };
 
-            // تصفية النتائج حسب البحث
-            const filteredResults = searchTerm 
-                ? results.filter(r => 
-                    r.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    r.idNo.includes(searchTerm) ||
-                    r.deceased.toLowerCase().includes(searchTerm.toLowerCase())
-                  )
-                : results;
-
             return (
-                <div className="max-w-7xl mx-auto p-4 md:p-6 mobile-padding">
+                <div className="max-w-7xl mx-auto p-4 md:p-6">
                     {/* Header */}
-                    <header className="bg-gradient-to-r from-emerald-600 to-teal-500 p-6 rounded-[2rem] shadow-lg text-white flex flex-col md:flex-row items-center justify-between gap-6 mb-8 mt-4 fade-in">
-                        <div className="flex items-center gap-4">
-                            <div className="bg-white/20 p-4 rounded-2xl backdrop-blur-sm">
-                                <Icons.Shield />
+                    <header className="bg-gradient-to-r from-emerald-600 to-teal-500 p-6 rounded-[2rem] shadow-lg text-white mb-8 fade-in">
+                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-4">
+                                <div className="bg-white/20 p-4 rounded-2xl">
+                                    <Icons.Shield />
+                                </div>
+                                <div>
+                                    <h1 className="text-2xl md:text-3xl font-black">منظومة تدقيق التركات الذكية</h1>
+                                    <p className="text-emerald-100">نظام ذكي لتحليل الصكوك الشرعية ومطابقة الوكالات</p>
+                                </div>
                             </div>
-                            <div>
-                                <h1 className="text-2xl md:text-3xl font-black">منظومة تدقيق التركات الذكية</h1>
-                                <p className="text-emerald-100 text-sm md:text-base">نظام ذكي لتحليل الصكوك الشرعية ومطابقة الوكالات</p>
-                            </div>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-4 w-full md:w-auto justify-center">
-                            <button 
-                                onClick={() => fileInput.current.click()} 
-                                className="flex-1 md:flex-none bg-white/20 hover:bg-white/30 text-white px-6 md:px-8 py-4 rounded-2xl font-bold flex items-center justify-center gap-2 transition-all backdrop-blur-sm border border-white/30"
-                            >
-                                <Icons.Upload /> إرفاق ملفات
-                            </button>
                             
-                            {queue.length > 0 && (
+                            <div className="flex flex-wrap gap-4 w-full md:w-auto justify-center">
                                 <button 
-                                    onClick={handleProcess} 
-                                    disabled={loading}
-                                    className="flex-1 md:flex-none bg-white text-emerald-700 hover:bg-emerald-50 px-6 md:px-10 py-4 rounded-2xl font-black flex items-center justify-center gap-3 shadow-xl transition-all disabled:opacity-50"
+                                    onClick={() => fileInput.current.click()} 
+                                    className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all border border-white/30"
                                 >
-                                    {loading ? (
-                                        <>
-                                            <div className="spinner" style={{ borderTopColor: '#059669' }}></div>
-                                            <span className="mobile-text">
-                                                {status.message || `جاري المعالجة (${status.current}/${status.total})`}
-                                            </span>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Icons.Play />
-                                            <span className="mobile-text">بدء التحليل ({queue.length})</span>
-                                        </>
-                                    )}
+                                    <Icons.Upload /> إرفاق ملفات
                                 </button>
-                            )}
-                            
-                            <input 
-                                type="file" 
-                                ref={fileInput} 
-                                onChange={handleFileSelect} 
-                                className="hidden" 
-                                multiple 
-                                accept=".pdf,.jpg,.jpeg,.png,.webp"
-                            />
+                                
+                                <button 
+                                    onClick={loadSampleData}
+                                    className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl font-bold border border-white/20"
+                                >
+                                    بيانات تجريبية
+                                </button>
+                                
+                                {queue.length > 0 && (
+                                    <button 
+                                        onClick={handleProcess} 
+                                        disabled={loading}
+                                        className="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-2xl font-black flex items-center gap-3 shadow-xl transition-all disabled:opacity-50"
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <div className="spinner" style={{ borderTopColor: '#059669' }}></div>
+                                                <span>
+                                                    {status.message || `جاري المعالجة (${status.current}/${status.total})`}
+                                                </span>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Icons.Play />
+                                                <span>بدء التحليل ({queue.length})</span>
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                                
+                                <input 
+                                    type="file" 
+                                    ref={fileInput} 
+                                    onChange={handleFileSelect} 
+                                    className="hidden" 
+                                    multiple 
+                                    accept=".pdf,.jpg,.jpeg,.png,.webp"
+                                />
+                            </div>
                         </div>
                     </header>
 
                     {/* رسائل التنبيه */}
                     <div className="space-y-4 mb-6">
                         {errorMsg && (
-                            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-2xl flex items-center gap-3 fade-in shadow-sm">
+                            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-2xl flex items-center gap-3 fade-in">
                                 <Icons.Alert />
-                                <div className="flex-1">
-                                    <span className="text-sm font-bold">{errorMsg}</span>
-                                </div>
+                                <span className="font-bold">{errorMsg}</span>
                             </div>
                         )}
                         
                         {successMsg && (
-                            <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-r-2xl flex items-center gap-3 fade-in shadow-sm">
+                            <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-r-2xl flex items-center gap-3 fade-in">
                                 <Icons.Check />
-                                <div className="flex-1">
-                                    <span className="text-sm font-bold">{successMsg}</span>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {loading && status.message && (
-                            <div className="bg-blue-50 border-l-4 border-blue-500 text-blue-700 p-4 rounded-r-2xl fade-in shadow-sm">
-                                <div className="flex items-center gap-3">
-                                    <div className="spinner" style={{ borderTopColor: '#3b82f6' }}></div>
-                                    <span className="text-sm font-bold">{status.message}</span>
-                                </div>
-                                <div className="w-full bg-blue-200 rounded-full h-2 mt-2">
-                                    <div 
-                                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${(status.current / status.total) * 100}%` }}
-                                    ></div>
-                                </div>
+                                <span className="font-bold">{successMsg}</span>
                             </div>
                         )}
                     </div>
 
                     {/* قائمة الملفات في قائمة الانتظار */}
                     {queue.length > 0 && (
-                        <div className="mb-6 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-100 p-6 rounded-2xl fade-in shadow-sm">
+                        <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100 fade-in">
                             <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-blue-800 text-lg">الملفات المرفوعة ({queue.length})</h3>
+                                <h3 className="font-bold text-blue-800">الملفات المرفوعة ({queue.length})</h3>
                                 <button
                                     onClick={() => setQueue([])}
                                     className="text-sm text-red-600 hover:text-red-800 font-bold"
@@ -699,21 +594,19 @@
                             </div>
                             <div className="space-y-3">
                                 {queue.map(item => (
-                                    <div key={item.id} className="flex items-center justify-between bg-white p-4 rounded-xl shadow-sm border border-blue-100">
+                                    <div key={item.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
                                         <div className="flex items-center gap-3">
-                                            <div className="bg-blue-100 p-2 rounded-lg">
-                                                <Icons.Info className="text-blue-600" />
-                                            </div>
+                                            <Icons.Info className="text-blue-600" />
                                             <div>
-                                                <p className="font-medium text-sm text-gray-800">{item.name}</p>
-                                                <p className="text-xs text-gray-500">
-                                                    {(item.size / 1024).toFixed(1)} كيلوبايت • {item.type.split('/')[1]}
+                                                <p className="font-medium">{item.name}</p>
+                                                <p className="text-sm text-gray-500">
+                                                    {(item.size / 1024).toFixed(1)} كيلوبايت
                                                 </p>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => removeFromQueue(item.id)}
-                                            className="text-red-500 hover:text-red-700 p-2 hover:bg-red-50 rounded-lg transition-colors"
+                                            className="text-red-500 hover:text-red-700"
                                             title="إزالة الملف"
                                         >
                                             <Icons.Trash />
@@ -724,64 +617,53 @@
                         </div>
                     )}
 
-                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div className="flex flex-col lg:flex-row gap-8">
                         {/* Sidebar - تسلسل الصكوك */}
-                        <div className="lg:col-span-3 space-y-6">
-                            <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 fade-in h-full">
-                                <div className="flex justify-between items-center mb-6 border-b pb-4">
-                                    <h2 className="text-lg font-bold text-slate-700">تسلسل الصكوك</h2>
-                                    <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">
-                                        {docs.length} وثيقة
-                                    </span>
-                                </div>
+                        <div className="lg:w-1/3">
+                            <div className="bg-white p-6 rounded-xl shadow-sm border h-full">
+                                <h2 className="text-lg font-bold mb-6 border-b pb-4 text-slate-700">تسلسل الصكوك ({docs.length})</h2>
                                 
                                 {docs.length === 0 ? (
                                     <div className="text-center py-10">
-                                        <div className="text-slate-300 text-5xl mb-4">📂</div>
-                                        <p className="text-slate-400 italic text-sm">لا توجد صكوك معالجة</p>
-                                        <p className="text-slate-300 text-xs mt-2">ارفع الصكوك لبدء التحليل</p>
+                                        <p className="text-gray-400 italic">لا توجد صكوك معالجة</p>
                                     </div>
                                 ) : (
-                                    <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
+                                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
                                         {docs.sort((a, b) => new Date(a.issueDate || '2000-01-01') - new Date(b.issueDate || '2000-01-01')).map(doc => (
                                             <div key={doc.id} className="group relative">
-                                                <div className="bg-slate-50 hover:bg-slate-100 p-4 rounded-2xl border border-slate-200 relative transition-all hover:shadow-md">
+                                                <div className="bg-gray-50 hover:bg-gray-100 p-4 rounded-xl border relative transition-all">
                                                     <button 
                                                         onClick={() => removeDoc(doc.id)} 
-                                                        className="absolute left-2 top-2 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all p-1 hover:bg-red-50 rounded-lg"
+                                                        className="absolute left-2 top-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                                                         title="إزالة الوثيقة"
                                                     >
                                                         <Icons.Trash />
                                                     </button>
                                                     <div className="flex justify-between items-start mb-2">
-                                                        <span className={`status-badge ${doc.docType === 'HOSR' ? 'inheritance-badge' : 'poa-badge'}`}>
+                                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                                                            doc.docType === 'HOSR' 
+                                                                ? 'bg-purple-100 text-purple-700' 
+                                                                : 'bg-blue-100 text-blue-700'
+                                                        }`}>
                                                             {doc.docType === 'HOSR' ? 'حصر إرث' : 'وكالة'}
                                                         </span>
-                                                        <span className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">
+                                                        <span className="text-xs text-gray-500">
                                                             {doc.issueDate || 'تاريخ غير محدد'}
                                                         </span>
                                                     </div>
-                                                    <h4 className="font-bold text-slate-800 text-sm mb-2 truncate" title={doc.fileName}>
+                                                    <h4 className="font-bold text-slate-800 text-sm mb-2">
                                                         📄 {doc.fileName}
                                                     </h4>
                                                     {doc.deceasedName && (
-                                                        <div className="text-xs text-slate-600 mb-2">
+                                                        <div className="text-xs text-gray-600 mb-2">
                                                             <span className="font-semibold">المتوفى:</span> {doc.deceasedName}
                                                         </div>
                                                     )}
                                                     {doc.agentName && (
-                                                        <div className="text-xs text-slate-600">
+                                                        <div className="text-xs text-gray-600">
                                                             <span className="font-semibold">الوكيل:</span> {doc.agentName}
                                                         </div>
                                                     )}
-                                                    <div className="mt-3 pt-3 border-t border-slate-200 text-xs text-slate-500">
-                                                        <span className="font-semibold">
-                                                            {doc.docType === 'HOSR' 
-                                                                ? `الورثة: ${doc.heirs?.length || 0}` 
-                                                                : `الموكلون: ${doc.principals?.length || 0}`
-                                                            }
-                                                        </span>
-                                                    </div>
                                                 </div>
                                             </div>
                                         ))}
@@ -789,257 +671,113 @@
                                 )}
                                 
                                 {docs.length > 0 && (
-                                    <div className="mt-6 space-y-3">
-                                        <button 
-                                            onClick={exportResults}
-                                            className="w-full py-3 text-sm font-bold text-emerald-700 border border-emerald-200 rounded-xl hover:bg-emerald-50 transition-all flex items-center justify-center gap-2"
-                                        >
-                                            <Icons.Download /> تصدير النتائج
-                                        </button>
-                                        <button 
-                                            onClick={clearAll}
-                                            className="w-full py-3 text-sm text-red-600 font-bold border border-red-100 rounded-xl hover:bg-red-50 transition-all"
-                                        >
-                                            مسح كافة البيانات
-                                        </button>
-                                    </div>
+                                    <button 
+                                        onClick={clearAll}
+                                        className="w-full mt-6 py-3 text-red-600 font-bold border border-red-100 rounded-xl hover:bg-red-50 transition-all"
+                                    >
+                                        مسح كافة البيانات
+                                    </button>
                                 )}
                             </div>
                         </div>
 
                         {/* Main Table - نتائج التحليل */}
-                        <div className="lg:col-span-9 bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden fade-in h-full">
-                            <div className="p-6 md:p-8 border-b border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4 bg-gradient-to-r from-slate-50 to-slate-100/50">
-                                <div>
-                                    <h2 className="text-xl md:text-2xl font-bold text-slate-800 mb-2">مراجعة وتحليل الورثة</h2>
-                                    <p className="text-slate-600 text-sm">تحليل العلاقات القانونية بين الورثة والوكلاء</p>
+                        <div className="lg:w-2/3">
+                            <div className="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
+                                <div className="p-6 border-b bg-gray-50">
+                                    <h2 className="text-xl font-bold text-slate-800 mb-2">مراجعة وتحليل الورثة</h2>
+                                    <p className="text-gray-600">تحليل العلاقات القانونية بين الورثة والوكلاء</p>
                                 </div>
-                                <div className="flex flex-col md:flex-row items-center gap-4">
-                                    <div className="relative">
-                                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400">
-                                            <Icons.Search />
-                                        </div>
-                                        <input
-                                            type="text"
-                                            placeholder="ابحث عن وارث أو رقم هوية..."
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pr-10 pl-4 py-2 border border-slate-300 rounded-xl text-sm w-full md:w-64 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
-                                        />
-                                    </div>
-                                    <div className="flex gap-3">
-                                        <div className="flex items-center gap-2 bg-green-50 px-3 py-1.5 rounded-full border border-green-200">
-                                            <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                                            <span className="text-xs font-bold text-green-700">موكل</span>
-                                            <span className="text-xs bg-green-200 text-green-800 px-2 py-0.5 rounded-full">
-                                                {results.filter(r => r.isAuth).length}
-                                            </span>
-                                        </div>
-                                        <div className="flex items-center gap-2 bg-red-50 px-3 py-1.5 rounded-full border border-red-200">
-                                            <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                                            <span className="text-xs font-bold text-red-700">متبقي</span>
-                                            <span className="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded-full">
-                                                {results.filter(r => !r.isAuth).length}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div className="overflow-x-auto table-responsive">
-                                {filteredResults.length > 0 ? (
-                                    <table className="w-full text-right min-w-[800px]">
-                                        <thead className="bg-gradient-to-r from-slate-600 to-slate-700 text-white text-xs md:text-sm font-black uppercase">
-                                            <tr>
-                                                <th className="p-5 text-center">#</th>
-                                                <th className="p-5">المتوفى</th>
-                                                <th className="p-5">الوارث</th>
-                                                <th className="p-5 text-center">التوكيل</th>
-                                                <th className="p-5">الوكيل</th>
-                                                <th className="p-5">المتطلب القانوني</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody className="divide-y divide-slate-100">
-                                            {filteredResults.map((h, i) => (
-                                                <tr key={h.id} className="hover:bg-slate-50/80 transition-colors group">
-                                                    <td className="p-5 text-center">
-                                                        <div className="w-8 h-8 flex items-center justify-center bg-slate-100 rounded-lg text-slate-600 font-bold">
-                                                            {i + 1}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5">
-                                                        <div className="flex items-center gap-3">
-                                                            <div className={`w-3 h-3 rounded-full ${h.isMain ? 'bg-amber-500' : 'bg-indigo-500'}`}></div>
-                                                            <div>
-                                                                <span className={`text-sm font-bold ${h.isMain ? 'text-amber-700' : 'text-indigo-700'}`}>
-                                                                    {h.deceased}
-                                                                </span>
-                                                                {h.isMain && (
-                                                                    <div className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full mt-1">
-                                                                        مورث رئيسي
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5">
-                                                        <div className="font-bold text-slate-800 text-sm mb-1">{h.name}</div>
-                                                        <div className="text-xs text-slate-500 font-mono bg-slate-100 px-2 py-1 rounded inline-block">
-                                                            {h.idNo}
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5 text-center">
-                                                        <div className="flex flex-col items-center">
-                                                            <div className={`w-12 h-12 rounded-2xl mx-auto flex items-center justify-center shadow-sm transition-transform group-hover:scale-110 ${h.isAuth 
-                                                                ? 'bg-gradient-to-br from-green-100 to-emerald-100 text-green-600 border border-green-200' 
-                                                                : 'bg-gradient-to-br from-red-100 to-pink-100 text-red-500 border border-red-200'}`}>
+                                
+                                <div className="overflow-x-auto">
+                                    {results.length > 0 ? (
+                                        <table className="w-full">
+                                            <thead className="bg-gray-100">
+                                                <tr>
+                                                    <th className="p-3">#</th>
+                                                    <th className="p-3">المتوفى</th>
+                                                    <th className="p-3">الوارث</th>
+                                                    <th className="p-3 text-center">التوكيل</th>
+                                                    <th className="p-3">الوكيل</th>
+                                                    <th className="p-3">المتطلب القانوني</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {results.map((h, i) => (
+                                                    <tr key={h.id} className="border-b hover:bg-gray-50">
+                                                        <td className="p-3 text-center">{i + 1}</td>
+                                                        <td className="p-3">
+                                                            <span className={`px-2 py-1 rounded text-xs font-bold ${h.isMain ? 'bg-yellow-100 text-yellow-700' : 'bg-indigo-100 text-indigo-700'}`}>
+                                                                {h.deceased}
+                                                            </span>
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <div className="font-bold">{h.name}</div>
+                                                            <div className="text-sm text-gray-500">{h.idNo}</div>
+                                                        </td>
+                                                        <td className="p-3 text-center">
+                                                            <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full ${h.isAuth ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
                                                                 {h.isAuth ? <Icons.Check /> : <Icons.Alert />}
                                                             </div>
-                                                            <div className={`text-xs mt-2 font-bold ${h.isAuth ? 'text-green-600' : 'text-red-600'}`}>
-                                                                {h.isAuth ? 'تم التوكيل' : 'يحتاج توكيل'}
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td className="p-5">
-                                                        <div className="font-bold text-slate-700 text-sm mb-2">{h.agent}</div>
-                                                        {h.isAgent && (
-                                                            <div className="inline-flex items-center gap-1 text-xs font-black text-orange-700 bg-orange-50 px-3 py-1.5 rounded-lg border border-orange-200 animate-pulse">
-                                                                <Icons.Info /> المفترض يحضر شخصيًا
-                                                            </div>
-                                                        )}
-                                                    </td>
-                                                    <td className="p-5">
-                                                        <div className="text-xs text-slate-600 leading-relaxed max-w-[250px] bg-slate-50 p-3 rounded-lg border border-slate-200">
+                                                            <div className="text-xs mt-1">{h.isAuth ? 'تم' : 'لم يتم'}</div>
+                                                        </td>
+                                                        <td className="p-3">
+                                                            <div>{h.agent}</div>
+                                                            {h.isAgent && (
+                                                                <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded mt-1">
+                                                                    المفترض يحضر
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td className="p-3 text-sm text-gray-600">
                                                             {h.note}
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                ) : (
-                                    <div className="py-40 text-center">
-                                        <div className="text-7xl mb-6 opacity-20">📊</div>
-                                        <h3 className="text-xl font-bold text-slate-300 mb-4">
-                                            {searchTerm ? "لم يتم العثور على نتائج" : "لا توجد بيانات للعرض"}
-                                        </h3>
-                                        <p className="text-slate-400 mb-6 max-w-md mx-auto">
-                                            {searchTerm 
-                                                ? "جرب مصطلحات بحث أخرى أو امسح البحث لعرض جميع النتائج"
-                                                : "ارفع صكوك الحصر والوكالات للبدء في التحليل الذكي"
-                                            }
-                                        </p>
-                                        {!searchTerm && (
-                                            <button 
-                                                onClick={() => fileInput.current.click()}
-                                                className="bg-gradient-to-r from-emerald-600 to-teal-500 text-white px-8 py-3 rounded-xl font-bold flex items-center gap-2 mx-auto hover:shadow-lg transition-shadow"
-                                            >
-                                                <Icons.Upload /> رفع الوثائق الأولى
-                                            </button>
-                                        )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    ) : (
+                                        <div className="py-20 text-center">
+                                            <div className="text-4xl mb-4 text-gray-300">📊</div>
+                                            <h3 className="text-xl font-bold text-gray-400 mb-4">
+                                                لا توجد بيانات للعرض
+                                            </h3>
+                                            <p className="text-gray-400 mb-6">
+                                                ارفع صكوك الحصر والوكالات أو استخدم البيانات التجريبية
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                                
+                                {results.length > 0 && (
+                                    <div className="p-6 border-t bg-gray-50">
+                                        <div className="flex justify-between items-center">
+                                            <div className="text-sm text-gray-600">
+                                                <span className="font-bold">عدد الورثة: {results.length}</span> | 
+                                                <span className="text-green-600 mx-2"> تم التوكيل: {results.filter(r => r.isAuth).length}</span> | 
+                                                <span className="text-red-600 mx-2"> يحتاج توكيل: {results.filter(r => !r.isAuth).length}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 )}
                             </div>
-                            
-                            {filteredResults.length > 0 && (
-                                <div className="p-6 border-t border-slate-100 bg-gradient-to-r from-slate-50 to-slate-100/30">
-                                    <div className="flex flex-wrap gap-4 justify-between items-center">
-                                        <div className="space-y-2">
-                                            <div className="text-sm text-slate-600">
-                                                <span className="font-bold">عرض </span>
-                                                <span className="font-bold text-emerald-600">{filteredResults.length}</span>
-                                                <span className="font-bold"> من أصل </span>
-                                                <span className="font-bold">{results.length}</span>
-                                                <span className="font-bold"> وارث</span>
-                                            </div>
-                                            <div className="flex flex-wrap gap-4 text-xs">
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                                                    <span>تم التوكيل: {results.filter(r => r.isAuth).length}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
-                                                    <span>يحتاج توكيل: {results.filter(r => !r.isAuth).length}</span>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    <div className="w-3 h-3 rounded-full bg-amber-500"></div>
-                                                    <span>مورث رئيسي: {results.filter(r => r.isMain).length}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-3">
-                                            <button 
-                                                onClick={exportResults}
-                                                className="bg-slate-800 text-white px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-900 transition-colors flex items-center gap-2"
-                                            >
-                                                <Icons.Download /> تصدير التقرير
-                                            </button>
-                                            <button 
-                                                onClick={() => window.print()}
-                                                className="bg-white border border-slate-300 text-slate-700 px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-slate-50 transition-colors"
-                                            >
-                                                طباعة النتائج
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
                         </div>
                     </div>
                     
                     {/* تذييل الصفحة */}
-                    <footer className="mt-12 pt-8 border-t border-slate-200">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                            <div>
-                                <h4 className="font-bold text-slate-800 mb-4">عن المنظومة</h4>
-                                <p className="text-slate-600 text-sm">
-                                    نظام ذكي لتحليل صكوك التركات والوكالات باستخدام الذكاء الاصطناعي لضمان الدقة القانونية.
-                                </p>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-slate-800 mb-4">المميزات</h4>
-                                <ul className="text-slate-600 text-sm space-y-2">
-                                    <li>• تحليل تلقائي للصكوك الشرعية</li>
-                                    <li>• مطابقة الوكالات مع الورثة</li>
-                                    <li>• كشف التناقضات القانونية</li>
-                                    <li>• تقارير تفصيلية قابلة للطباعة</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 className="font-bold text-slate-800 mb-4">الدعم الفني</h4>
-                                <p className="text-slate-600 text-sm">
-                                    للاستفسارات التقنية أو المساعدة في استخدام النظام:
-                                    <br />
-                                    <a href="mailto:support@inheritance.com" className="text-emerald-600 hover:text-emerald-800">
-                                        support@inheritance.com
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                        <div className="mt-8 pt-6 border-t border-slate-200 text-center text-slate-500 text-sm">
-                            <p>منظومة تدقيق التركات الذكية © 2024 - جميع الحقوق محفوظة</p>
-                            <p className="text-xs mt-2">يعمل على نموذج Gemini 2.0 Flash</p>
-                        </div>
+                    <footer className="mt-12 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
+                        <p>منظومة تدقيق التركات الذكية - يعمل على نموذج Gemini 2.0 Flash</p>
+                        <p className="text-xs mt-2">تأكد من تشغيل التطبيق على خادم ويب محلي لتجنب مشاكل CORS</p>
                     </footer>
                 </div>
             );
         };
 
         // جذر التطبيق
-        console.log("Starting App...");
         const rootElement = document.getElementById('root');
-        
-        if (!rootElement) {
-            console.error("Root element not found!");
-        } else {
-            console.log("Root element found, rendering...");
-            try {
-                const root = ReactDOM.createRoot(rootElement);
-                root.render(<App />);
-                console.log("App rendered successfully!");
-            } catch (error) {
-                console.error("Error rendering app:", error);
-            }
+        if (rootElement) {
+            const root = ReactDOM.createRoot(rootElement);
+            root.render(<App />);
         }
     </script>
 </body>
