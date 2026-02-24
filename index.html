@@ -3,781 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة تدقيق التركات الذكية</title>
-    <!-- استخدام إصدار محلي من Tailwind لتجنب تحذير CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>أداة دمج وضغط الملفات الاحترافية</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * { box-sizing: border-box; }
-        body { 
-            font-family: 'Noto Sans Arabic', sans-serif; 
-            background-color: #f8fafc; 
-            margin: 0;
-            padding: 0;
-            direction: rtl;
-        }
-        .spinner { 
-            border: 3px solid rgba(255, 255, 255, 0.3); 
-            border-radius: 50%; 
-            border-top: 3px solid #fff; 
-            width: 20px; 
-            height: 20px; 
-            animation: spin 1s linear infinite; 
-        }
-        @keyframes spin { 
-            0% { transform: rotate(0deg); } 
-            100% { transform: rotate(360deg); } 
-        }
-        .fade-in { 
-            animation: fadeIn 0.5s ease-in-out; 
-        }
-        @keyframes fadeIn { 
-            from { opacity: 0; transform: translateY(10px); } 
-            to { opacity: 1; transform: translateY(0); } 
-        }
-        #root {
-            min-height: 100vh;
-        }
-        /* تحسينات للعرض على الجوال */
-        @media (max-width: 768px) {
-            .mobile-padding {
-                padding: 1rem !important;
-            }
-            .mobile-text {
-                font-size: 0.875rem !important;
-            }
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
+        body { font-family: 'Tajawal', sans-serif; background-color: #f0f4f8; }
+        .drop-active { border-color: #2563eb; background-color: #eff6ff; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body>
-    <div id="root"></div>
+<body class="min-h-screen py-12 px-4 flex items-center justify-center">
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+    <div class="max-w-3xl w-full bg-white rounded-[2rem] shadow-2xl border border-slate-100 overflow-hidden">
+        <!-- الرأس -->
+        <div class="bg-slate-900 p-8 text-center text-white">
+            <h1 class="text-3xl font-bold mb-2">أداة الدمج والضغط</h1>
+            <p class="text-slate-400">ادمج ملفات PDF، الصور، والمستندات في ملف واحد مضغوط (.pkg)</p>
+        </div>
 
-        // المفتاح والموديل - مفتاح API المصحح
-        const API_KEY = "AIzaSyB051BQjnc-35XdnawKEIWDyNxOBYNL9WE"; // تم تصحيح AIza بدلاً من Alza
-        const MODEL = "gemini-2.0-flash";
-        
-        console.log("API Key:", API_KEY.substring(0, 10) + "...");
-        console.log("Model:", MODEL);
-
-        // أيقونات SVG
-        const Icons = {
-            Shield: () => (
-                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
-            ),
-            Upload: () => (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                </svg>
-            ),
-            Play: () => (
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M8 5v14l11-7z"></path>
-                </svg>
-            ),
-            Check: () => (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-            ),
-            Alert: () => (
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            ),
-            Trash: () => (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v2m3 4h.01"></path>
-                </svg>
-            ),
-            Info: () => (
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            )
-        };
-
-        const App = () => {
-            const [docs, setDocs] = useState([]);
-            const [queue, setQueue] = useState([]);
-            const [results, setResults] = useState([]);
-            const [loading, setLoading] = useState(false);
-            const [status, setStatus] = useState({ current: 0, total: 0, message: '' });
-            const [errorMsg, setErrorMsg] = useState("");
-            const [successMsg, setSuccessMsg] = useState("");
-            const fileInput = useRef(null);
-
-            // تأثير لتنظيف الرسائل
-            useEffect(() => {
-                if (errorMsg || successMsg) {
-                    const timer = setTimeout(() => {
-                        setErrorMsg("");
-                        setSuccessMsg("");
-                    }, 5000);
-                    return () => clearTimeout(timer);
-                }
-            }, [errorMsg, successMsg]);
-
-            // معالجة المنطق القانوني
-            useEffect(() => {
-                console.log("Processing docs:", docs);
-                if (docs.length === 0) {
-                    setResults([]);
-                    return;
-                }
-                
-                const cleanName = (name) => {
-                    if (!name) return '';
-                    return name.replace(/\s+/g, ' ').trim().toLowerCase();
-                };
-
-                const sortedDocs = [...docs].sort((a, b) => {
-                    const dateA = a.issueDate ? new Date(a.issueDate) : new Date(0);
-                    const dateB = b.issueDate ? new Date(b.issueDate) : new Date(0);
-                    return dateA - dateB;
-                });
-                
-                const inheritanceDocs = sortedDocs.filter(d => d.docType === 'HOSR');
-                const poaDocs = sortedDocs.filter(d => d.docType === 'POA');
-                
-                if (inheritanceDocs.length === 0) {
-                    setResults([]);
-                    return;
-                }
-
-                const firstDeceased = cleanName(inheritanceDocs[0].deceasedName);
-                const summary = [];
-
-                inheritanceDocs.forEach((doc, docIndex) => {
-                    const currentDeceased = cleanName(doc.deceasedName);
-                    const isMain = currentDeceased === firstDeceased;
-                    
-                    const heirs = doc.heirs || [];
-                    
-                    heirs.forEach(heir => {
-                        const heirName = heir.name ? heir.name.trim() : 'غير محدد';
-                        const cleanHeirName = cleanName(heirName);
-                        const heirId = heir.idNo || 'غير محدد';
-                        
-                        let foundPoa = null;
-                        let isAgent = false;
-                        
-                        poaDocs.forEach(poa => {
-                            const principals = poa.principals || [];
-                            const principalMatch = principals.some(principal => {
-                                if (!principal) return false;
-                                const cleanPrincipal = cleanName(principal);
-                                return cleanPrincipal === cleanHeirName || 
-                                       cleanPrincipal.includes(cleanHeirName) || 
-                                       cleanHeirName.includes(cleanPrincipal);
-                            });
-                            
-                            if (principalMatch) foundPoa = poa;
-                            
-                            const agentName = poa.agentName ? cleanName(poa.agentName) : '';
-                            if (agentName === cleanHeirName) isAgent = true;
-                        });
-                        
-                        let legalNote = '';
-                        if (isMain) {
-                            legalNote = `الوكالة يجب أن تكون خاصة بالإرث من المورث الأساسي (${doc.deceasedName || firstDeceased})`;
-                        } else {
-                            legalNote = `الوكالة يجب أن تكون خاصة بالإرث من (${doc.deceasedName}) والعائد له من (${firstDeceased})`;
-                        }
-                        
-                        summary.push({
-                            id: `${docIndex}-${heirName}-${Math.random()}`,
-                            name: heirName,
-                            idNo: heirId,
-                            deceased: doc.deceasedName || 'غير محدد',
-                            isMain,
-                            isAuth: !!foundPoa,
-                            isAgent,
-                            agent: isAgent ? "نفسه (وكيل)" : (foundPoa ? (foundPoa.agentName || '-') : '-'),
-                            note: legalNote,
-                            docId: doc.id
-                        });
-                    });
-                });
-                
-                console.log("Summary results:", summary);
-                setResults(summary);
-            }, [docs]);
-
-            // تحويل الملف إلى Base64
-            const toBase64 = useCallback((file) => {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.readAsDataURL(file);
-                    reader.onload = () => {
-                        const base64String = reader.result.split(',')[1];
-                        resolve(base64String);
-                    };
-                    reader.onerror = reject;
-                });
-            }, []);
-
-            // استدعاء Gemini AI API - النسخة المصححة
-            const callAI = useCallback(async (base64, mimeType, fileName) => {
-                console.log(`Calling AI for: ${fileName}, mime: ${mimeType}`);
-                
-                const prompt = `أنت محامٍ سعودي متخصص في الصكوك الشرعية. استخرج البيانات من الوثيقة المرفقة وأرجعها بتنسيق JSON.
-                
-                أنواع الوثائق:
-                1. صك حصر إرث (HOSR)
-                2. صك وكالة (POA)
-                
-                القواعد:
-                - استخدم التنسيق الدقيق التالي:
-                
-                لصكوك الحصر:
-                {
-                    "docType": "HOSR",
-                    "issueDate": "YYYY-MM-DD",
-                    "deceasedName": "اسم المتوفى الكامل",
-                    "heirs": [
-                        {"name": "اسم الوارث", "idNo": "رقم الهوية"}
-                    ]
-                }
-                
-                لصكوك الوكالة:
-                {
-                    "docType": "POA",
-                    "issueDate": "YYYY-MM-DD",
-                    "agentName": "اسم الوكيل الكامل",
-                    "principals": ["اسم الموكل"]
-                }
-                
-                التعليمات:
-                1. كن دقيقًا في استخراج الأسماء والتواريخ
-                2. إذا لم تجد المعلومات، استخدم "غير محدد"
-                3. ارجع JSON فقط بدون أي نص إضافي`;
-
-                try {
-                    const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
-                    
-                    // JSON الصحيح للطلب
-                    const requestBody = {
-                        contents: [
-                            {
-                                parts: [
-                                    { text: prompt },
-                                    {
-                                        inlineData: {
-                                            mimeType: mimeType || "application/pdf",
-                                            data: base64
-                                        }
-                                    }
-                                ]
-                            }
-                        ],
-                        generationConfig: {
-                            temperature: 0.1,
-                            maxOutputTokens: 2000,
-                            responseMimeType: "application/json"
-                        }
-                    };
-
-                    console.log("Sending request to Gemini API...", requestBody);
-                    
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(requestBody)
-                    });
-
-                    console.log("Response status:", response.status);
-                    
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error("API Error Response:", errorText);
-                        throw new Error(`خطأ في API: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    console.log("API Response data:", data);
-                    
-                    if (!data.candidates || data.candidates.length === 0) {
-                        throw new Error("لم يتم الحصول على استجابة من النموذج");
-                    }
-                    
-                    const text = data.candidates[0].content.parts[0].text;
-                    console.log("Raw AI response:", text);
-                    
-                    // تنظيف النص لاستخراج JSON
-                    let jsonText = text.trim();
-                    
-                    // إزالة أي نص خارج JSON
-                    const jsonMatch = jsonText.match(/\{[\s\S]*\}/);
-                    if (jsonMatch) {
-                        jsonText = jsonMatch[0];
-                    }
-                    
-                    // تحليل JSON
-                    try {
-                        const parsed = JSON.parse(jsonText);
-                        console.log("Parsed JSON:", parsed);
-                        return parsed;
-                    } catch (parseError) {
-                        console.error("JSON Parse Error:", parseError);
-                        // محاولة إصلاح JSON
-                        const fixedJson = jsonText
-                            .replace(/(\w+):/g, '"$1":')
-                            .replace(/'/g, '"')
-                            .replace(/،/g, ',');
-                        
-                        return JSON.parse(fixedJson);
-                    }
-                    
-                } catch (error) {
-                    console.error("AI API Error:", error);
-                    throw new Error(`فشل في معالجة الوثيقة: ${error.message}`);
-                }
-            }, []);
-
-            // معالجة الملفات في قائمة الانتظار
-            const handleProcess = async () => {
-                if (queue.length === 0) {
-                    setErrorMsg("لم تقم باختيار أي ملفات للمعالجة");
-                    return;
-                }
-
-                setLoading(true);
-                setErrorMsg("");
-                setSuccessMsg("");
-                setStatus({ current: 0, total: queue.length, message: 'جاري بدء المعالجة...' });
-
-                const newDocs = [];
-                const errors = [];
-
-                for (let i = 0; i < queue.length; i++) {
-                    const file = queue[i];
-                    try {
-                        setStatus({ 
-                            current: i + 1, 
-                            total: queue.length, 
-                            message: `جاري معالجة: ${file.name}` 
-                        });
-                        
-                        console.log(`Processing file ${i + 1}/${queue.length}: ${file.name}`);
-                        const base64 = await toBase64(file.file);
-                        const result = await callAI(base64, file.type || 'application/pdf', file.name);
-                        
-                        // التحقق من الهيكل الأساسي
-                        if (!result.docType) {
-                            throw new Error("نوع الوثيقة غير معروف");
-                        }
-                        
-                        // تأكد من وجود البيانات الأساسية
-                        if (result.docType === 'HOSR') {
-                            result.deceasedName = result.deceasedName || "غير محدد";
-                            result.heirs = result.heirs || [{ name: "غير محدد", idNo: "غير محدد" }];
-                        } else if (result.docType === 'POA') {
-                            result.agentName = result.agentName || "غير محدد";
-                            result.principals = result.principals || ["غير محدد"];
-                        }
-                        
-                        newDocs.push({
-                            ...result,
-                            fileName: file.name,
-                            id: Date.now() + Math.random(),
-                            uploadDate: new Date().toISOString().split('T')[0]
-                        });
-                        
-                        console.log(`Successfully processed: ${file.name}`);
-                        
-                    } catch (error) {
-                        console.error(`Error processing ${file.name}:`, error);
-                        errors.push(`${file.name}: ${error.message}`);
-                    }
-                    
-                    // تأخير بسيط بين الطلبات
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                }
-
-                if (errors.length > 0) {
-                    setErrorMsg(`حدثت أخطاء في ${errors.length} ملفات`);
-                }
-
-                if (newDocs.length > 0) {
-                    setDocs(prev => [...prev, ...newDocs]);
-                    setSuccessMsg(`✅ تمت معالجة ${newDocs.length} ملفات بنجاح`);
-                }
-
-                setQueue([]);
-                setLoading(false);
-                setStatus({ current: 0, total: 0, message: '' });
-            };
-
-            // معالجة اختيار الملفات
-            const handleFileSelect = (e) => {
-                const files = Array.from(e.target.files);
-                if (files.length === 0) return;
-
-                const validFiles = files.filter(file => {
-                    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'application/pdf', 'image/webp'];
-                    const isValidType = validTypes.includes(file.type);
-                    const isValidSize = file.size <= 10 * 1024 * 1024;
-                    
-                    return isValidType && isValidSize;
-                });
-
-                if (validFiles.length === 0) {
-                    setErrorMsg("الرجاء اختيار ملفات بصيغ مدعومة (PDF, JPG, PNG, WebP) بحجم أقل من 10MB");
-                    return;
-                }
-
-                const newQueue = validFiles.map(file => ({
-                    file: file,
-                    name: file.name,
-                    type: file.type,
-                    size: file.size,
-                    id: Date.now() + Math.random()
-                }));
-
-                setQueue(prev => [...prev, ...newQueue]);
-                setSuccessMsg(`تمت إضافة ${validFiles.length} ملفات إلى قائمة الانتظار`);
-                e.target.value = '';
-            };
-
-            const removeFromQueue = (id) => {
-                setQueue(prev => prev.filter(item => item.id !== id));
-            };
-
-            const removeDoc = (id) => {
-                setDocs(prev => prev.filter(doc => doc.id !== id));
-                setSuccessMsg("تم إزالة الوثيقة");
-            };
-
-            const clearAll = () => {
-                if (window.confirm("هل أنت متأكد من مسح جميع البيانات؟")) {
-                    setDocs([]);
-                    setQueue([]);
-                    setResults([]);
-                    setErrorMsg("");
-                    setSuccessMsg("تم مسح جميع البيانات بنجاح");
-                }
-            };
-
-            // تحميل بيانات تجريبية للاختبار
-            const loadSampleData = () => {
-                const sampleDocs = [
-                    {
-                        docType: "HOSR",
-                        issueDate: "2024-01-10",
-                        deceasedName: "ثامر صالح عبدالله بن عثيمين",
-                        heirs: [
-                            { name: "سالم بن ثامر بن عثيمين", idNo: "1012345678" },
-                            { name: "ناصر بن ثامر بن عثيمين", idNo: "1022345678" },
-                            { name: "منيرة بنت ثامر بن عثيمين", idNo: "1032345678" }
-                        ],
-                        fileName: "صك حصر إرث - ثامر صالح عبدالله بن عثيمين.pdf",
-                        id: Date.now() + 1,
-                        uploadDate: new Date().toISOString().split('T')[0]
-                    },
-                    {
-                        docType: "POA",
-                        issueDate: "2024-01-15",
-                        agentName: "محمد بن أحمد العتيبي",
-                        principals: ["سالم بن ثامر بن عثيمين", "ناصر بن ثامر بن عثيمين"],
-                        fileName: "صك وكالة - محمد العتيبي.pdf",
-                        id: Date.now() + 2,
-                        uploadDate: new Date().toISOString().split('T')[0]
-                    }
-                ];
-                
-                setDocs(sampleDocs);
-                setSuccessMsg("تم تحميل بيانات تجريبية بنجاح");
-            };
-
-            return (
-                <div className="max-w-7xl mx-auto p-4 md:p-6">
-                    {/* Header */}
-                    <header className="bg-gradient-to-r from-emerald-600 to-teal-500 p-6 rounded-[2rem] shadow-lg text-white mb-8 fade-in">
-                        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-                            <div className="flex items-center gap-4">
-                                <div className="bg-white/20 p-4 rounded-2xl">
-                                    <Icons.Shield />
-                                </div>
-                                <div>
-                                    <h1 className="text-2xl md:text-3xl font-black">منظومة تدقيق التركات الذكية</h1>
-                                    <p className="text-emerald-100">نظام ذكي لتحليل الصكوك الشرعية ومطابقة الوكالات</p>
-                                </div>
-                            </div>
-                            
-                            <div className="flex flex-wrap gap-4 w-full md:w-auto justify-center">
-                                <button 
-                                    onClick={() => fileInput.current.click()} 
-                                    className="bg-white/20 hover:bg-white/30 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all border border-white/30"
-                                >
-                                    <Icons.Upload /> إرفاق ملفات
-                                </button>
-                                
-                                <button 
-                                    onClick={loadSampleData}
-                                    className="bg-white/10 hover:bg-white/20 text-white px-6 py-3 rounded-2xl font-bold border border-white/20"
-                                >
-                                    بيانات تجريبية
-                                </button>
-                                
-                                {queue.length > 0 && (
-                                    <button 
-                                        onClick={handleProcess} 
-                                        disabled={loading}
-                                        className="bg-white text-emerald-700 hover:bg-emerald-50 px-6 py-3 rounded-2xl font-black flex items-center gap-3 shadow-xl transition-all disabled:opacity-50"
-                                    >
-                                        {loading ? (
-                                            <>
-                                                <div className="spinner" style={{ borderTopColor: '#059669' }}></div>
-                                                <span>
-                                                    {status.message || `جاري المعالجة (${status.current}/${status.total})`}
-                                                </span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Icons.Play />
-                                                <span>بدء التحليل ({queue.length})</span>
-                                            </>
-                                        )}
-                                    </button>
-                                )}
-                                
-                                <input 
-                                    type="file" 
-                                    ref={fileInput} 
-                                    onChange={handleFileSelect} 
-                                    className="hidden" 
-                                    multiple 
-                                    accept=".pdf,.jpg,.jpeg,.png,.webp"
-                                />
-                            </div>
-                        </div>
-                    </header>
-
-                    {/* رسائل التنبيه */}
-                    <div className="space-y-4 mb-6">
-                        {errorMsg && (
-                            <div className="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-r-2xl flex items-center gap-3 fade-in">
-                                <Icons.Alert />
-                                <span className="font-bold">{errorMsg}</span>
-                            </div>
-                        )}
-                        
-                        {successMsg && (
-                            <div className="bg-green-50 border-l-4 border-green-500 text-green-700 p-4 rounded-r-2xl flex items-center gap-3 fade-in">
-                                <Icons.Check />
-                                <span className="font-bold">{successMsg}</span>
-                            </div>
-                        )}
+        <div class="p-8">
+            <!-- منطقة اختيار الملفات -->
+            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-10 text-center cursor-pointer transition-all hover:border-blue-500 group relative">
+                <input type="file" id="fileInput" multiple accept=".pdf,image/*,.doc,.docx,.txt" class="hidden">
+                <div class="flex flex-col items-center">
+                    <div class="p-4 bg-blue-50 rounded-full mb-4 group-hover:scale-110 transition-transform">
+                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
                     </div>
-
-                    {/* قائمة الملفات في قائمة الانتظار */}
-                    {queue.length > 0 && (
-                        <div className="mb-6 p-4 rounded-xl bg-blue-50 border border-blue-100 fade-in">
-                            <div className="flex justify-between items-center mb-4">
-                                <h3 className="font-bold text-blue-800">الملفات المرفوعة ({queue.length})</h3>
-                                <button
-                                    onClick={() => setQueue([])}
-                                    className="text-sm text-red-600 hover:text-red-800 font-bold"
-                                >
-                                    إزالة الكل
-                                </button>
-                            </div>
-                            <div className="space-y-3">
-                                {queue.map(item => (
-                                    <div key={item.id} className="flex items-center justify-between bg-white p-3 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <Icons.Info className="text-blue-600" />
-                                            <div>
-                                                <p className="font-medium">{item.name}</p>
-                                                <p className="text-sm text-gray-500">
-                                                    {(item.size / 1024).toFixed(1)} كيلوبايت
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <button
-                                            onClick={() => removeFromQueue(item.id)}
-                                            className="text-red-500 hover:text-red-700"
-                                            title="إزالة الملف"
-                                        >
-                                            <Icons.Trash />
-                                        </button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    <div className="flex flex-col lg:flex-row gap-8">
-                        {/* Sidebar - تسلسل الصكوك */}
-                        <div className="lg:w-1/3">
-                            <div className="bg-white p-6 rounded-xl shadow-sm border h-full">
-                                <h2 className="text-lg font-bold mb-6 border-b pb-4 text-slate-700">تسلسل الصكوك ({docs.length})</h2>
-                                
-                                {docs.length === 0 ? (
-                                    <div className="text-center py-10">
-                                        <p className="text-gray-400 italic">لا توجد صكوك معالجة</p>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-4 max-h-[500px] overflow-y-auto">
-                                        {docs.sort((a, b) => new Date(a.issueDate || '2000-01-01') - new Date(b.issueDate || '2000-01-01')).map(doc => (
-                                            <div key={doc.id} className="group relative">
-                                                <div className="bg-gray-50 hover:bg-gray-100 p-4 rounded-xl border relative transition-all">
-                                                    <button 
-                                                        onClick={() => removeDoc(doc.id)} 
-                                                        className="absolute left-2 top-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
-                                                        title="إزالة الوثيقة"
-                                                    >
-                                                        <Icons.Trash />
-                                                    </button>
-                                                    <div className="flex justify-between items-start mb-2">
-                                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                            doc.docType === 'HOSR' 
-                                                                ? 'bg-purple-100 text-purple-700' 
-                                                                : 'bg-blue-100 text-blue-700'
-                                                        }`}>
-                                                            {doc.docType === 'HOSR' ? 'حصر إرث' : 'وكالة'}
-                                                        </span>
-                                                        <span className="text-xs text-gray-500">
-                                                            {doc.issueDate || 'تاريخ غير محدد'}
-                                                        </span>
-                                                    </div>
-                                                    <h4 className="font-bold text-slate-800 text-sm mb-2">
-                                                        📄 {doc.fileName}
-                                                    </h4>
-                                                    {doc.deceasedName && (
-                                                        <div className="text-xs text-gray-600 mb-2">
-                                                            <span className="font-semibold">المتوفى:</span> {doc.deceasedName}
-                                                        </div>
-                                                    )}
-                                                    {doc.agentName && (
-                                                        <div className="text-xs text-gray-600">
-                                                            <span className="font-semibold">الوكيل:</span> {doc.agentName}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-                                
-                                {docs.length > 0 && (
-                                    <button 
-                                        onClick={clearAll}
-                                        className="w-full mt-6 py-3 text-red-600 font-bold border border-red-100 rounded-xl hover:bg-red-50 transition-all"
-                                    >
-                                        مسح كافة البيانات
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Main Table - نتائج التحليل */}
-                        <div className="lg:w-2/3">
-                            <div className="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
-                                <div className="p-6 border-b bg-gray-50">
-                                    <h2 className="text-xl font-bold text-slate-800 mb-2">مراجعة وتحليل الورثة</h2>
-                                    <p className="text-gray-600">تحليل العلاقات القانونية بين الورثة والوكلاء</p>
-                                </div>
-                                
-                                <div className="overflow-x-auto">
-                                    {results.length > 0 ? (
-                                        <table className="w-full">
-                                            <thead className="bg-gray-100">
-                                                <tr>
-                                                    <th className="p-3">#</th>
-                                                    <th className="p-3">المتوفى</th>
-                                                    <th className="p-3">الوارث</th>
-                                                    <th className="p-3 text-center">التوكيل</th>
-                                                    <th className="p-3">الوكيل</th>
-                                                    <th className="p-3">المتطلب القانوني</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {results.map((h, i) => (
-                                                    <tr key={h.id} className="border-b hover:bg-gray-50">
-                                                        <td className="p-3 text-center">{i + 1}</td>
-                                                        <td className="p-3">
-                                                            <span className={`px-2 py-1 rounded text-xs font-bold ${h.isMain ? 'bg-yellow-100 text-yellow-700' : 'bg-indigo-100 text-indigo-700'}`}>
-                                                                {h.deceased}
-                                                            </span>
-                                                        </td>
-                                                        <td className="p-3">
-                                                            <div className="font-bold">{h.name}</div>
-                                                            <div className="text-sm text-gray-500">{h.idNo}</div>
-                                                        </td>
-                                                        <td className="p-3 text-center">
-                                                            <div className={`inline-flex items-center justify-center w-10 h-10 rounded-full ${h.isAuth ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-500'}`}>
-                                                                {h.isAuth ? <Icons.Check /> : <Icons.Alert />}
-                                                            </div>
-                                                            <div className="text-xs mt-1">{h.isAuth ? 'تم' : 'لم يتم'}</div>
-                                                        </td>
-                                                        <td className="p-3">
-                                                            <div>{h.agent}</div>
-                                                            {h.isAgent && (
-                                                                <div className="text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded mt-1">
-                                                                    المفترض يحضر
-                                                                </div>
-                                                            )}
-                                                        </td>
-                                                        <td className="p-3 text-sm text-gray-600">
-                                                            {h.note}
-                                                        </td>
-                                                    </tr>
-                                                ))}
-                                            </tbody>
-                                        </table>
-                                    ) : (
-                                        <div className="py-20 text-center">
-                                            <div className="text-4xl mb-4 text-gray-300">📊</div>
-                                            <h3 className="text-xl font-bold text-gray-400 mb-4">
-                                                لا توجد بيانات للعرض
-                                            </h3>
-                                            <p className="text-gray-400 mb-6">
-                                                ارفع صكوك الحصر والوكالات أو استخدم البيانات التجريبية
-                                            </p>
-                                        </div>
-                                    )}
-                                </div>
-                                
-                                {results.length > 0 && (
-                                    <div className="p-6 border-t bg-gray-50">
-                                        <div className="flex justify-between items-center">
-                                            <div className="text-sm text-gray-600">
-                                                <span className="font-bold">عدد الورثة: {results.length}</span> | 
-                                                <span className="text-green-600 mx-2"> تم التوكيل: {results.filter(r => r.isAuth).length}</span> | 
-                                                <span className="text-red-600 mx-2"> يحتاج توكيل: {results.filter(r => !r.isAuth).length}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    {/* تذييل الصفحة */}
-                    <footer className="mt-12 pt-8 border-t border-gray-200 text-center text-gray-500 text-sm">
-                        <p>منظومة تدقيق التركات الذكية - يعمل على نموذج Gemini 2.0 Flash</p>
-                        <p className="text-xs mt-2">تأكد من تشغيل التطبيق على خادم ويب محلي لتجنب مشاكل CORS</p>
-                    </footer>
+                    <p class="text-slate-600 font-bold text-lg">اسحب الملفات هنا أو اضغط للاختيار</p>
+                    <p class="text-slate-400 text-sm mt-1">يدعم PDF، الصور، وكافة أنواع الملفات</p>
                 </div>
-            );
+            </div>
+
+            <!-- قائمة الملفات المضافة -->
+            <div id="fileListContainer" class="mt-8 hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-bold text-slate-800">قائمة الملفات الجاهزة:</h3>
+                    <span id="fileStats" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold">0 ملفات</span>
+                </div>
+                <div id="fileList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
+                    <!-- سيتم توليد العناصر هنا -->
+                </div>
+            </div>
+
+            <!-- زر التنفيذ -->
+            <div class="mt-8">
+                <button id="processBtn" disabled class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:bg-slate-200 disabled:shadow-none flex items-center justify-center gap-3">
+                    <span id="btnText">ابدأ الدمج والضغط الآن</span>
+                    <div id="loader" class="hidden animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
+                </button>
+                <button id="clearBtn" class="w-full mt-4 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">تفريغ كافة الملفات</button>
+            </div>
+        </div>
+
+        <!-- تذييل -->
+        <div class="bg-slate-50 p-4 border-t text-center">
+            <p class="text-slate-400 text-xs">تتم معالجة الملفات محلياً في المتصفح للحفاظ على خصوصيتك</p>
+        </div>
+    </div>
+
+    <!-- إشعار نجاح أو خطأ -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-full shadow-2xl transition-all transform translate-y-24 opacity-0 font-bold text-white z-50"></div>
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const dropZone = document.getElementById('dropZone');
+        const fileList = document.getElementById('fileList');
+        const fileListContainer = document.getElementById('fileListContainer');
+        const processBtn = document.getElementById('processBtn');
+        const clearBtn = document.getElementById('clearBtn');
+        const fileStats = document.getElementById('fileStats');
+        const loader = document.getElementById('loader');
+        const btnText = document.getElementById('btnText');
+        const toast = document.getElementById('toast');
+
+        let queue = [];
+
+        // إدارة الملفات
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = (e) => addFiles(e.target.files);
+
+        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drop-active'); };
+        dropZone.ondragleave = () => dropZone.classList.remove('drop-active');
+        dropZone.ondrop = (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drop-active');
+            addFiles(e.dataTransfer.files);
         };
 
-        // جذر التطبيق
-        const rootElement = document.getElementById('root');
-        if (rootElement) {
-            const root = ReactDOM.createRoot(rootElement);
-            root.render(<App />);
+        function addFiles(files) {
+            Array.from(files).forEach(file => {
+                queue.push(file);
+            });
+            updateUI();
+            fileInput.value = '';
+        }
+
+        function removeFile(index) {
+            queue.splice(index, 1);
+            updateUI();
+        }
+
+        clearBtn.onclick = () => {
+            queue = [];
+            updateUI();
+        };
+
+        function updateUI() {
+            if (queue.length > 0) {
+                fileListContainer.classList.remove('hidden');
+                processBtn.disabled = false;
+            } else {
+                fileListContainer.classList.add('hidden');
+                processBtn.disabled = true;
+            }
+
+            fileStats.innerText = ${queue.length} ملفات | ${formatBytes(queue.reduce((acc, f) => acc + f.size, 0))};
+
+            fileList.innerHTML = '';
+            queue.forEach((file, idx) => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100";
+                item.innerHTML = 
+                    <div class="flex items-center gap-3 overflow-hidden">
+                        <div class="shrink-0 text-blue-500">
+                            ${file.name.toLowerCase().endsWith('.pdf') ? 
+                            '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7 2v20h10V2H7zm8 18H9V4h6v16zM11 8H10v2h1v2h1v-2h1V8h-3z"/></svg>' : 
+                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>'}
+                        </div>
+                        <span class="text-sm font-medium text-slate-700 truncate">${file.name}</span>
+                    </div>
+                    <button onclick="removeFile(${idx})" class="text-slate-300 hover:text-red-500 transition-colors px-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                ;
+                fileList.appendChild(item);
+            });
+        }
+
+        // منطق الدمج والضغط الفعلي
+        processBtn.onclick = async () => {
+            processBtn.disabled = true;
+            loader.classList.remove('hidden');
+            btnText.innerText = "جاري المعالجة...";
+
+            try {
+                const metadata = [];
+                const dataChunks = [];
+                for (const file of queue) {
+                    const buffer = await file.arrayBuffer();
+                    metadata.push({ name: file.name, type: file.type, size: file.size });
+                    dataChunks.push(buffer);
+                }
+
+                const metaUint8 = new TextEncoder().encode(JSON.stringify(metadata));
+                const header = new BigUint64Array([BigInt(metaUint8.byteLength)]);
+                
+                const finalUncompressedBlob = new Blob([header.buffer, metaUint8.buffer, ...dataChunks]);
+                
+                // ضغط Gzip
+                const compressionStream = new CompressionStream('gzip');
+                const compressedStream = finalUncompressedBlob.stream().pipeThrough(compressionStream);
+                const compressedBlob = await new Response(compressedStream).blob();
+
+                // تحميل
+                const url = URL.createObjectURL(compressedBlob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = archive_${Date.now()}.pkg;
+                a.click();
+                URL.revokeObjectURL(url);
+
+                showToast("تم الدمج والضغط بنجاح!", "bg-green-600");
+            } catch (err) {
+                console.error(err);
+                showToast("حدث خطأ في المعالجة", "bg-red-600");
+            } finally {
+                processBtn.disabled = false;
+                loader.classList.add('hidden');
+                btnText.innerText = "ابدأ الدمج والضغط الآن";
+            }
+        };
+
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function showToast(msg, colorClass) {
+            toast.innerText = msg;
+            toast.className = fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-full shadow-2xl transition-all transform z-50 text-white font-bold ${colorClass};
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+            }, 3000);
         }
     </script>
 </body>
