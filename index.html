@@ -3,205 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة دمج وضغط الملفات الاحترافية</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>مساعد التأشير الذكي 2.0</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #f0f4f8; }
-        .drop-active { border-color: #2563eb; background-color: #eff6ff; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        
+        body { background-color: var(--bg); color: var(--text-main); line-height: 1.6; padding: 20px; }
+
+        .app-container { max-width: 1000px; margin: 0 auto; background: var(--card-bg); border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; }
+
+        /* Header */
+        .app-header { background: var(--primary-dark); color: white; padding: 25px; text-align: center; border-bottom: 4px solid var(--warning); }
+        .app-header h1 { font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
+        .app-header p { font-size: 14px; opacity: 0.8; margin-top: 5px; }
+
+        .main-layout { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2px; background: var(--border); }
+        @media (max-width: 850px) { .main-layout { grid-template-columns: 1fr; } }
+
+        /* Sections */
+        .section { background: var(--card-bg); padding: 25px; }
+        .section-title { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 600; color: var(--primary-dark); margin-bottom: 20px; border-bottom: 2px solid var(--bg); padding-bottom: 10px; }
+
+        /* Checklist Style */
+        .check-item { display: flex; align-items: flex-start; gap: 12px; background: var(--bg); padding: 12px; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; }
+        .check-item:hover { border-color: var(--primary); }
+        .check-item input { width: 18px; height: 18px; cursor: pointer; margin-top: 3px; }
+        .check-item label { font-size: 13px; cursor: pointer; flex: 1; color: var(--text-main); }
+        .important-tag { font-size: 11px; color: var(--danger); font-weight: bold; display: block; margin-top: 4px; }
+
+        /* Progress Bar */
+        .progress-container { margin: 15px 0; background: #eee; border-radius: 10px; height: 8px; overflow: hidden; }
+        .progress-bar { height: 100%; background: var(--success); width: 0%; transition: 0.4s; }
+
+        /* Form Controls */
+        .grid-form { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group.full { grid-column: span 2; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--text-muted); }
+        input, select { width: 100%; padding: 10px; border: 1.5px solid var(--border); border-radius: 8px; font-size: 14px; transition: 0.3s; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+
+        /* Date Group */
+        .date-input-group { display: flex; gap: 5px; }
+        .date-input-group input { text-align: center; padding: 8px 4px; }
+
+        /* Preview Area */
+        .preview-card { background: #f8fafc; border: 1px dashed var(--primary); padding: 15px; border-radius: 10px; margin-top: 20px; }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .char-tag { font-size: 12px; padding: 4px 10px; border-radius: 20px; font-weight: bold; }
+        .char-good { background: #dcfce7; color: #166534; }
+        .char-warn { background: #fef9c3; color: #854d0e; }
+        .char-bad { background: #fee2e2; color: #991b1b; }
+
+        /* Action Buttons */
+        .btn-generate { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; transition: 0.3s; }
+        .btn-generate:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-generate:disabled { background: #cbd5e1; cursor: not-allowed; }
+
+        /* Results */
+        .results-area { padding: 25px; display: none; background: #fff; border-top: 1px solid var(--border); }
+        .result-item { position: relative; background: var(--bg); padding: 20px; border-radius: 12px; margin-bottom: 15px; border-right: 5px solid var(--primary); }
+        .result-item h4 { font-size: 14px; color: var(--primary-dark); margin-bottom: 8px; }
+        .result-content { font-size: 15px; color: var(--text-main); line-height: 1.8; }
+        .copy-btn { position: absolute; left: 15px; top: 15px; padding: 6px 12px; font-size: 12px; background: white; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+        .copy-btn:hover { background: var(--primary); color: white; }
+
+        .highlight { font-weight: 700; color: var(--primary-dark); text-decoration: underline; }
     </style>
 </head>
-<body class="min-h-screen py-12 px-4 flex items-center justify-center">
+<body>
 
-    <div class="max-w-3xl w-full bg-white rounded-[2rem] shadow-2xl border border-slate-100 overflow-hidden">
-        <!-- الرأس -->
-        <div class="bg-slate-900 p-8 text-center text-white">
-            <h1 class="text-3xl font-bold mb-2">أداة الدمج والضغط</h1>
-            <p class="text-slate-400">ادمج ملفات PDF، الصور، والمستندات في ملف واحد مضغوط (.pkg)</p>
+<div class="app-container">
+    <div class="app-header">
+        <h1>مساعد التأشير الإلكتروني</h1>
+        <p>نظام صياغة نصوص التأشير العقاري وفق المعايير المعتمدة</p>
+    </div>
+
+    <div class="main-layout">
+        <div class="section">
+            <div class="section-title">🛡️ تدقيق المتطلبات</div>
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar"></div>
+            </div>
+            
+            <div id="checklist">
+                <div class="check-item">
+                    <input type="checkbox" id="v1" onchange="logic.updateUI()">
+                    <label for="v1">فحص المرفقات (أعلى التذكرة يميناً)</label>
+                </div>
+                <div class="check-item">
+                    <input type="checkbox" id="v2" onchange="logic.updateUI()">
+                    <label for="v2">ظهور موضوع الدعوى (ناجز/ضبط الجلسة)</label>
+                </div>
+                <div class="check-item">
+                    <input type="checkbox" id="v3" onchange="logic.updateUI()">
+                    <label for="v3">التحقق من أطراف الدعوى وبياناتها</label>
+                </div>
+                <div class="check-item">
+                    <input type="checkbox" id="v4" onchange="logic.updateUI()">
+                    <label for="v4">مطابقة الإقرار للعملية المطلوبة</label>
+                </div>
+                <div class="check-item">
+                    <input type="checkbox" id="v5" onchange="logic.updateUI()">
+                    <label for="v5">الدعوى "قائمة" ولم يكتسب الحكم القطعية</label>
+                </div>
+                <div class="check-item">
+                    <input type="checkbox" id="v6" onchange="logic.updateUI()">
+                    <label for="v6">صفة الطالب وصلاحيات الوكالة (إقرار/تأشير)</label>
+                </div>
+                <div class="check-item">
+                    <input type="checkbox" id="v7" onchange="logic.updateUI()">
+                    <label for="v7">الدعوى ضد المالك الحالي أو ورثته</label>
+                </div>
+                <div class="check-item">
+                    <input type="checkbox" id="v8" onchange="logic.updateUI()">
+                    <label for="v8">توجيه الحوكمة (للعقارات المكتسبة للحجية)
+                        <span class="important-tag">إلزامي للعقارات المحصنة</span>
+                    </label>
+                </div>
+            </div>
         </div>
 
-        <div class="p-8">
-            <!-- منطقة اختيار الملفات -->
-            <div id="dropZone" class="border-2 border-dashed border-slate-300 rounded-2xl p-10 text-center cursor-pointer transition-all hover:border-blue-500 group relative">
-                <input type="file" id="fileInput" multiple accept=".pdf,image/*,.doc,.docx,.txt" class="hidden">
-                <div class="flex flex-col items-center">
-                    <div class="p-4 bg-blue-50 rounded-full mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-10 h-10 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                        </svg>
+        <div class="section" style="border-right: 1px solid var(--border);">
+            <div class="section-title">📝 البيانات الأساسية</div>
+            
+            <div class="grid-form">
+                <div class="form-group">
+                    <label>رقم العقار</label>
+                    <input type="text" id="propNo" placeholder="7000..." oninput="logic.updateUI()">
+                </div>
+                <div class="form-group">
+                    <label>رقم الصك</label>
+                    <input type="text" id="docNo" placeholder="9200..." oninput="logic.updateUI()">
+                </div>
+                <div class="form-group">
+                    <label>رقم الدعوى</label>
+                    <input type="text" id="caseNo" placeholder="45..." oninput="logic.updateUI()">
+                </div>
+                <div class="form-group">
+                    <label>هوية المدعى عليه</label>
+                    <input type="text" id="defId" placeholder="10..." oninput="logic.updateUI()">
+                </div>
+                
+                <div class="form-group full">
+                    <label>تاريخ قيد الدعوى (هجري)</label>
+                    <div class="date-input-group">
+                        <input type="number" id="rd" placeholder="يوم" min="1" max="30" oninput="logic.updateUI()">
+                        <input type="number" id="rm" placeholder="شهر" min="1" max="12" oninput="logic.updateUI()">
+                        <input type="number" id="ry" placeholder="سنة" min="1400" max="1500" oninput="logic.updateUI()">
                     </div>
-                    <p class="text-slate-600 font-bold text-lg">اسحب الملفات هنا أو اضغط للاختيار</p>
-                    <p class="text-slate-400 text-sm mt-1">يدعم PDF، الصور، وكافة أنواع الملفات</p>
+                </div>
+
+                <div class="form-group">
+                    <label>رقم التذكرة</label>
+                    <input type="text" id="tickNo" placeholder="400..." oninput="logic.updateUI()">
+                </div>
+                <div class="form-group">
+                    <label>نوع مقدم الطلب</label>
+                    <select id="appType" onchange="logic.toggleAgency()">
+                        <option value="أصيل">أصيل (صاحب الطلب)</option>
+                        <option value="وكيل">وكيل شرعي</option>
+                    </select>
+                </div>
+
+                <div class="form-group full" id="agencyBox" style="display:none">
+                    <label>رقم الوكالة</label>
+                    <input type="text" id="ageNo" placeholder="رقم الوكالة الشرعية" oninput="logic.updateUI()">
+                </div>
+
+                <div class="form-group full">
+                    <label>رقم هوية مقدم الطلب</label>
+                    <input type="text" id="appId" oninput="logic.updateUI()">
+                </div>
+
+                <div class="form-group full">
+                    <div class="date-input-group">
+                        <div style="flex:1">
+                            <label>يوم الرفع</label>
+                            <input type="number" id="sd" min="1" max="30" oninput="logic.updateUI()">
+                        </div>
+                        <div style="flex:1">
+                            <label>شهر الرفع</label>
+                            <input type="number" id="sm" min="1" max="12" oninput="logic.updateUI()">
+                        </div>
+                        <div style="flex:1">
+                            <label>سنة الرفع</label>
+                            <input type="number" id="sy" min="1440" max="1500" oninput="logic.updateUI()">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- قائمة الملفات المضافة -->
-            <div id="fileListContainer" class="mt-8 hidden">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-bold text-slate-800">قائمة الملفات الجاهزة:</h3>
-                    <span id="fileStats" class="text-xs bg-blue-100 text-blue-700 px-3 py-1 rounded-full font-bold">0 ملفات</span>
+            <div class="preview-card">
+                <div class="preview-header">
+                    <span style="font-size:12px; color:var(--primary); font-weight:bold;">معاينة حية للنص الأول:</span>
+                    <span id="charCounter" class="char-tag char-good">0 / 250</span>
                 </div>
-                <div id="fileList" class="space-y-2 max-h-60 overflow-y-auto custom-scrollbar pr-2">
-                    <!-- سيتم توليد العناصر هنا -->
+                <div id="livePreview" class="result-content" style="font-size: 13px; opacity: 0.7;">
+                    بانتظار إدخال البيانات...
                 </div>
             </div>
 
-            <!-- زر التنفيذ -->
-            <div class="mt-8">
-                <button id="processBtn" disabled class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition-all shadow-lg disabled:bg-slate-200 disabled:shadow-none flex items-center justify-center gap-3">
-                    <span id="btnText">ابدأ الدمج والضغط الآن</span>
-                    <div id="loader" class="hidden animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>
-                </button>
-                <button id="clearBtn" class="w-full mt-4 text-slate-400 hover:text-red-500 text-sm font-medium transition-colors">تفريغ كافة الملفات</button>
-            </div>
-        </div>
-
-        <!-- تذييل -->
-        <div class="bg-slate-50 p-4 border-t text-center">
-            <p class="text-slate-400 text-xs">تتم معالجة الملفات محلياً في المتصفح للحفاظ على خصوصيتك</p>
+            <button id="genBtn" class="btn-generate" onclick="logic.generate()" disabled>إنشاء نصوص التأشير المعتمدة</button>
         </div>
     </div>
 
-    <!-- إشعار نجاح أو خطأ -->
-    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-full shadow-2xl transition-all transform translate-y-24 opacity-0 font-bold text-white z-50"></div>
-    <script>
-        const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
-        const fileList = document.getElementById('fileList');
-        const fileListContainer = document.getElementById('fileListContainer');
-        const processBtn = document.getElementById('processBtn');
-        const clearBtn = document.getElementById('clearBtn');
-        const fileStats = document.getElementById('fileStats');
-        const loader = document.getElementById('loader');
-        const btnText = document.getElementById('btnText');
-        const toast = document.getElementById('toast');
+    <div id="resultsArea" class="results-area">
+        <div class="result-item">
+            <button class="copy-btn" onclick="logic.copy('res1')">نسخ النص</button>
+            <h4>النص المختصر (أقل من 250 حرف)</h4>
+            <div id="res1" class="result-content"></div>
+        </div>
+        <div class="result-item">
+            <button class="copy-btn" onclick="logic.copy('res2')">نسخ النص</button>
+            <h4>النص التفصيلي (للسجل العقاري)</h4>
+            <div id="res2" class="result-content"></div>
+        </div>
+    </div>
+</div>
 
-        let queue = [];
+<script>
+    const logic = {
+        toggleAgency() {
+            const isAgent = document.getElementById('appType').value === 'وكيل';
+            document.getElementById('agencyBox').style.display = isAgent ? 'block' : 'none';
+            this.updateUI();
+        },
 
-        // إدارة الملفات
-        dropZone.onclick = () => fileInput.click();
-        fileInput.onchange = (e) => addFiles(e.target.files);
+        getFields() {
+            return {
+                prop: document.getElementById('propNo').value || '...',
+                doc: document.getElementById('docNo').value || '...',
+                case: document.getElementById('caseNo').value || '...',
+                def: document.getElementById('defId').value || '...',
+                rd: document.getElementById('rd').value || '..',
+                rm: document.getElementById('rm').value || '..',
+                ry: document.getElementById('ry').value || '....',
+                tick: document.getElementById('tickNo').value || '...',
+                sd: document.getElementById('sd').value || '..',
+                sm: document.getElementById('sm').value || '..',
+                sy: document.getElementById('sy').value || '....',
+                type: document.getElementById('appType').value,
+                appId: document.getElementById('appId').value || '...',
+                age: document.getElementById('ageNo').value || '...'
+            };
+        },
 
-        dropZone.ondragover = (e) => { e.preventDefault(); dropZone.classList.add('drop-active'); };
-        dropZone.ondragleave = () => dropZone.classList.remove('drop-active');
-        dropZone.ondrop = (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drop-active');
-            addFiles(e.dataTransfer.files);
-        };
+        buildText(isShort) {
+            const f = this.getFields();
+            const dateReg = `${f.rd}-${f.rm}-${f.ry}`;
+            const dateSub = `${f.sd}-${f.sm}-${f.sy}`;
+            const applicant = f.type === 'وكيل' ? `الوكيل: ${f.appId} وكالة: ${f.age}` : `${f.appId}`;
+            
+            let base = `تم التأشير بالدعوى رقم ${f.case} `;
+            if (!isShort) base += `على العقار رقم ${f.prop} والصك رقم ${f.doc} `;
+            
+            base += `برقم هوية المدعى عليه ${f.def} المقيدة بتاريخ ${dateReg} بموجب إقرار المستفيد في التذكرة رقم ${f.tick} المرفوعة بتاريخ ${dateSub}. بموجب طلب ${applicant}.`;
+            return base;
+        },
 
-        function addFiles(files) {
-            Array.from(files).forEach(file => {
-                queue.push(file);
-            });
-            updateUI();
-            fileInput.value = '';
-        }
+        updateUI() {
+            // Update Progress Bar
+            const checks = document.querySelectorAll('#checklist input[type="checkbox"]');
+            const checked = Array.from(checks).filter(c => f.checked).length; // error fix below
+            let count = 0; checks.forEach(c => { if(c.checked) count++; });
+            const percent = (count / checks.length) * 100;
+            document.getElementById('progressBar').style.width = percent + '%';
 
-        function removeFile(index) {
-            queue.splice(index, 1);
-            updateUI();
-        }
-
-        clearBtn.onclick = () => {
-            queue = [];
-            updateUI();
-        };
-
-        function updateUI() {
-            if (queue.length > 0) {
-                fileListContainer.classList.remove('hidden');
-                processBtn.disabled = false;
+            // Preview
+            const text1 = this.buildText(true);
+            const previewEl = document.getElementById('livePreview');
+            previewEl.innerText = text1;
+            
+            // Char Counter
+            const counter = document.getElementById('charCounter');
+            const len = text1.length;
+            counter.innerText = `${len} / 250`;
+            
+            if(len > 250) {
+                counter.className = 'char-tag char-bad';
+            } else if(len > 210) {
+                counter.className = 'char-tag char-warn';
             } else {
-                fileListContainer.classList.add('hidden');
-                processBtn.disabled = true;
+                counter.className = 'char-tag char-good';
             }
 
-            fileStats.innerText = ${queue.length} ملفات | ${formatBytes(queue.reduce((acc, f) => acc + f.size, 0))};
+            // Enable Button
+            const btn = document.getElementById('genBtn');
+            const allChecked = count === checks.length;
+            const hasData = document.getElementById('caseNo').value && document.getElementById('appId').value;
+            btn.disabled = !(allChecked && hasData);
+        },
 
-            fileList.innerHTML = '';
-            queue.forEach((file, idx) => {
-                const item = document.createElement('div');
-                item.className = "flex items-center justify-between bg-slate-50 p-3 rounded-lg border border-slate-100";
-                item.innerHTML = 
-                    <div class="flex items-center gap-3 overflow-hidden">
-                        <div class="shrink-0 text-blue-500">
-                            ${file.name.toLowerCase().endsWith('.pdf') ? 
-                            '<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M7 2v20h10V2H7zm8 18H9V4h6v16zM11 8H10v2h1v2h1v-2h1V8h-3z"/></svg>' : 
-                            '<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>'}
-                        </div>
-                        <span class="text-sm font-medium text-slate-700 truncate">${file.name}</span>
-                    </div>
-                    <button onclick="removeFile(${idx})" class="text-slate-300 hover:text-red-500 transition-colors px-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                ;
-                fileList.appendChild(item);
+        generate() {
+            const t1 = this.buildText(true);
+            const t2 = this.buildText(false);
+
+            if(t1.length > 250) {
+                alert('⚠️ تنبيه: النص الأول يتجاوز 250 حرف، يرجى اختصار بعض البيانات.');
+                return;
+            }
+
+            document.getElementById('res1').innerText = t1;
+            document.getElementById('res2').innerText = t2;
+            document.getElementById('resultsArea').style.display = 'block';
+            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+        },
+
+        copy(id) {
+            const text = document.getElementById(id).innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target;
+                const original = btn.innerText;
+                btn.innerText = '✅ تم النسخ';
+                btn.style.background = '#10b981';
+                btn.style.color = 'white';
+                setTimeout(() => { 
+                    btn.innerText = original;
+                    btn.style.background = 'white';
+                    btn.style.color = 'black';
+                }, 1500);
             });
         }
+    };
+</script>
 
-        // منطق الدمج والضغط الفعلي
-        processBtn.onclick = async () => {
-            processBtn.disabled = true;
-            loader.classList.remove('hidden');
-            btnText.innerText = "جاري المعالجة...";
-
-            try {
-                const metadata = [];
-                const dataChunks = [];
-                for (const file of queue) {
-                    const buffer = await file.arrayBuffer();
-                    metadata.push({ name: file.name, type: file.type, size: file.size });
-                    dataChunks.push(buffer);
-                }
-
-                const metaUint8 = new TextEncoder().encode(JSON.stringify(metadata));
-                const header = new BigUint64Array([BigInt(metaUint8.byteLength)]);
-                
-                const finalUncompressedBlob = new Blob([header.buffer, metaUint8.buffer, ...dataChunks]);
-                
-                // ضغط Gzip
-                const compressionStream = new CompressionStream('gzip');
-                const compressedStream = finalUncompressedBlob.stream().pipeThrough(compressionStream);
-                const compressedBlob = await new Response(compressedStream).blob();
-
-                // تحميل
-                const url = URL.createObjectURL(compressedBlob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = archive_${Date.now()}.pkg;
-                a.click();
-                URL.revokeObjectURL(url);
-
-                showToast("تم الدمج والضغط بنجاح!", "bg-green-600");
-            } catch (err) {
-                console.error(err);
-                showToast("حدث خطأ في المعالجة", "bg-red-600");
-            } finally {
-                processBtn.disabled = false;
-                loader.classList.add('hidden');
-                btnText.innerText = "ابدأ الدمج والضغط الآن";
-            }
-        };
-
-        function formatBytes(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-
-        function showToast(msg, colorClass) {
-            toast.innerText = msg;
-            toast.className = fixed bottom-10 left-1/2 -translate-x-1/2 px-8 py-4 rounded-full shadow-2xl transition-all transform z-50 text-white font-bold ${colorClass};
-            toast.classList.remove('translate-y-24', 'opacity-0');
-            setTimeout(() => {
-                toast.classList.add('translate-y-24', 'opacity-0');
-            }, 3000);
-        }
-    </script>
 </body>
 </html>
