@@ -1,491 +1,116 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
+<!-- saved from url=(0094)file:///C:/Users/aalkhathlan.o/Downloads/Telegram%20Desktop/deepseek_html_20260305_1aa718.html -->
+<html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نموذج مساعد التأشير - النسخة الاحترافية</title>
+    <title>أداة إدخال بيانات الوكيل</title>
     <style>
-        :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
-            --secondary: #64748b;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --bg: #f8fafc;
-            --card-bg: #ffffff;
-            --border: #e2e8f0;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg);
-            color: #1e293b;
-            padding: 20px;
-            line-height: 1.6;
-        }
-
-        .main-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        header {
-            background: linear-gradient(135deg, var(--primary-dark), var(--primary));
-            color: white;
-            padding: 30px;
-            border-radius: 16px;
-            text-align: center;
-            margin-bottom: 25px;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2);
-        }
-
-        header h1 { font-size: 24px; margin-bottom: 8px; }
-        header p { font-size: 14px; opacity: 0.9; }
-
-        .layout-grid {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 25px;
-        }
-
-        @media (max-width: 850px) {
-            .layout-grid { grid-template-columns: 1fr; }
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            padding: 25px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            border: 1px solid var(--border);
-            height: fit-content;
-        }
-
-        .section-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--primary-dark);
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            border-bottom: 2px solid var(--bg);
-            padding-bottom: 10px;
-        }
-
-        /* Checklist Styles */
-        .checklist-container { display: flex; flex-direction: column; gap: 12px; }
-        
-        .check-item {
-            display: flex;
-            gap: 12px;
-            padding: 12px;
-            background: var(--bg);
-            border-radius: 8px;
-            border: 1px solid transparent;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-
-        .check-item:hover { border-color: var(--primary); }
-        .check-item input[type="checkbox"] { width: 18px; height: 18px; margin-top: 3px; cursor: pointer; }
-        .check-item label { font-size: 13px; cursor: pointer; color: #475569; font-weight: 500; }
-        .important-note { color: var(--danger); font-size: 11px; font-weight: bold; display: block; margin-top: 4px; }
-
-        .progress-box {
-            margin-top: 20px;
-            padding: 15px;
-            background: #f1f5f9;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .progress-bar-bg { background: #e2e8f0; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 10px; }
-        .progress-bar-fill { background: var(--success); height: 100%; width: 0%; transition: 0.4s; }
-
-        /* Form Styles */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .full-width { grid-column: span 2; }
-        
-        .field-group { margin-bottom: 15px; }
-        .field-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: var(--secondary); }
-        
-        input, select {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1.5px solid var(--border);
-            border-radius: 8px;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-
-        .date-row { display: flex; gap: 5px; }
-        .date-row input { text-align: center; padding: 8px 4px; }
-
-        .radio-group { display: flex; gap: 20px; background: var(--bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); }
-        .radio-option { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 14px; }
-
-        /* Preview area */
-        .preview-area {
-            margin-top: 20px;
-            padding: 15px;
-            background: #fdfdfd;
-            border: 1px dashed var(--primary);
-            border-radius: 10px;
-        }
-
-        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-        .char-count-tag { font-size: 11px; padding: 4px 8px; border-radius: 6px; font-weight: bold; }
-        .count-good { background: #dcfce7; color: #166534; }
-        .count-warn { background: #fef9c3; color: #854d0e; }
-        .count-danger { background: #fee2e2; color: #991b1b; }
-
-        #livePreviewText { font-size: 13px; color: #64748b; font-style: italic; }
-
-        /* Result Area */
-        .generate-btn {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 25px;
-            transition: 0.3s;
-        }
-
-        .generate-btn:hover { background: var(--primary-dark); transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3); }
-        .generate-btn:disabled { background: #cbd5e1; cursor: not-allowed; transform: none; box-shadow: none; }
-
-        .results-section { margin-top: 30px; display: none; }
-        
-        .result-card {
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            margin-bottom: 20px;
-            position: relative;
-            border-right: 6px solid var(--primary);
-        }
-
-        .result-card h4 { font-size: 14px; color: var(--primary-dark); margin-bottom: 10px; }
-        .result-content { font-size: 15px; line-height: 1.8; color: #334155; }
-        
-        .copy-btn {
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            padding: 6px 12px;
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .copy-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
-
-        .highlight { background: #dbeafe; font-weight: 700; padding: 0 4px; border-radius: 4px; color: var(--primary-dark); }
-        
-        .hidden { display: none; }
+        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background-color: var(--bg); padding: 20px; display: flex; justify-content: center; }
+        .card { background: white; width: 100%; max-width: 800px; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: var(--primary); font-size: 18px; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; color: #444; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+        .btn { grid-column: span 2; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn:hover { background: #2980b9; }
+        .output-box { margin-top: 25px; display: none; }
+        textarea { width: 100%; height: 180px; background: #1e293b; color: #4ade80; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; direction: ltr; resize: none; border: none; outline: none; }
+        .success-msg { color: #27ae60; font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 10px; display: none; }
+        .info-text { font-size: 12px; color: #7f8c8d; margin-top: 5px; grid-column: span 2; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="main-container">
-    <header>
-        <h1>نموذج التأشير الإلكتروني المساعد</h1>
-        <p>قم بإكمال التحققات ثم تعبئة البيانات لإنشاء النص النهائي</p>
-    </header>
-
-    <div class="layout-grid">
-        <!-- قسم التحقق -->
-        <div class="card">
-            <div class="section-title">🛡️ قسم التحققات</div>
-            <div class="checklist-container" id="checklist">
-                <div class="check-item">
-                    <input type="checkbox" id="v1" onchange="app.updateState()">
-                    <label for="v1">التحقق من جميع المرفقات (حتى في أعلى التذكرة على اليمين)</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="v2" onchange="app.updateState()">
-                    <label for="v2">التحقق من وجود موضوع الدعوى إما أن يكون صورة من ناجز أو ضبط الجلسة ظاهر فيها رقم الصك المراد التأشير فيه</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="v3" onchange="app.updateState()">
-                    <label for="v3">التحقق من وجود أطراف الدعوى (إما أطراف الدعوى من ناجز ظاهر بها رقم القضية وتاريخها أو ضبط الجلسة أو الحكم)</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="v4" onchange="app.updateState()">
-                    <label for="v4">التحقق من وجود الإقرار معبئ بشكل كامل وكون البيانات المعبئة في الإقرار مطابقة للعملية المراد تنفيذها</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="v5" onchange="app.updateState()">
-                    <label for="v5">التحقق من أن الدعوى لا تزال قائمة ولم يصدر بها حكم نهائي مكتسب القطعية</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="v6" onchange="app.updateState()">
-                    <label for="v6">التحقق من صفة طالب التأشير هل هو المدعي أو وكيله وفي حال كان وكيل التحقق من أن الوكالة تتضمن بند (المطالبات والمحاكم: الإقرار) – (الهيئات الحكومية: التأشير في السجل العقاري)</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="v7" onchange="app.updateState()">
-                    <label for="v7">التحقق من كون الدعوى ضد المالك الحالي للعقار أو ورثته</label>
-                </div>
-                <div class="check-item">
-                    <input type="checkbox" id="v8" onchange="app.updateState()">
-                    <label for="v8">
-                        التحقق من وجود توجيه بالتأشير من الحوكمة والقانونية في حال كان العقار مكتسب الحجية المطلقة
-                        <span class="important-note">إفادة الحوكمة والقانونية لا تغني عن التحقق من بقية النقاط</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="progress-box">
-                <div class="progress-bar-bg">
-                    <div id="progressBar" class="progress-bar-fill"></div>
-                </div>
-                <span id="progressText" style="font-size:13px; font-weight:700; color:var(--secondary);">مكتمل: 0 / 8</span>
-            </div>
+<div class="card">
+    <h1>إدخال بيانات الوكيل </h1>
+    <div class="grid">
+        <div>
+            <label>نوع الهوية</label>
+            <select id="f_type">
+                <option value="1">هوية وطنية</option>
+                <option value="2">إقامة</option>
+            </select>
         </div>
-
-        <!-- قسم البيانات -->
-        <div class="card">
-            <div class="section-title">📝 البيانات الأساسية</div>
-            
-            <div class="form-grid">
-                <div class="field-group">
-                    <label>رقم العقار</label>
-                    <input type="text" id="propNo" placeholder="أدخل رقم العقار" oninput="app.updatePreview()">
-                </div>
-                <div class="field-group">
-                    <label>رقم الصك</label>
-                    <input type="text" id="docNo" placeholder="أدخل رقم الصك" oninput="app.updatePreview()">
-                </div>
-                <div class="field-group">
-                    <label>رقم الدعوى</label>
-                    <input type="text" id="caseNo" placeholder="رقم الدعوى" oninput="app.updatePreview()">
-                </div>
-                <div class="field-group">
-                    <label>هوية المدعى عليه</label>
-                    <input type="text" id="defId" placeholder="السجل المدني" oninput="app.updatePreview()">
-                </div>
-
-                <div class="field-group full-width">
-                    <label>تاريخ قيد الدعوى (هجري)</label>
-                    <div class="date-row">
-                        <input type="number" id="rd" placeholder="يوم" min="1" max="30" oninput="app.updatePreview()">
-                        <input type="number" id="rm" placeholder="شهر" min="1" max="12" oninput="app.updatePreview()">
-                        <input type="number" id="ry" placeholder="سنة" min="1400" max="1500" oninput="app.updatePreview()">
-                    </div>
-                </div>
-
-                <div class="field-group">
-                    <label>رقم التذكرة</label>
-                    <input type="text" id="tickNo" placeholder="رقم التذكرة" oninput="app.updatePreview()">
-                </div>
-                <div class="field-group">
-                    <label>نوع مقدم الطلب</label>
-                    <div class="radio-group">
-                        <label class="radio-option">
-                            <input type="radio" name="applicantType" value="أصيل" checked onchange="app.handleTypeChange()"> أصيل
-                        </label>
-                        <label class="radio-option">
-                            <input type="radio" name="applicantType" value="وكيل" onchange="app.handleTypeChange()"> وكيل
-                        </label>
-                    </div>
-                </div>
-
-                <div id="agencyGroup" class="field-group full-width hidden">
-                    <label>رقم الوكالة</label>
-                    <input type="text" id="ageNo" placeholder="رقم الوكالة" oninput="app.updatePreview()">
-                </div>
-
-                <div class="field-group full-width">
-                    <label>رقم هوية مقدم الطلب</label>
-                    <input type="text" id="appId" placeholder="هوية مقدم الطلب" oninput="app.updatePreview()">
-                </div>
-
-                <div class="field-group full-width">
-                    <label>تاريخ رفع التذكرة</label>
-                    <div class="date-row">
-                        <input type="number" id="sd" placeholder="يوم" min="1" max="30" oninput="app.updatePreview()">
-                        <input type="number" id="sm" placeholder="شهر" min="1" max="12" oninput="app.updatePreview()">
-                        <input type="number" id="sy" placeholder="سنة" min="1400" max="1500" oninput="app.updatePreview()">
-                    </div>
-                </div>
-            </div>
-
-            <div class="preview-area">
-                <div class="preview-header">
-                    <span style="font-size:12px; font-weight:bold; color:var(--primary);">المعاينة الحية (للنص المختصر):</span>
-                    <span id="charTag" class="char-count-tag count-good">0 / 250</span>
-                </div>
-                <div id="livePreviewText">يرجى تعبئة البيانات للمعاينة...</div>
-            </div>
-
-            <button id="genBtn" class="generate-btn" disabled onclick="app.generateFinal()">إنشاء نصوص التأشير المعتمدة</button>
-        </div>
+        <div><label>رقم الهوية</label><input type="text" id="f_id" placeholder="مثال: 1000000000"></div>
+        <div><label>تاريخ الميلاد (سنة-شهر-يوم)</label><input type="text" id="f_dob" placeholder="1400-01-01"></div>
+        <div><label>رقم الوكالة</label><input type="text" id="f_poa"></div>
+        <div><label>رقم الجوال (بدون 0)</label><input type="text" id="f_mob" placeholder="5xxxxxxx"></div>
+        <div><label>البريد الإلكتروني</label><input type="email" id="f_mail"></div>
+        <button class="btn" onclick="generate()">توليد ونسخ الكود</button>
+        <p class="info-text">سيتم ملء البيانات والضغط على زر "التحقق" تلقائياً</p>
     </div>
 
-    <!-- المخرجات النهائية -->
-    <div id="resultsSection" class="results-section">
-        <div class="result-card">
-            <button class="copy-btn" onclick="app.copyText('res1')">نسخ النص</button>
-            <h4>النص الأول (بدون رقم العقار والصك)</h4>
-            <div id="res1" class="result-content"></div>
-        </div>
-
-        <div class="result-card">
-            <button class="copy-btn" onclick="app.copyText('res2')">نسخ النص</button>
-            <h4>النص الثاني (كامل التفاصيل)</h4>
-            <div id="res2" class="result-content"></div>
-        </div>
+    <div class="output-box" id="out_section">
+        <div id="copy_status" class="success-msg">تم التوليد والنسخ! ✅</div>
+        <textarea id="out_code" readonly=""></textarea>
     </div>
 </div>
 
 <script>
-    const app = {
-        handleTypeChange() {
-            const isAgent = document.querySelector('input[name="applicantType"]:checked').value === 'وكيل';
-            document.getElementById('agencyGroup').classList.toggle('hidden', !isAgent);
-            this.updatePreview();
-        },
-
-        updateState() {
-            const checks = document.querySelectorAll('#checklist input[type="checkbox"]');
-            let count = 0;
-            checks.forEach(c => { if(c.checked) count++; });
-            
-            const progress = (count / checks.length) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
-            document.getElementById('progressText').innerText = `مكتمل: ${count} / ${checks.length}`;
-            
-            this.validateForm();
-        },
-
-        validateForm() {
-            const checks = document.querySelectorAll('#checklist input[type="checkbox"]');
-            const allChecked = Array.from(checks).every(c => c.checked);
-            const caseNo = document.getElementById('caseNo').value;
-            const appId = document.getElementById('appId').value;
-            
-            document.getElementById('genBtn').disabled = !(allChecked && caseNo && appId);
-        },
-
-        getValues() {
-            return {
-                propNo: document.getElementById('propNo').value || '___',
-                docNo: document.getElementById('docNo').value || '___',
-                caseNo: document.getElementById('caseNo').value || '___',
-                defId: document.getElementById('defId').value || '___',
-                tickNo: document.getElementById('tickNo').value || '___',
-                appId: document.getElementById('appId').value || '___',
-                ageNo: document.getElementById('ageNo').value || '___',
-                rd: document.getElementById('rd').value || '__',
-                rm: document.getElementById('rm').value || '__',
-                ry: document.getElementById('ry').value || '____',
-                sd: document.getElementById('sd').value || '__',
-                sm: document.getElementById('sm').value || '__',
-                sy: document.getElementById('sy').value || '____',
-                type: document.querySelector('input[name="applicantType"]:checked').value
+    function generate() {
+        try {
+            const d = {
+                t: document.getElementById('f_type').value,
+                tn: document.getElementById('f_type').options[document.getElementById('f_type').selectedIndex].text,
+                id: document.getElementById('f_id').value.trim(),
+                db: document.getElementById('f_dob').value.trim(),
+                po: document.getElementById('f_poa').value.trim(),
+                mo: "+966" + document.getElementById('f_mob').value.trim().replace(/^(00966|966|0|\+966)/, ''),
+                ma: document.getElementById('f_mail').value.trim()
             };
-        },
 
-        buildText(isShort, highlight = false) {
-            const v = this.getValues();
-            const dateReg = `${v.rd}-${v.rm}-${v.ry}`;
-            const dateSub = `${v.sd}-${v.sm}-${v.sy}`;
+            const script = `(function(){
+const f=(s,v)=>{
+const e=document.querySelector(s);
+if(!e)return;
+e.focus();
+const p=Object.getPrototypeOf(e);
+const set=Object.getOwnPropertyDescriptor(p,"value")?.set;
+if(set)set.call(e,v);else e.value=v;
+e.dispatchEvent(new Event('input',{bubbles:true}));
+e.dispatchEvent(new Event('change',{bubbles:true}));
+e.blur();
+};
+f('input[name="Type"]',"${d.t}");
+f('input[name="Identity"]',"${d.id}");
+f('input[name="DateOfBirth"]',"${d.db}");
+f('input[name="poaNumber"]',"${d.po}");
+f('input[name="email"]',"${d.ma}");
+f('input[type="tel"]',"${d.mo}");
+const l=document.querySelector('.css-1co7f8r-singleValue');
+if(l)l.innerText="${d.tn}";
+
+// الانتظار قليلاً ثم الضغط على زر التحقق
+setTimeout(() => {
+    const btns = Array.from(document.querySelectorAll('button'));
+    const verifyBtn = btns.find(b => b.textContent.includes('التحقق من البيانات'));
+    if (verifyBtn) {
+        verifyBtn.click();
+        console.log('تم الضغط على زر التحقق بنجاح');
+    } else {
+        console.warn('لم يتم العثور على زر التحقق');
+    }
+}, 600);
+})();`;
+
+            const area = document.getElementById('out_code');
+            area.value = script;
+            document.getElementById('out_section').style.display = 'block';
             
-            let applicantText = '';
-            if (v.type === 'وكيل') {
-                applicantText = highlight 
-                    ? `بموجب طلب الوكيل: <span class="highlight">${v.appId}</span> وكالة: <span class="highlight">${v.ageNo}</span>`
-                    : `بموجب طلب الوكيل: ${v.appId} وكالة: ${v.ageNo}`;
-            } else {
-                applicantText = highlight 
-                    ? `بموجب طلب <span class="highlight">${v.appId}</span>`
-                    : `بموجب طلب ${v.appId}`;
-            }
-
-            if (isShort) {
-                if (highlight) {
-                    return `تم التأشير بالدعوى رقم <span class="highlight">${v.caseNo}</span> برقم هوية المدعى عليه <span class="highlight">${v.defId}</span> المقيدة بتاريخ <span class="highlight">${dateReg}</span> بموجب إقرار المستفيد في التذكرة رقم <span class="highlight">${v.tickNo}</span> المرفوعة بتاريخ <span class="highlight">${dateSub}</span>. ${applicantText}.`;
-                }
-                return `تم التأشير بالدعوى رقم ${v.caseNo} برقم هوية المدعى عليه ${v.defId} المقيدة بتاريخ ${dateReg} بموجب إقرار المستفيد في التذكرة رقم ${v.tickNo} المرفوعة بتاريخ ${dateSub}. ${applicantText}.`;
-            } else {
-                if (highlight) {
-                    return `تم التأشير بالدعوى رقم <span class="highlight">${v.caseNo}</span> على العقار رقم <span class="highlight">${v.propNo}</span> والصك رقم <span class="highlight">${v.docNo}</span> برقم هوية المدعى عليه <span class="highlight">${v.defId}</span> المقيدة بتاريخ <span class="highlight">${dateReg}</span> بموجب إقرار المستفيد في التذكرة رقم <span class="highlight">${v.tickNo}</span> المرفوعة بتاريخ <span class="highlight">${dateSub}</span>. ${applicantText}.`;
-                }
-                return `تم التأشير بالدعوى رقم ${v.caseNo} على العقار رقم ${v.propNo} والصك رقم ${v.docNo} برقم هوية المدعى عليه ${v.defId} المقيدة بتاريخ ${dateReg} بموجب إقرار المستفيد في التذكرة رقم ${v.tickNo} المرفوعة بتاريخ ${dateSub}. ${applicantText}.`;
-            }
-        },
-
-        updatePreview() {
-            const text = this.buildText(true, false);
-            document.getElementById('livePreviewText').innerText = text;
+            // نسخ الكود للمحفظة
+            area.select();
+            document.execCommand('copy');
             
-            const len = text.length;
-            const tag = document.getElementById('charTag');
-            tag.innerText = `${len} / 250`;
-            
-            if (len > 250) { tag.className = 'char-count-tag count-danger'; }
-            else if (len > 210) { tag.className = 'char-count-tag count-warn'; }
-            else { tag.className = 'char-count-tag count-good'; }
-            
-            this.validateForm();
-        },
-
-        generateFinal() {
-            const t1Raw = this.buildText(true, false);
-            if (t1Raw.length > 250) {
-                alert('عذراً، النص الأول يتجاوز 250 حرفاً. يرجى مراجعة البيانات.');
-                return;
-            }
-
-            document.getElementById('res1').innerHTML = this.buildText(true, true);
-            document.getElementById('res2').innerHTML = this.buildText(false, true);
-            
-            document.getElementById('resultsSection').style.display = 'block';
-            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-        },
-
-        copyText(id) {
-            const el = document.getElementById(id);
-            const text = el.innerText;
-            navigator.clipboard.writeText(text).then(() => {
-                const btn = event.target;
-                const oldText = btn.innerText;
-                btn.innerText = '✅ تم النسخ';
-                btn.style.backgroundColor = '#10b981';
-                btn.style.color = '#fff';
-                setTimeout(() => { 
-                    btn.innerText = oldText; 
-                    btn.style.backgroundColor = '';
-                    btn.style.color = '';
-                }, 1500);
-            });
+            const status = document.getElementById('copy_status');
+            status.style.display = 'block';
+            setTimeout(() => { status.style.display = 'none'; }, 3000);
+        } catch (err) {
+            console.error(err);
         }
-    };
-
-    // Initial load
-    window.onload = () => {
-        app.updatePreview();
-    };
+    }
 </script>
 
-</body>
-</html>
+
+</body></html>
