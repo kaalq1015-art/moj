@@ -1,116 +1,178 @@
 <!DOCTYPE html>
-<!-- saved from url=(0094)file:///C:/Users/aalkhathlan.o/Downloads/Telegram%20Desktop/deepseek_html_20260305_1aa718.html -->
-<html lang="ar" dir="rtl"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>أداة إدخال بيانات الوكيل</title>
+    <title>تعبئة الورثة </title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --bg: #f4f7f6; }
-        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        body { background-color: var(--bg); padding: 20px; display: flex; justify-content: center; }
-        .card { background: white; width: 100%; max-width: 800px; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: var(--primary); font-size: 18px; margin-bottom: 25px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        label { display: block; font-weight: 600; margin-bottom: 5px; font-size: 13px; color: #444; }
-        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
-        .btn { grid-column: span 2; background: var(--accent); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 10px; }
-        .btn:hover { background: #2980b9; }
-        .output-box { margin-top: 25px; display: none; }
-        textarea { width: 100%; height: 180px; background: #1e293b; color: #4ade80; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 13px; direction: ltr; resize: none; border: none; outline: none; }
-        .success-msg { color: #27ae60; font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 10px; display: none; }
-        .info-text { font-size: 12px; color: #7f8c8d; margin-top: 5px; grid-column: span 2; text-align: center; }
+        body { background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        .card-container { max-width: 950px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-top: 6px solid #2563eb; }
+        textarea { font-family: monospace; resize: vertical; }
     </style>
 </head>
-<body>
+<body class="p-4 md:p-8">
 
-<div class="card">
-    <h1>إدخال بيانات الوكيل </h1>
-    <div class="grid">
-        <div>
-            <label>نوع الهوية</label>
-            <select id="f_type">
-                <option value="1">هوية وطنية</option>
-                <option value="2">إقامة</option>
-            </select>
+<div class="card-container p-6 md:p-10">
+    <h1 class="text-3xl font-bold text-slate-800 text-center mb-8">تعبئة الورثة</h1>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <!-- الإعدادات المشتركة -->
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-semibold text-slate-600">الجوال (بدون 0)</label>
+            <input type="text" id="mVal" value="" placeholder="مثال: 580121007" class="p-3 border border-slate-300 rounded-lg outline-none focus:border-blue-500">
         </div>
-        <div><label>رقم الهوية</label><input type="text" id="f_id" placeholder="مثال: 1000000000"></div>
-        <div><label>تاريخ الميلاد (سنة-شهر-يوم)</label><input type="text" id="f_dob" placeholder="1400-01-01"></div>
-        <div><label>رقم الوكالة</label><input type="text" id="f_poa"></div>
-        <div><label>رقم الجوال (بدون 0)</label><input type="text" id="f_mob" placeholder="5xxxxxxx"></div>
-        <div><label>البريد الإلكتروني</label><input type="email" id="f_mail"></div>
-        <button class="btn" onclick="generate()">بدء العملية</button>
-        <p class="info-text">سيتم ملء البيانات والضغط على زر "التحقق" </p>
+        <div class="flex flex-col gap-2">
+            <label class="text-sm font-semibold text-slate-600">البريد الإلكتروني</label>
+            <input type="email" id="eVal" value="" placeholder="example@mail.com" class="p-3 border border-slate-300 rounded-lg outline-none focus:border-blue-500">
+        </div>
+
+        <!-- أزرار التحكم بالوقت -->
+        <div class="flex flex-col gap-2 p-4 bg-blue-50 rounded-xl border border-blue-100">
+            <label class="text-sm font-bold text-blue-800">وقت اختيار (نوع المالك/الهوية)</label>
+            <div class="flex items-center gap-3">
+                <input type="range" id="selectionDelay" min="1" max="15" value="5" class="w-full" oninput="this.nextElementSibling.innerText = this.value + ' ثواني'">
+                <span class="text-sm font-bold text-blue-600 min-w-[60px]">5 ثواني</span>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-2 p-4 bg-green-50 rounded-xl border border-green-100">
+            <label class="text-sm font-bold text-green-800">وقت انتظار "التحقق"</label>
+            <div class="flex items-center gap-3">
+                <input type="range" id="verifyDelay" min="1" max="15" value="5" class="w-full" oninput="this.nextElementSibling.innerText = this.value + ' ثواني'">
+                <span class="text-sm font-bold text-green-600 min-w-[60px]">5 ثواني</span>
+            </div>
+        </div>
     </div>
 
-    <div class="output-box" id="out_section">
-        <div id="copy_status" class="success-msg">تم التوليد والنسخ! ✅</div>
-        <textarea id="out_code" readonly=""></textarea>
+    <!-- إدخال البيانات -->
+    <div class="flex flex-col gap-2 mb-6">
+        <label class="text-sm font-semibold text-slate-600">قائمة الورثة (الأسماء، الهويات، التواريخ):</label>
+        <textarea id="rawInput" placeholder="الصق النص الكامل هنا..." class="p-4 border border-slate-300 rounded-lg outline-none focus:border-blue-500 h-40"></textarea>
+    </div>
+
+    <button onclick="generateMasterScript()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg shadow-md transition-all active:scale-95 mb-10 text-lg">
+        بدء العملية
+    </button>
+
+    <!-- منطقة الكود الناتج -->
+    <div id="outputArea" class="hidden border-2 border-dashed border-green-400 p-6 rounded-xl bg-green-50">
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-green-700 font-bold">تم تجهيز الكود بنجاح! ✅</span>
+            <button onclick="copyMaster()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 active:scale-95">نسخ الكود</button>
+        </div>
+        <textarea id="masterCode" readonly class="w-full h-48 bg-slate-900 text-emerald-400 p-4 rounded-lg font-mono text-xs ltr border-none outline-none" style="direction: ltr;"></textarea>
     </div>
 </div>
 
 <script>
-    function generate() {
-        try {
-            const d = {
-                t: document.getElementById('f_type').value,
-                tn: document.getElementById('f_type').options[document.getElementById('f_type').selectedIndex].text,
-                id: document.getElementById('f_id').value.trim(),
-                db: document.getElementById('f_dob').value.trim(),
-                po: document.getElementById('f_poa').value.trim(),
-                mo: "+966" + document.getElementById('f_mob').value.trim().replace(/^(00966|966|0|\+966)/, ''),
-                ma: document.getElementById('f_mail').value.trim()
-            };
+    let generatedScript = "";
 
-            const script = `(function(){
-const f=(s,v)=>{
-const e=document.querySelector(s);
-if(!e)return;
-e.focus();
-const p=Object.getPrototypeOf(e);
-const set=Object.getOwnPropertyDescriptor(p,"value")?.set;
-if(set)set.call(e,v);else e.value=v;
-e.dispatchEvent(new Event('input',{bubbles:true}));
-e.dispatchEvent(new Event('change',{bubbles:true}));
-e.blur();
-};
-f('input[name="Type"]',"${d.t}");
-f('input[name="Identity"]',"${d.id}");
-f('input[name="DateOfBirth"]',"${d.db}");
-f('input[name="poaNumber"]',"${d.po}");
-f('input[name="email"]',"${d.ma}");
-f('input[type="tel"]',"${d.mo}");
-const l=document.querySelector('.css-1co7f8r-singleValue');
-if(l)l.innerText="${d.tn}";
+    function generateMasterScript() {
+        const text = document.getElementById('rawInput').value;
+        if (!text.trim()) return;
 
-// الانتظار قليلاً ثم الضغط على زر التحقق
-setTimeout(() => {
-    const btns = Array.from(document.querySelectorAll('button'));
-    const verifyBtn = btns.find(b => b.textContent.includes('التحقق من البيانات'));
-    if (verifyBtn) {
-        verifyBtn.click();
-        console.log('تم الضغط على زر التحقق بنجاح');
-    } else {
-        console.warn('لم يتم العثور على زر التحقق');
+        const selD = document.getElementById('selectionDelay').value;
+        const verD = document.getElementById('verifyDelay').value;
+
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
+        const heirs = [];
+
+        for (let i = 0; i < lines.length; i++) {
+            if (/^[12]\d{9}$/.test(lines[i])) {
+                let name = "غير معروف";
+                if (i >= 2 && lines[i-2].length > 5 && !lines[i-2].includes('/') && !lines[i-2].includes('هوية')) {
+                    name = lines[i-2];
+                } else if (i >= 3) {
+                    name = lines[i-3];
+                }
+
+                let dob = "";
+                for (let j = i; j < Math.min(i + 15, lines.length); j++) {
+                    if (/\d{4}\/\d{2}\/\d{2}/.test(lines[j])) {
+                        dob = lines[j].replace(/\//g, '-'); 
+                        break;
+                    }
+                }
+                if (dob) heirs.push({ name, id: lines[i], dob });
+            }
+        }
+
+        if (heirs.length === 0) {
+            const message = document.createElement('div');
+            message.className = "fixed top-5 left-1/2 -translate-x-1/2 bg-red-600 text-white p-4 rounded-lg shadow-lg z-50";
+            message.innerText = "يرجى التأكد من لصق البيانات بشكل صحيح.";
+            document.body.appendChild(message);
+            setTimeout(() => message.remove(), 3000);
+            return;
+        }
+
+        const mob = "+966" + document.getElementById('mVal').value.trim().replace(/^(00966|966|0|\+966)/, '');
+        const mail = document.getElementById('eVal').value.trim();
+
+        generatedScript = `(async function(){
+    const owners = ${JSON.stringify(heirs)};
+    const config = { mob: "${mob}", mail: "${mail}", selWait: ${selD}*1000, verWait: ${verD}*1000 };
+    
+    const setVal = (sel, val) => {
+        const e = document.querySelector(sel);
+        if(!e) return;
+        const p = Object.getPrototypeOf(e);
+        const st = Object.getOwnPropertyDescriptor(p, "value")?.set;
+        if(st) st.call(e, val); else e.value = val;
+        ['input', 'change', 'blur'].forEach(t => e.dispatchEvent(new Event(t, { bubbles: true })));
+    };
+
+    const wait = (ms) => new Promise(r => setTimeout(r, ms));
+
+    console.log("%c بدء تعبئة الورثة 🤖 ", "background: #2563eb; color: white; font-weight: bold; padding: 5px;");
+
+    for (let i = 0; i < owners.length; i++) {
+        const o = owners[i];
+        console.log(\`%c [\${i+1}/\${owners.length}] معالجة: \${o.name}\`, "color: #1e293b; font-weight: bold;");
+        
+        await wait(config.selWait);
+
+        setVal('input[name="Identity"]', o.id);
+        setVal('input[name="DateOfBirth"]', o.dob);
+        setVal('input[name="email"]', config.mail);
+        setVal('input[type="tel"]', config.mob);
+
+        await wait(500);
+        const bV = Array.from(document.querySelectorAll('button')).find(b => b.classList.contains('bg-bluerega') || b.innerText.includes('التحقق'));
+        if(bV) bV.click();
+
+        await wait(config.verWait);
+
+        if (i < owners.length - 1) {
+            const bA = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('إضافة مالك جديد'));
+            if(bA) {
+                bA.click();
+                await wait(1000);
+            }
+        } else {
+            console.log("%c اكتملت جميع الأسماء بنجاح! ✅ ", "background: #10b981; color: white; padding: 5px;");
+        }
     }
-}, 600);
 })();`;
 
-            const area = document.getElementById('out_code');
-            area.value = script;
-            document.getElementById('out_section').style.display = 'block';
-            
-            // نسخ الكود للمحفظة
-            area.select();
-            document.execCommand('copy');
-            
-            const status = document.getElementById('copy_status');
-            status.style.display = 'block';
-            setTimeout(() => { status.style.display = 'none'; }, 3000);
-        } catch (err) {
-            console.error(err);
-        }
+        document.getElementById('masterCode').value = generatedScript;
+        document.getElementById('outputArea').classList.remove('hidden');
+        document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function copyMaster() {
+        const area = document.getElementById('masterCode');
+        area.select();
+        document.execCommand('copy');
+        
+        const message = document.createElement('div');
+        message.className = "fixed top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50";
+        message.innerText = "تم نسخ الكود! الصقه في الـ Console بالموقع.";
+        document.body.appendChild(message);
+        setTimeout(() => message.remove(), 3000);
     }
 </script>
 
-
-</body></html>
+</body>
+</html>
