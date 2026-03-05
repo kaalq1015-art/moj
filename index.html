@@ -3,174 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تعبئة الورثة </title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>نظام استخراج بيانات الورثة والوكالات</title>
     <style>
-        body { background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, sans-serif; }
-        .card-container { max-width: 950px; margin: 40px auto; background: white; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-top: 6px solid #2563eb; }
-        textarea { font-family: monospace; resize: vertical; }
+        :root {
+            --primary-blue: #0056b3; 
+            --success-green: #27ae60;
+            --bg-body: #f4f7f9;
+            --text-dark: #2c3e50;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-body);
+            margin: 0;
+            padding: 20px;
+            color: var(--text-dark);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: var(--white);
+            border-radius: 15px;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        /* إدارة الشاشات */
+        .screen {
+            display: none;
+            padding: 40px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* واجهة التعليمات النصية */
+        .guide-header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 20px;
+        }
+
+        .guide-header h2 { color: var(--primary-blue); font-size: 1.8rem; }
+
+        .instruction-box {
+            background: #fcfcfc;
+            border-right: 5px solid var(--primary-blue);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
+
+        .instruction-box h3 { margin-top: 0; color: #333; font-size: 1.2rem; }
+        
+        .instruction-box ul { padding-right: 20px; }
+        .instruction-box li { margin-bottom: 12px; line-height: 1.5; }
+
+        .highlight-text { color: #d35400; font-weight: bold; }
+
+        /* واجهة الإدخال */
+        .input-section { display: grid; gap: 20px; }
+        .field { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: 600; color: #444; }
+
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-size: 15px;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus, textarea:focus { border-color: var(--primary-blue); background: #fff; }
+        textarea { min-height: 140px; }
+
+        /* الأزرار */
+        .btn-box { display: flex; justify-content: center; gap: 15px; margin-top: 30px; }
+        .btn {
+            padding: 14px 40px;
+            border-radius: 10px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 1rem;
+        }
+
+        .btn-main { background: var(--primary-blue); color: white; }
+        .btn-success { background: var(--success-green); color: white; }
+        .btn-danger { background: #e74c3c; color: white; }
+        .btn:hover { opacity: 0.9; transform: translateY(-2px); }
+
+        /* النتائج */
+        .results-section {
+            display: none;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 2px dashed #ddd;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #eee;
+        }
+
+        .stat-val { font-size: 24px; font-weight: 800; display: block; color: var(--primary-blue); }
+        .stat-label { font-size: 14px; color: #777; margin-top: 5px; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 18px 15px; text-align: right; border-bottom: 1px solid #eee; }
+        th { background: #f1f3f5; color: #333; }
+
+        /* تلوين الوكيل بالأزرق */
+        .agent-row {
+            background-color: #eef6ff !important;
+            color: var(--primary-blue) !important;
+            font-weight: bold;
+            border-right: 5px solid var(--primary-blue);
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: white;
+            display: inline-block;
+        }
+        .badge-agent { background: var(--primary-blue); }
+        .badge-principal { background: var(--success-green); }
+
+        @media (max-width: 600px) {
+            .screen { padding: 20px; }
+            .btn { width: 100%; }
+            .btn-box { flex-direction: column; }
+        }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body>
 
-<div class="card-container p-6 md:p-10">
-    <h1 class="text-3xl font-bold text-slate-800 text-center mb-8">تعبئة الورثة</h1>
+<div class="container">
     
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <!-- الإعدادات المشتركة -->
-        <div class="flex flex-col gap-2">
-            <label class="text-sm font-semibold text-slate-600">الجوال (بدون 0)</label>
-            <input type="text" id="mVal" value="" placeholder="مثال: 500000000" class="p-3 border border-slate-300 rounded-lg outline-none focus:border-blue-500">
-        </div>
-        <div class="flex flex-col gap-2">
-            <label class="text-sm font-semibold text-slate-600">البريد الإلكتروني</label>
-            <input type="email" id="eVal" value="" placeholder="example@mail.com" class="p-3 border border-slate-300 rounded-lg outline-none focus:border-blue-500">
+    <!-- الواجهة الأولى: طريقة النسخ -->
+    <div id="guideScreen" class="screen active">
+        <div class="guide-header">
+            <h2>طريقة النسخ الصحيحة</h2>
+            <p>لضمان عمل النظام بشكل صحيح، يرجى اتباع خطوات النسخ التالية:</p>
         </div>
 
-        <!-- أزرار التحكم بالوقت -->
-        <div class="flex flex-col gap-2 p-4 bg-blue-50 rounded-xl border border-blue-100">
-            <label class="text-sm font-bold text-blue-800">وقت اختيار (نوع المالك/الهوية)</label>
-            <div class="flex items-center gap-3">
-                <input type="range" id="selectionDelay" min="1" max="15" value="5" class="w-full" oninput="this.nextElementSibling.innerText = this.value + ' ثواني'">
-                <span class="text-sm font-bold text-blue-600 min-w-[60px]">5 ثواني</span>
+        <div class="instruction-box">
+            <h3>1. كيفية نسخ صك حصر الورثة (من بوابة ناجز)</h3>
+            <ul>
+                <li>افتح الصك في متصفحك، وانزل إلى جدول <strong>"بيانات الورثة"</strong>.</li>
+                <li>ابدأ التحديد من <span class="highlight-text">اسم أول وارث</span> (مثلاً: هشام ابراهيم...).</li>
+                <li>استمر في التحديد لأسفل ليشمل (الاسم، صلة القرابة، رقم الهوية) لجميع الورثة.</li>
+                <li>توقف عند نهاية بيانات <span class="highlight-text">آخر وارث</span>   (إلى حالة الوارث عند آخر وريث ) في القائمة، ثم اضغط نسخ .</li>
+            </ul>
+        </div>
+
+        <div class="instruction-box">
+            <h3>2. كيفية نسخ جدول الوكالة (من وزارة العدل)</h3>
+            <ul>
+                <li>افتح صفحة الوكالة، وانتقل إلى جدول <strong>"أطراف الوكالة"</strong>.</li>
+                <li>ابدأ التحديد من <span class="highlight-text">رأس الجدول</span> (كلمة: اسم طرف الوكالة).</li>
+                <li>حدد كامل الجدول بما يحتوي عليه من (الأسماء، أرقام الهوية، والصفة: موكل/وكيل).</li>
+                <li>تأكد من أن النسخ يشمل كافة التفاصيل <span class="highlight-text">حتى كلمة "ساري" لأخر شخص</span> مسجل في الجدول.</li>
+            </ul>
+        </div>
+
+        <div class="btn-box">
+            <button class="btn btn-main" onclick="openApp()">فهمت الطريقة، ابدأ الآن</button>
+        </div>
+    </div>
+
+    <!-- الواجهة الثانية: التطبيق الرئيسي -->
+    <div id="appScreen" class="screen">
+        <h2 style="text-align:center; margin-bottom: 30px;">أداة تحليل الصك والوكالة</h2>
+        
+        <div class="input-section">
+            <div class="field">
+                <label>رقم هوية المتوفى</label>
+                <input type="text" id="deceasedId" placeholder="مثلاً: 1035510591">
+            </div>
+            <div class="field">
+                <label>نص صك حصر الورثة (من ناجز)</label>
+                <textarea id="inheritanceText" placeholder="الصق النص هنا..."></textarea>
+            </div>
+            <div class="field">
+                <label>نص الوكالة (جدول الأطراف)</label>
+                <textarea id="proxyText" placeholder="الصق النص هنا..."></textarea>
             </div>
         </div>
 
-        <div class="flex flex-col gap-2 p-4 bg-green-50 rounded-xl border border-green-100">
-            <label class="text-sm font-bold text-green-800">وقت انتظار "التحقق"</label>
-            <div class="flex items-center gap-3">
-                <input type="range" id="verifyDelay" min="1" max="15" value="5" class="w-full" oninput="this.nextElementSibling.innerText = this.value + ' ثواني'">
-                <span class="text-sm font-bold text-green-600 min-w-[60px]">5 ثواني</span>
+        <div class="btn-box">
+            <button class="btn btn-success" onclick="startAnalysis()">تحليل البيانات</button>
+            <button class="btn btn-danger" onclick="resetFields()">عملية جديدة</button>
+        </div>
+
+        <!-- منطقة النتائج -->
+        <div id="resultsArea" class="results-section">
+            <div class="stats" id="statsBox"></div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>الاسم الكامل</th>
+                            <th>رقم الهوية</th>
+                            <th>صلة القرابة</th>
+                            <th>الحالة بالوكالة</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+            <div class="btn-box">
+                <button class="btn btn-main" onclick="window.print()">طباعة النتائج</button>
             </div>
         </div>
     </div>
 
-    <!-- إدخال البيانات -->
-    <div class="flex flex-col gap-2 mb-6">
-        <label class="text-sm font-semibold text-slate-600">قائمة الورثة (الأسماء، الهويات، التواريخ):</label>
-        <textarea id="rawInput" placeholder="الصق النص الكامل هنا..." class="p-4 border border-slate-300 rounded-lg outline-none focus:border-blue-500 h-40"></textarea>
-    </div>
-
-    <button onclick="generateMasterScript()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-lg shadow-md transition-all active:scale-95 mb-10 text-lg">
-        بدء العملية
-    </button>
-
-    <!-- منطقة الكود الناتج -->
-    <div id="outputArea" class="hidden border-2 border-dashed border-green-400 p-6 rounded-xl bg-green-50">
-        <div class="flex items-center justify-between mb-4">
-            <span class="text-green-700 font-bold">تم تجهيز الكود بنجاح! ✅</span>
-            <button onclick="copyMaster()" class="bg-green-600 text-white px-6 py-2 rounded-lg font-bold hover:bg-green-700 active:scale-95">نسخ الكود</button>
-        </div>
-        <textarea id="masterCode" readonly class="w-full h-48 bg-slate-900 text-emerald-400 p-4 rounded-lg font-mono text-xs ltr border-none outline-none" style="direction: ltr;"></textarea>
-    </div>
 </div>
 
 <script>
-    let generatedScript = "";
+    function openApp() {
+        document.getElementById('guideScreen').classList.remove('active');
+        document.getElementById('appScreen').classList.add('active');
+        window.scrollTo(0,0);
+    }
 
-    function generateMasterScript() {
-        const text = document.getElementById('rawInput').value;
-        if (!text.trim()) return;
-
-        const selD = document.getElementById('selectionDelay').value;
-        const verD = document.getElementById('verifyDelay').value;
-
-        const lines = text.split('\n').map(l => l.trim()).filter(l => l !== '');
-        const heirs = [];
-
-        for (let i = 0; i < lines.length; i++) {
-            if (/^[12]\d{9}$/.test(lines[i])) {
-                let name = "غير معروف";
-                if (i >= 2 && lines[i-2].length > 5 && !lines[i-2].includes('/') && !lines[i-2].includes('هوية')) {
-                    name = lines[i-2];
-                } else if (i >= 3) {
-                    name = lines[i-3];
-                }
-
-                let dob = "";
-                for (let j = i; j < Math.min(i + 15, lines.length); j++) {
-                    if (/\d{4}\/\d{2}\/\d{2}/.test(lines[j])) {
-                        dob = lines[j].replace(/\//g, '-'); 
-                        break;
-                    }
-                }
-                if (dob) heirs.push({ name, id: lines[i], dob });
-            }
+    function resetFields() {
+        if(confirm("هل تريد بدء عملية جديدة ومسح كافة الحقول؟")) {
+            document.getElementById('deceasedId').value = "";
+            document.getElementById('inheritanceText').value = "";
+            document.getElementById('proxyText').value = "";
+            document.getElementById('resultsArea').style.display = "none";
+            window.scrollTo(0,0);
         }
+    }
 
-        if (heirs.length === 0) {
-            const message = document.createElement('div');
-            message.className = "fixed top-5 left-1/2 -translate-x-1/2 bg-red-600 text-white p-4 rounded-lg shadow-lg z-50";
-            message.innerText = "يرجى التأكد من لصق البيانات بشكل صحيح.";
-            document.body.appendChild(message);
-            setTimeout(() => message.remove(), 3000);
+    function startAnalysis() {
+        const decId = document.getElementById('deceasedId').value.trim();
+        const inhtText = document.getElementById('inheritanceText').value.trim();
+        const prxText = document.getElementById('proxyText').value.trim();
+
+        if(!decId || !inhtText || !prxText) {
+            alert("فضلاً، تأكد من تعبئة رقم الهوية وكلا النصين (الصك والوكالة).");
             return;
         }
 
-        const mob = "+966" + document.getElementById('mVal').value.trim().replace(/^(00966|966|0|\+966)/, '');
-        const mail = document.getElementById('eVal').value.trim();
+        const heirs = parseHeirsData(inhtText);
+        const proxySides = parseProxyData(prxText);
 
-        generatedScript = `(async function(){
-    const owners = ${JSON.stringify(heirs)};
-    const config = { mob: "${mob}", mail: "${mail}", selWait: ${selD}*1000, verWait: ${verD}*1000 };
-    
-    const setVal = (sel, val) => {
-        const e = document.querySelector(sel);
-        if(!e) return;
-        const p = Object.getPrototypeOf(e);
-        const st = Object.getOwnPropertyDescriptor(p, "value")?.set;
-        if(st) st.call(e, val); else e.value = val;
-        ['input', 'change', 'blur'].forEach(t => e.dispatchEvent(new Event(t, { bubbles: true })));
-    };
+        displayAnalysis(heirs, proxySides, decId);
+    }
 
-    const wait = (ms) => new Promise(r => setTimeout(r, ms));
-
-    console.log("%c بدء تعبئة الورثة 🤖 ", "background: #2563eb; color: white; font-weight: bold; padding: 5px;");
-
-    for (let i = 0; i < owners.length; i++) {
-        const o = owners[i];
-        console.log(\`%c [\${i+1}/\${owners.length}] معالجة: \${o.name}\`, "color: #1e293b; font-weight: bold;");
+    function parseHeirsData(text) {
+        const heirs = [];
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         
-        await wait(config.selWait);
+        for (let i = 0; i < lines.length; i++) {
+            const idMatch = lines[i].match(/^\d{10}$/);
+            if (idMatch) {
+                const id = idMatch[0];
+                let relation = "غير محدد";
+                let name = "غير معروف";
 
-        setVal('input[name="Identity"]', o.id);
-        setVal('input[name="DateOfBirth"]', o.dob);
-        setVal('input[name="email"]', config.mail);
-        setVal('input[type="tel"]', config.mob);
-
-        await wait(500);
-        const bV = Array.from(document.querySelectorAll('button')).find(b => b.classList.contains('bg-bluerega') || b.innerText.includes('التحقق'));
-        if(bV) bV.click();
-
-        await wait(config.verWait);
-
-        if (i < owners.length - 1) {
-            const bA = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('إضافة مالك جديد'));
-            if(bA) {
-                bA.click();
-                await wait(1000);
+                let foundRel = false;
+                for (let j = i - 1; j >= 0; j--) {
+                    const l = lines[j];
+                    if (l === "رقم الهوية" || l.includes("الجنسية") || l.includes("تاريخ") || l.includes("حالة") || l.includes("الجنس")) continue;
+                    
+                    if (!foundRel) {
+                        relation = l;
+                        foundRel = true;
+                        continue;
+                    }
+                    name = l;
+                    break;
+                }
+                heirs.push({ id, name, relation });
             }
-        } else {
-            console.log("%c اكتملت جميع الأسماء بنجاح! ✅ ", "background: #10b981; color: white; padding: 5px;");
         }
-    }
-})();`;
-
-        document.getElementById('masterCode').value = generatedScript;
-        document.getElementById('outputArea').classList.remove('hidden');
-        document.getElementById('outputArea').scrollIntoView({ behavior: 'smooth' });
+        return heirs;
     }
 
-    function copyMaster() {
-        const area = document.getElementById('masterCode');
-        area.select();
-        document.execCommand('copy');
-        
-        const message = document.createElement('div');
-        message.className = "fixed top-5 left-1/2 -translate-x-1/2 bg-green-600 text-white p-4 rounded-lg shadow-lg z-50";
-        message.innerText = "تم نسخ الكود! الصقه في الـ Console بالموقع.";
-        document.body.appendChild(message);
-        setTimeout(() => message.remove(), 3000);
+    function parseProxyData(text) {
+        const sides = [];
+        const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+
+        lines.forEach(line => {
+            const idMatch = line.match(/\d{10}/);
+            if (idMatch) {
+                const id = idMatch[0];
+                let role = "غير محدد";
+                if (line.includes("موكل")) role = "موكل";
+                else if (line.includes("وكيل")) role = "وكيل";
+
+                const parts = line.split(/\s+/);
+                let nameParts = [];
+                for(let p of parts) {
+                    if(/^\d+$/.test(p)) break;
+                    nameParts.push(p);
+                }
+                sides.push({ id, name: nameParts.join(" "), role });
+            }
+        });
+        return sides;
+    }
+
+    function displayAnalysis(heirs, proxySides, deceasedId) {
+        const tbody = document.getElementById('tableBody');
+        const stats = document.getElementById('statsBox');
+        tbody.innerHTML = "";
+
+        let pCount = 0; // موكلين
+        let aCount = 0; // وكلاء
+        let decName = "---";
+
+        const allIds = new Set([...heirs.map(h => h.id), ...proxySides.map(p => p.id)]);
+
+        allIds.forEach(id => {
+            const heir = heirs.find(h => h.id === id);
+            const prx = proxySides.find(p => p.id === id);
+
+            if (id === deceasedId) {
+                if (heir) decName = heir.name;
+                return;
+            }
+
+            const tr = document.createElement('tr');
+            let name = heir ? heir.name : (prx ? prx.name : "غير معروف");
+            let relation = heir ? heir.relation : "من خارج الورثة";
+            let role = prx ? prx.role : "غير مذكور بالوكالة";
+
+            if (role === "وكيل") {
+                tr.className = "agent-row"; 
+                aCount++;
+            } else if (role === "موكل") {
+                pCount++;
+            }
+
+            tr.innerHTML = `
+                <td>${name}</td>
+                <td>${id}</td>
+                <td>${relation}</td>
+                <td>
+                    <span class="badge ${role === 'وكيل' ? 'badge-agent' : 'badge-principal'}">
+                        ${role}
+                    </span>
+                </td>
+                <td>
+                    ${(role === 'وكيل' && heir) ? '<span style="color:#0056b3">الوكيل أحد الورثة</span>' : ''}
+                    ${(!heir && role === 'وكيل') ? 'وكيل خارجي' : ''}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+
+        stats.innerHTML = `
+            <div class="stat-item">
+                <span class="stat-label">المتوفى</span>
+                <span class="stat-val" style="font-size:16px">${decName}</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">إجمالي الورثة</span>
+                <span class="stat-val">${heirs.length}</span>
+            </div>
+            <div class="stat-item" style="border-right: 5px solid var(--success-green)">
+                <span class="stat-label">الموكلين</span>
+                <span class="stat-val" style="color:var(--success-green)">${pCount}</span>
+            </div>
+            <div class="stat-item" style="border-right: 5px solid var(--primary-blue)">
+                <span class="stat-label">الوكلاء</span>
+                <span class="stat-val" style="color:var(--primary-blue)">${aCount}</span>
+            </div>
+        `;
+
+        document.getElementById('resultsArea').style.display = "block";
+        window.scrollTo({ top: document.getElementById('resultsArea').offsetTop, behavior: 'smooth' });
     }
 </script>
 
