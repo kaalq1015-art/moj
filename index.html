@@ -3,543 +3,197 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>12345</title>
+<title>ألعاب التخمين</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
 *{font-family:'Tajawal',sans-serif;box-sizing:border-box;}
-:root{--correct-color:#4a9e52;--correct-glow:rgba(74,158,82,0.35);--present-color:#c9a227;--present-glow:rgba(201,162,39,0.35);--absent-color:#3a3a3c;--default-color:#565758;--bg-color:#0f0f10;--surface-color:#1a1a1b;--text-color:#f0f0f0;--text-muted:#818384;--border-color:#2d2d2e;--border-active:#555557;--key-bg:#4a4a4e;--key-text:#e8e8e8;--enter-color:#2563a8;--backspace-color:#9b2335;--newgame-color:#2563a8;--newgame-hover:#2f74c0;--easy-color:#4a9e52;--hard-color:#c0293f;--header-border:rgba(255,255,255,0.07);--max-rows:6;}
-.light-mode{--correct-color:#4a9e52;--correct-glow:rgba(74,158,82,0.2);--present-color:#c9a227;--present-glow:rgba(201,162,39,0.2);--absent-color:#6c6e70;--default-color:#e0e2e5;--bg-color:#f0f0f2;--surface-color:#ffffff;--text-color:#1a1a1b;--text-muted:#6c6e70;--border-color:#c8cacd;--border-active:#999ba0;--key-bg:#e0e2e5;--key-text:#1a1a1b;--enter-color:#2563a8;--backspace-color:#c0293f;--newgame-color:#2563a8;--newgame-hover:#2f74c0;--easy-color:#4a9e52;--hard-color:#c0293f;--header-border:rgba(0,0,0,0.08);}
-body{background-color:var(--bg-color);color:var(--text-color);transition:all 0.3s ease;margin:0;padding:0;height:100dvh;max-height:100dvh;display:flex;flex-direction:column;overflow:hidden;touch-action:manipulation;}
-.game-wrapper{flex:1;display:flex;flex-direction:column;justify-content:space-between;width:100%;max-width:800px;margin:0 auto;padding:6px 10px;overflow:hidden;min-height:0;}
-@media(max-width:768px){.game-wrapper{max-width:600px;}}
-/* إجبار الأرقام على الاتجاه من اليسار لليمين */
-#grid, .grid-row, .keyboard-row, .key, .tile, .matrix-grid, .matrix-row, .correct-number, .matrix-tile {
-    direction: ltr !important;
-    unicode-bidi: plaintext;
+
+/* نفس الألوان المتناسقة اللي تعودنا عليها */
+:root{--correct-color:#4a9e52;--present-color:#c9a227;--absent-color:#3a3a3c;--default-color:#565758;--bg-color:#0f0f10;--surface-color:#1a1a1b;--text-color:#f0f0f0;--text-muted:#818384;--border-color:#2d2d2e;--header-border:rgba(255,255,255,0.07);}
+.light-mode{--correct-color:#4a9e52;--present-color:#c9a227;--absent-color:#6c6e70;--default-color:#e0e2e5;--bg-color:#f0f0f2;--surface-color:#ffffff;--text-color:#1a1a1b;--text-muted:#6c6e70;--border-color:#c8cacd;--header-border:rgba(0,0,0,0.08);}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
-.tile{--tile-size:62px;width:var(--tile-size);height:var(--tile-size);border:2px solid var(--border-color);display:flex;align-items:center;justify-content:center;font-size:calc(var(--tile-size)*0.50);font-weight:bold;user-select:none;transition:all 0.3s ease;border-radius:4px;flex-shrink:0;}
-.tile.filled{border-color:#878a8c;animation:pop 0.1s ease;}
-@keyframes pop{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
-.tile.correct{background-color:var(--correct-color);border-color:var(--correct-color);color:white;box-shadow:0 0 12px var(--correct-glow);}
-.tile.present{background-color:var(--present-color);border-color:var(--present-color);color:white;box-shadow:0 0 12px var(--present-glow);}
-.tile.absent{background-color:var(--absent-color);border-color:var(--absent-color);color:white;}
-.flip{animation:flip 0.6s ease;}
-@keyframes flip{0%{transform:rotateX(0);}50%{transform:rotateX(90deg);}100%{transform:rotateX(0);}}
-.keyboard-row{display:flex;justify-content:center;gap:4px;margin-bottom:6px;width:100%;}
-.key{height:clamp(42px,6vh,58px);min-width:clamp(28px,6vw,43px);background-color:var(--key-bg);color:var(--key-text);border:none;border-radius:4px;font-weight:bold;font-size:clamp(0.85rem,3vw,1.1rem);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:all 0.2s ease;flex:1;margin:0 2px;padding:0 2px;touch-action:manipulation;}
-.key.enter{background-color:var(--enter-color);color:white;font-size:clamp(0.7rem,2.5vw,0.9rem);}
-.key.backspace{background-color:var(--backspace-color);color:white;}
-@media(max-width:480px){.key{height:clamp(38px,5.5vh,50px);min-width:clamp(24px,5vw,34px);font-size:clamp(0.8rem,2.8vw,1rem);margin:0 1px;padding:0 1px;}.key.enter{font-size:clamp(0.65rem,2.2vw,0.8rem);}.keyboard-row{gap:2px;margin-bottom:5px;}}
-.key:hover{opacity:0.85;transform:translateY(-1px);}
-.key:active{transform:translateY(0);opacity:1;}
-.key.correct{background-color:var(--correct-color);color:white;box-shadow:0 0 8px var(--correct-glow);}
-.key.present{background-color:var(--present-color);color:white;box-shadow:0 0 8px var(--present-glow);}
-.key.absent{background-color:#1f1f21!important;color:#b0b0b2!important;box-shadow:none;}
-.light-mode .key.absent{background-color:#7c7e82!important;color:#f0f0f0!important;}
-.shake{animation:shake 0.5s ease;}
-@keyframes shake{0%,100%{transform:translateX(0);}10%,30%,50%,70%,90%{transform:translateX(-5px);}20%,40%,60%,80%{transform:translateX(5px);}}
-.bounce{animation:bounce 0.5s ease;}
-@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
-.modal-overlay{background-color:rgba(0,0,0,0.7);backdrop-filter:blur(4px);}
-header{padding:8px 12px;border-bottom:1px solid var(--header-border);background-color:var(--bg-color);}
-h1{font-size:1.6rem;text-align:center;letter-spacing:0.08em;background:linear-gradient(135deg,var(--correct-color)0%,var(--text-color)50%,var(--present-color)100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-#newGameHeaderBtn{background-color:var(--newgame-color);color:white;transition:background-color 0.2s ease,transform 0.15s ease;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;}
-@media(max-width:480px){#newGameHeaderBtn{width:40px;height:40px;}}
-#newGameHeaderBtn:hover{background-color:var(--newgame-hover);}
-#newGameHeaderBtn:active{transform:scale(0.92) rotate(-30deg);}
-.grid-row{display:flex;justify-content:center;gap:6px;margin-bottom:5px;}
-#message{font-size:1rem;min-height:40px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;padding:0 10px;text-align:center;gap:8px;flex-wrap:wrap;}
-.modal-content{width:95%;max-width:500px;max-height:90vh;overflow-y:auto;margin:10px;}
-.correct-number{background:linear-gradient(135deg,var(--correct-color),#2d7a34);color:white;padding:14px 20px;border-radius:10px;margin:12px 0;text-align:center;font-size:1.6rem;font-weight:bold;letter-spacing:0.15em;animation:pulse 2s infinite;box-shadow:0 4px 20px var(--correct-glow);}
-@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}
-.color-example{display:flex;align-items:center;gap:12px;margin-bottom:15px;padding:10px;border-radius:8px;background-color:rgba(129,131,132,0.1);}
-.color-box{width:45px;height:45px;border:2px solid var(--border-color);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;flex-shrink:0;}
-.color-box.correct{background-color:var(--correct-color);border-color:var(--correct-color);color:white;}
-.color-box.present{background-color:var(--present-color);border-color:var(--present-color);color:white;}
-.color-box.absent{background-color:var(--absent-color);border-color:var(--absent-color);color:white;}
-.color-description{flex:1;font-size:0.95rem;text-align:right;}
-.attempts-table-container{max-height:250px;overflow-y:auto;margin:15px 0;border:1px solid var(--border-color);border-radius:8px;padding:8px;}
-.attempts-table{width:100%;border-collapse:collapse;font-size:0.9rem;}
-.attempts-table th{background-color:var(--default-color);padding:8px;text-align:center;border-bottom:2px solid var(--border-color);}
-.attempts-table td{padding:6px;text-align:center;border-bottom:1px solid var(--border-color);}
-.attempt-number{font-weight:bold;color:var(--correct-color);}
-.attempt-result{font-size:1.1rem;font-weight:bold;}
-.attempt-result.win{color:var(--correct-color);}
-.attempt-result.loss{color:var(--absent-color);}
-.attempts-title{font-size:1.2rem;font-weight:bold;margin:12px 0 8px;text-align:center;color:var(--text-color);}
-.win-celebration{animation:winCelebration 2s ease infinite;}
-@keyframes winCelebration{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
-.no-attempts-message{text-align:center;padding:15px;color:var(--absent-color);font-style:italic;font-size:0.95rem;}
-.attempt-matrix-container{margin:20px 0;padding:15px;border:2px solid var(--border-color);border-radius:10px;background-color:rgba(129,131,132,0.05);}
-.matrix-title{font-size:1.2rem;font-weight:bold;margin-bottom:12px;text-align:center;color:var(--text-color);}
-.matrix-grid{display:flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:12px;}
-.matrix-row{display:flex;justify-content:center;gap:5px;}
-.matrix-tile{--mt-size:42px;width:var(--mt-size);height:var(--mt-size);border:2px solid transparent;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:calc(var(--mt-size)*0.48);color:white;user-select:none;}
-@media(max-width:400px){.matrix-tile{--mt-size:34px;}}
-.matrix-tile.correct{background-color:var(--correct-color);border-color:var(--correct-color);}
-.matrix-tile.present{background-color:var(--present-color);border-color:var(--present-color);}
-.matrix-tile.absent{background-color:var(--absent-color);border-color:var(--absent-color);}
-.matrix-legend{display:flex;justify-content:center;gap:15px;margin-top:10px;flex-wrap:wrap;}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:0.8rem;}
-.legend-color{width:16px;height:16px;border-radius:3px;}
-.legend-color.correct{background-color:var(--correct-color);}
-.legend-color.present{background-color:var(--present-color);}
-.legend-color.absent{background-color:var(--absent-color);}
-.result-buttons{display:flex;gap:10px;margin-top:20px;}
-.result-buttons button{flex:1;padding:12px;border-radius:8px;font-weight:bold;font-size:1rem;transition:all 0.2s ease;}
-@media(max-width:480px){.result-buttons{flex-direction:column;gap:8px;}}
-.difficulty-dropdown{position:relative;display:inline-block;}
-.difficulty-toggle{padding:8px 16px;border-radius:6px;font-weight:bold;font-size:0.9rem;cursor:pointer;transition:all 0.3s ease;border:2px solid var(--border-color);background-color:var(--bg-color);color:var(--text-color);display:flex;align-items:center;gap:8px;min-width:120px;justify-content:center;}
-.difficulty-menu{position:absolute;top:100%;left:0;right:0;margin-top:5px;background-color:var(--bg-color);border:2px solid var(--border-color);border-radius:6px;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.1);display:none;}
-.difficulty-menu.show{display:block;}
-.difficulty-option{width:100%;padding:12px 16px;text-align:center;border:none;background:none;color:var(--text-color);font-size:0.9rem;cursor:pointer;display:block;border-bottom:1px solid var(--border-color);}
-.difficulty-option.active{color:var(--correct-color);font-weight:bold;}
+
+header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--header-border);
+    background-color: var(--bg-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+h1 {
+    font-size: 1.8rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    background: linear-gradient(135deg, var(--correct-color) 0%, var(--text-color) 50%, var(--present-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin: 0;
+}
+
+/* تنسيق كروت اختيار الألعاب */
+.game-card {
+    background-color: var(--surface-color);
+    border: 2px solid var(--border-color);
+    border-radius: 16px;
+    padding: 40px 20px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.game-card:hover {
+    border-color: var(--correct-color);
+    transform: translateY(-8px);
+    box-shadow: 0 10px 25px rgba(74, 158, 82, 0.15);
+}
+
+.light-mode .game-card:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.game-icon {
+    font-size: 3.5rem;
+    margin-bottom: 10px;
+    transition: transform 0.3s ease;
+}
+
+.game-card:hover .game-icon {
+    transform: scale(1.1);
+}
+
+.card-words .game-icon {
+    color: var(--correct-color); /* أخضر للحروف */
+}
+
+.card-numbers .game-icon {
+    color: var(--present-color); /* أصفر للأرقام */
+}
+
+.game-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--text-color);
+}
+
+.game-desc {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+/* تأثيرات المربعات الصغيرة كزينة في الخلفية */
+.mini-tiles {
+    display: flex;
+    gap: 5px;
+    margin-top: 10px;
+}
+
+.mini-tile {
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: white;
+}
+
+.bg-correct { background-color: var(--correct-color); }
+.bg-present { background-color: var(--present-color); }
+.bg-absent { background-color: var(--absent-color); }
+
 </style>
 </head>
 <body>
-<header class="grid grid-cols-3 items-center px-2 py-3 border-b border-[var(--border-color)] min-h-[60px]">
-<div class="flex items-center gap-1"><button id="helpBtn" class="p-1.5 hover:bg-[var(--default-color)] rounded-full"><i class="fas fa-question-circle text-lg"></i></button><button id="statsBtn" class="p-1.5 hover:bg-[var(--default-color)] rounded-full"><i class="fas fa-chart-bar text-lg"></i></button></div>
-<div class="flex justify-center"><h1 class="font-bold text-lg sm:text-xl whitespace-nowrap">12345</h1></div>
-<div class="flex items-center justify-end gap-1 sm:gap-2">
-<div class="difficulty-dropdown"><button id="difficultyToggle" class="flex items-center gap-1 px-1.5 py-1 sm:px-2 sm:py-1.5 border-2 border-[var(--border-color)] rounded-lg bg-[var(--bg-color)]"><span class="text-[10px] sm:text-sm font-bold">الصعوبة</span><i class="fas fa-chevron-down text-[8px] sm:text-[10px]"></i></button><div id="difficultyMenu" class="difficulty-menu text-xs sm:text-sm"><button data-difficulty="hard" class="difficulty-option active">صعب</button><button data-difficulty="easy" class="difficulty-option">سهل</button></div></div>
-<button id="newGameHeaderBtn" class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[var(--newgame-color)] text-white rounded-full shrink-0"><i class="fas fa-redo-alt text-xs sm:text-sm"></i></button>
-<button id="themeToggle" class="p-1.5 hover:bg-[var(--default-color)] rounded-full shrink-0"><i class="fas fa-sun text-lg"></i></button>
-</div>
-</header>
-<div class="game-wrapper"><div id="message" class="text-center font-bold"></div><div id="grid" class="mb-4"></div><div id="keyboard" class="w-full"></div></div>
 
-<div id="helpModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4"><div class="bg-[var(--bg-color)] border border-[var(--border-color)] rounded-lg modal-content"><div class="p-5"><div class="flex justify-between items-center mb-5"><h2 class="text-xl font-bold">طريقة اللعب</h2><button id="closeHelp" class="text-xl hover:text-[var(--absent-color)]">&times;</button></div><div class="mb-6"><p class="text-base mb-5 text-center" id="helpAttemptsText">خمّن الرقم المكون من 5 خانات في 6 محاولات.</p><div class="color-example"><div class="color-box correct">5</div><div class="color-description"><h3 class="font-bold mb-1">اللون الأخضر</h3><p>الرقم صحيح وفي المكان الصحيح.</p></div></div><div class="color-example"><div class="color-box present">2</div><div class="color-description"><h3 class="font-bold mb-1">اللون الأصفر</h3><p>الرقم صحيح ولكن في المكان الخطأ.</p></div></div><div class="color-example"><div class="color-box absent">7</div><div class="color-description"><h3 class="font-bold mb-1">اللون الرمادي</h3><p>الرقم غير موجود في الرقم السري.</p></div></div></div><div class="text-center mt-5"><button id="startGameBtn" class="bg-[var(--correct-color)] text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 text-base">فهمت، ابدأ اللعب</button></div></div></div></div>
+<header>
+    <div class="flex items-center gap-2">
+        <button id="themeToggle" class="p-2 hover:bg-[var(--default-color)] rounded-full transition-colors">
+            <i class="fas fa-sun text-xl"></i>
+        </button>
+    </div>
+    <h1>ألعاب ووردل</h1>
+    <div class="w-10"></div> </header>
 
-<div id="statsModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4"><div class="bg-[var(--bg-color)] border border-[var(--border-color)] rounded-lg modal-content"><div class="p-5"><div class="flex justify-between items-center mb-5"><h2 class="text-xl font-bold">الإحصائيات</h2><button id="closeStats" class="text-xl hover:text-[var(--absent-color)]">&times;</button></div><div id="gameResultInfo" class="mb-4"></div><div id="attemptsTableContainer" class="attempts-table-container"><div class="attempts-title">سجل المحاولات</div><div id="noAttemptsMessage" class="no-attempts-message hidden">لا توجد محاولات سابقة. ابدأ اللعب الآن!</div><table class="attempts-table"><thead><tr><th>#</th><th>المحاولة</th><th>النتيجة</th> </tr></thead><tbody id="attemptsTableBody"></tbody> </table></div><div class="flex justify-around mb-6"><div class="text-center"><div id="playedCount" class="text-2xl font-bold">0</div><div class="text-xs">العب</div></div><div class="text-center"><div id="winPercent" class="text-2xl font-bold">0%</div><div class="text-xs">فوز</div></div><div class="text-center"><div id="currentStreak" class="text-2xl font-bold">0</div><div class="text-xs">تتابع</div></div><div class="text-center"><div id="maxStreak" class="text-2xl font-bold">0</div><div class="text-xs">أعلى تتابع</div></div></div><div class="space-y-2"><button id="newGameFromStats" class="w-full border border-[var(--border-color)] py-2.5 rounded font-bold hover:bg-[var(--default-color)] text-sm">لعبة جديدة</button></div></div></div></div>
+<main class="flex-1 flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
+    
+    <div class="text-center mb-12">
+        <h2 class="text-2xl sm:text-3xl font-bold mb-3">اختر التحدي الخاص بك!</h2>
+        <p class="text-[var(--text-muted)] text-lg">هل تفضل اللعب بالكلمات أم بالأرقام؟</p>
+    </div>
 
-<div id="gameResultModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4"><div class="bg-[var(--bg-color)] border border-[var(--border-color)] rounded-lg modal-content"><div class="p-5"><div class="flex justify-between items-center mb-5"><h2 class="text-xl font-bold" id="resultModalTitle">نتيجة اللعبة</h2><button id="closeGameResult" class="text-xl hover:text-[var(--absent-color)]">&times;</button></div><div id="gameResultDetails" class="text-center mb-4"></div><div id="attemptMatrixContainer" class="attempt-matrix-container"><h3 class="matrix-title">خريطة رحلتك في التفكير</h3><div id="matrixGrid" class="matrix-grid"></div><div class="matrix-legend"><div class="legend-item"><div class="legend-color correct"></div><span>صحيح</span></div><div class="legend-item"><div class="legend-color present"></div><span>موجود بموقع آخر</span></div><div class="legend-item"><div class="legend-color absent"></div><span>غير موجود</span></div></div></div><div class="result-buttons"><button id="playAgainBtn" class="bg-[var(--correct-color)] text-white hover:opacity-90"><i class="fas fa-redo-alt ml-2"></i>العب مرة أخرى</button><button id="viewStatsBtn" class="border border-[var(--border-color)] hover:bg-[var(--default-color)]"><i class="fas fa-chart-bar ml-2"></i>عرض الإحصائيات</button></div></div></div></div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full">
+        
+        <a href="words.html" class="game-card card-words">
+            <div class="game-icon"><i class="fas fa-font"></i></div>
+            <div class="game-title">ووردل الحروف</div>
+            <div class="game-desc">خمن الكلمة العربية المكونة من 5 حروف في 6 محاولات.</div>
+            
+            <div class="mini-tiles">
+                <div class="mini-tile bg-correct">ك</div>
+                <div class="mini-tile bg-present">ت</div>
+                <div class="mini-tile bg-absent">ا</div>
+                <div class="mini-tile bg-correct">ب</div>
+            </div>
+        </a>
+
+        <a href="numbers.html" class="game-card card-numbers">
+            <div class="game-icon"><i class="fas fa-hashtag"></i></div>
+            <div class="game-title">ووردل الأرقام</div>
+            <div class="game-desc">خمن الرقم السري المكون من 5 خانات في 6 محاولات.</div>
+            
+            <div class="mini-tiles">
+                <div class="mini-tile bg-correct">1</div>
+                <div class="mini-tile bg-absent">2</div>
+                <div class="mini-tile bg-present">3</div>
+                <div class="mini-tile bg-correct">4</div>
+                <div class="mini-tile bg-correct">5</div>
+            </div>
+        </a>
+
+    </div>
+</main>
 
 <script>
-const MAX_DIGITS = 5;
-let targetNumber = "";
-let currentRow = 0;
-let currentGuess = "";
-let gameOver = false;
-let gameWon = false;
-let startTime = null;
-let attemptResults = [];
-let stats = { played: 0, wins: 0, currentStreak: 0, maxStreak: 0 };
-let attemptsHistory = [];
-let attemptMatrices = [];
-let isProcessing = false;
-let inputLock = false;
-let difficulty = 'hard';
-let maxAttempts = 6;
-
-function convertArabicDigits(str) {
-    const arabicDigits = /[٠-٩]/g;
-    return str.replace(arabicDigits, d => String.fromCharCode(d.charCodeAt(0) - 1632 + 48));
-}
-
-function generateRandomNumber() {
-    let num = "";
-    for (let i = 0; i < MAX_DIGITS; i++) num += Math.floor(Math.random() * 10);
-    return num;
-}
-
-function calculateGuessResult(guess, target) {
-    const result = Array(MAX_DIGITS).fill('absent');
-    const targetCount = {};
-    for (const d of target) targetCount[d] = (targetCount[d] || 0) + 1;
-    for (let i = 0; i < MAX_DIGITS; i++) if (guess[i] === target[i]) { result[i] = 'correct'; targetCount[guess[i]]--; }
-    for (let i = 0; i < MAX_DIGITS; i++) if (result[i] !== 'correct' && targetCount[guess[i]] > 0) { result[i] = 'present'; targetCount[guess[i]]--; }
-    return result;
-}
-
-function updateKeyboard(digit, status) {
-    const key = document.querySelector(`.key[data-key="${digit}"]`);
-    if (!key) return;
-    if (status === 'correct') { key.classList.add('correct'); key.classList.remove('present','absent'); }
-    else if (status === 'present' && !key.classList.contains('correct')) { key.classList.add('present'); key.classList.remove('absent'); }
-    else if (status === 'absent' && !key.classList.contains('correct') && !key.classList.contains('present')) key.classList.add('absent');
-}
-
-function updateCurrentRow() {
-    for (let i = 0; i < MAX_DIGITS; i++) {
-        const tile = document.getElementById(`tile-${currentRow}-${i}`);
-        if (tile) tile.textContent = currentGuess[i] || '';
-    }
-}
-
-function showMessage(msg, duration = 3000) {
-    const msgDiv = document.getElementById('message');
-    const original = msgDiv.innerHTML;
-    msgDiv.innerHTML = msg;
-    if (window._msgTimeout) clearTimeout(window._msgTimeout);
-    window._msgTimeout = setTimeout(() => { if (msgDiv.innerHTML === msg) msgDiv.innerHTML = original; }, duration);
-}
-
-function shakeRow() {
-    const row = document.getElementById(`row-${currentRow}`);
-    if (row) { row.classList.add('shake'); setTimeout(() => row.classList.remove('shake'), 500); }
-}
-
-function evaluateGuess() {
-    const guess = currentGuess;
-    const result = calculateGuessResult(guess, targetNumber);
-    attemptResults[currentRow] = result;
-    inputLock = true;
-    let completed = 0;
-    for (let i = 0; i < MAX_DIGITS; i++) {
-        const tile = document.getElementById(`tile-${currentRow}-${i}`);
-        if (!tile) continue;
-        setTimeout(() => {
-            tile.classList.add('flip');
-            setTimeout(() => {
-                tile.classList.add(result[i]);
-                updateKeyboard(guess[i], result[i]);
-                completed++;
-                if (completed === MAX_DIGITS) {
-                    setTimeout(() => {
-                        if (guess === targetNumber) {
-                            gameWon = true;
-                            gameOver = true;
-                            handleWin();
-                        } else if (currentRow === maxAttempts - 1) {
-                            gameOver = true;
-                            handleLoss();
-                        } else {
-                            currentRow++;
-                            currentGuess = "";
-                            inputLock = false;
-                            updateCurrentRow();
-                        }
-                        isProcessing = false;
-                    }, 300);
-                }
-            }, 300);
-        }, i * 300);
-    }
-}
-
-function handleWin() {
-    showMessage('🎉 أحسنت! لقد فزت!');
-    const matrix = [];
-    for (let r = 0; r <= currentRow; r++) {
-        const rowColors = [];
-        for (let c = 0; c < MAX_DIGITS; c++) {
-            const tile = document.getElementById(`tile-${r}-${c}`);
-            if (tile.classList.contains('correct')) rowColors.push('correct');
-            else if (tile.classList.contains('present')) rowColors.push('present');
-            else rowColors.push('absent');
-        }
-        matrix.push(rowColors);
-    }
-    attemptMatrices.unshift({ matrix, result: 'win', attempts: currentRow + 1, word: targetNumber });
-    if (attemptMatrices.length > 50) attemptMatrices.pop();
-    localStorage.setItem('numberle_matrices', JSON.stringify(attemptMatrices));
-
-    attemptsHistory.unshift({ number: attemptsHistory.length + 1, attempts: currentRow + 1, result: 'win', target: targetNumber });
-    if (attemptsHistory.length > 100) attemptsHistory.pop();
-    localStorage.setItem('numberle_history', JSON.stringify(attemptsHistory));
-
-    stats.played++; stats.wins++; stats.currentStreak++;
-    if (stats.currentStreak > stats.maxStreak) stats.maxStreak = stats.currentStreak;
-    localStorage.setItem('numberle_stats', JSON.stringify(stats));
-    updateStatsDisplay();
-    setTimeout(() => showGameResultModal(true), 2500);
-}
-
-function handleLoss() {
-    showMessage(`💔 انتهت المحاولات! الرقم الصحيح: ${targetNumber}`);
-    const matrix = [];
-    for (let r = 0; r < maxAttempts; r++) {
-        const rowColors = [];
-        for (let c = 0; c < MAX_DIGITS; c++) {
-            const tile = document.getElementById(`tile-${r}-${c}`);
-            if (tile.classList.contains('correct')) rowColors.push('correct');
-            else if (tile.classList.contains('present')) rowColors.push('present');
-            else rowColors.push('absent');
-        }
-        matrix.push(rowColors);
-    }
-    attemptMatrices.unshift({ matrix, result: 'loss', attempts: maxAttempts, word: targetNumber });
-    localStorage.setItem('numberle_matrices', JSON.stringify(attemptMatrices));
-
-    attemptsHistory.unshift({ number: attemptsHistory.length + 1, attempts: maxAttempts, result: 'loss', target: targetNumber });
-    localStorage.setItem('numberle_history', JSON.stringify(attemptsHistory));
-
-    stats.played++; stats.currentStreak = 0;
-    localStorage.setItem('numberle_stats', JSON.stringify(stats));
-    updateStatsDisplay();
-    setTimeout(() => showGameResultModal(false), 1500);
-}
-
-function renderAttemptMatrix() {
-    const container = document.getElementById('matrixGrid');
-    container.innerHTML = '';
-    const used = attemptResults.filter(r => r && r.length);
-    const guessedNumbers = [];
-    for (let r = 0; r < used.length; r++) {
-        let num = '';
-        for (let c = 0; c < MAX_DIGITS; c++) {
-            const tile = document.getElementById(`tile-${r}-${c}`);
-            num += tile ? (tile.textContent || '') : '';
-        }
-        guessedNumbers.push(num);
-    }
-    used.forEach((res, idx) => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'matrix-row';
-        res.forEach((st, col) => {
-            const tile = document.createElement('div');
-            tile.className = `matrix-tile ${st}`;
-            tile.textContent = guessedNumbers[idx]?.[col] || '';
-            rowDiv.appendChild(tile);
-        });
-        container.appendChild(rowDiv);
-    });
-}
-
-function showGameResultModal(isWin) {
-    const modal = document.getElementById('gameResultModal');
-    document.getElementById('resultModalTitle').textContent = isWin ? '🎉 مبروك! فزت!' : '💔 انتهت المحاولات!';
-    document.getElementById('gameResultDetails').innerHTML = `
-        <div class="${isWin ? 'text-green-600' : 'text-red-600'} font-bold text-lg mb-2">${isWin ? 'لقد فزت في المحاولة ' + (currentRow + 1) : 'انتهت محاولاتك!'}</div>
-        <div class="text-gray-600 dark:text-gray-400 mb-3">الرقم الصحيح:</div>
-        <div class="correct-number">${targetNumber}</div>
-    `;
-    renderAttemptMatrix();
-    modal.classList.remove('hidden');
-}
-
-function updateStatsDisplay() {
-    document.getElementById('playedCount').textContent = stats.played;
-    const winPercent = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
-    document.getElementById('winPercent').textContent = winPercent + '%';
-    document.getElementById('currentStreak').textContent = stats.currentStreak;
-    document.getElementById('maxStreak').textContent = stats.maxStreak;
-
-    const body = document.getElementById('attemptsTableBody');
-    const noMsg = document.getElementById('noAttemptsMessage');
-    const table = document.querySelector('.attempts-table');
-    if (attemptsHistory.length > 0) {
-        noMsg.classList.add('hidden');
-        table.classList.remove('hidden');
-        body.innerHTML = '';
-        [...attemptsHistory].reverse().forEach(a => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td class="attempt-number">${a.number}</td><td>${a.attempts}</td><td><span class="attempt-result ${a.result}">${a.result === 'win' ? 'فوز ✓' : 'خسارة ✗'}</span></td>`;
-            body.appendChild(tr);
-        });
-    } else {
-        noMsg.classList.remove('hidden');
-        table.classList.add('hidden');
-    }
-}
-
-function startNewGame() {
-    targetNumber = generateRandomNumber();
-    currentRow = 0;
-    currentGuess = "";
-    gameOver = false;
-    gameWon = false;
-    isProcessing = false;
-    inputLock = false;
-    startTime = new Date();
-    attemptResults = [];
-
-    const grid = document.getElementById('grid');
-    grid.innerHTML = '';
-    for (let r = 0; r < maxAttempts; r++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'grid-row';
-        rowDiv.id = `row-${r}`;
-        for (let c = 0; c < MAX_DIGITS; c++) {
-            const tile = document.createElement('div');
-            tile.className = 'tile';
-            tile.id = `tile-${r}-${c}`;
-            rowDiv.appendChild(tile);
-        }
-        grid.appendChild(rowDiv);
-    }
-    document.querySelectorAll('.key').forEach(k => k.classList.remove('correct', 'present', 'absent'));
-    updateCurrentRow();
-    document.getElementById('message').innerHTML = '';
-    document.getElementById('gameResultModal').classList.add('hidden');
-    document.getElementById('statsModal').classList.add('hidden');
-}
-
-function handleInput(value) {
-    if (inputLock || gameOver || isProcessing) return;
-    if (value === 'Enter') {
-        if (currentGuess.length !== MAX_DIGITS) {
-            showMessage(`يجب إدخال ${MAX_DIGITS} أرقام`);
-            shakeRow();
-            return;
-        }
-        isProcessing = true;
-        evaluateGuess();
-    } else if (value === 'Backspace') {
-        if (currentGuess.length > 0) {
-            currentGuess = currentGuess.slice(0, -1);
-            updateCurrentRow();
-        }
-    } else if (/^\d$/.test(value)) {
-        if (currentGuess.length < MAX_DIGITS) {
-            currentGuess += value;
-            updateCurrentRow();
-            const tile = document.getElementById(`tile-${currentRow}-${currentGuess.length-1}`);
-            if (tile) { tile.classList.add('filled'); setTimeout(() => tile.classList.remove('filled'), 100); }
-        }
-    }
-}
-
-function createKeyboard() {
-    const keyboard = document.getElementById('keyboard');
-    const layout = [['1','2','3','4','5'],['6','7','8','9','0'],['Enter','Backspace']];
-    keyboard.innerHTML = '';
-    layout.forEach(row => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'keyboard-row';
-        row.forEach(key => {
-            const btn = document.createElement('button');
-            btn.className = 'key';
-            if (key === 'Enter') btn.classList.add('enter');
-            if (key === 'Backspace') btn.classList.add('backspace');
-            btn.textContent = key === 'Backspace' ? '⌫' : key;
-            btn.dataset.key = key;
-            btn.addEventListener('click', () => handleInput(key));
-            rowDiv.appendChild(btn);
-        });
-        keyboard.appendChild(rowDiv);
-    });
-}
-
-function loadData() {
-    const savedStats = localStorage.getItem('numberle_stats');
-    if (savedStats) stats = JSON.parse(savedStats);
-    const savedHistory = localStorage.getItem('numberle_history');
-    if (savedHistory) attemptsHistory = JSON.parse(savedHistory);
-    const savedMatrices = localStorage.getItem('numberle_matrices');
-    if (savedMatrices) attemptMatrices = JSON.parse(savedMatrices);
-    updateStatsDisplay();
-}
-
-function loadTheme() {
-    const saved = localStorage.getItem('numberle_theme');
-    const icon = document.querySelector('#themeToggle i');
-    if (saved === 'light') {
+    // تفعيل زر تغيير الثيم (الوضع الليلي والنهاري) بنفس الطريقة السابقة
+    const themeToggle = document.getElementById('themeToggle');
+    const icon = themeToggle.querySelector('i');
+    
+    // تحميل الثيم المحفوظ عشان يكون متناسق مع الألعاب
+    const savedTheme = localStorage.getItem('numberle_theme');
+    if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
-        icon.className = 'fas fa-moon text-lg';
-    } else {
-        document.body.classList.remove('light-mode');
-        icon.className = 'fas fa-sun text-lg';
+        icon.className = 'fas fa-moon text-xl';
     }
-}
 
-function updateGridTileSize() {
-    const headerH = document.querySelector('header')?.offsetHeight || 60;
-    const keyboardH = document.getElementById('keyboard')?.offsetHeight || 180;
-    const msgH = 44, padding = 24, gridGaps = (maxAttempts - 1) * 5;
-    const availableH = window.innerHeight - headerH - keyboardH - msgH - padding - gridGaps;
-    const tileByHeight = Math.floor(availableH / maxAttempts);
-    const tileByWidth = Math.floor((Math.min(window.innerWidth, 480) - 60) / MAX_DIGITS);
-    const tileSize = Math.min(tileByHeight, tileByWidth, 75);
-    const finalSize = Math.max(tileSize, 32);
-    document.querySelectorAll('.tile').forEach(t => t.style.setProperty('--tile-size', finalSize + 'px'));
-}
-
-function loadDifficulty() {
-    const saved = localStorage.getItem('numberle_difficulty');
-    difficulty = (saved === 'easy' || saved === 'hard') ? saved : 'hard';
-    maxAttempts = difficulty === 'hard' ? 6 : 8;
-    const helpText = document.getElementById('helpAttemptsText');
-    helpText.textContent = `خمّن الرقم المكون من 5 خانات في ${maxAttempts} محاولات.`;
-    const easyOpt = document.querySelector('[data-difficulty="easy"]');
-    const hardOpt = document.querySelector('[data-difficulty="hard"]');
-    if (difficulty === 'hard') { hardOpt.classList.add('active'); easyOpt.classList.remove('active'); }
-    else { hardOpt.classList.remove('active'); easyOpt.classList.add('active'); }
-}
-
-function changeDifficulty(newDiff) {
-    if (newDiff === difficulty) return;
-    difficulty = newDiff;
-    maxAttempts = difficulty === 'hard' ? 6 : 8;
-    localStorage.setItem('numberle_difficulty', difficulty);
-    loadDifficulty();
-    createGrid();
-    startNewGame();
-}
-
-function createGrid() {
-    const grid = document.getElementById('grid');
-    grid.innerHTML = '';
-    for (let r = 0; r < maxAttempts; r++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'grid-row';
-        rowDiv.id = `row-${r}`;
-        for (let c = 0; c < MAX_DIGITS; c++) {
-            const tile = document.createElement('div');
-            tile.className = 'tile';
-            tile.id = `tile-${r}-${c}`;
-            rowDiv.appendChild(tile);
-        }
-        grid.appendChild(rowDiv);
-    }
-    requestAnimationFrame(updateGridTileSize);
-}
-
-function setupEventListeners() {
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey || e.metaKey || e.altKey) return;
-        let key = e.key;
-        if (key === 'Enter') handleInput('Enter');
-        else if (key === 'Backspace') handleInput('Backspace');
-        else if (/^\d$/.test(key)) handleInput(key);
-        else {
-            const converted = convertArabicDigits(key);
-            if (/^\d$/.test(converted)) handleInput(converted);
-        }
-    });
-    window.addEventListener('resize', () => requestAnimationFrame(updateGridTileSize));
-    const diffToggle = document.getElementById('difficultyToggle');
-    const diffMenu = document.getElementById('difficultyMenu');
-    diffToggle.addEventListener('click', (e) => { e.stopPropagation(); diffMenu.classList.toggle('show'); });
-    document.addEventListener('click', () => diffMenu?.classList.remove('show'));
-    document.querySelectorAll('.difficulty-option').forEach(opt => {
-        opt.addEventListener('click', function() { changeDifficulty(this.dataset.difficulty); });
-    });
-    document.getElementById('helpBtn').addEventListener('click', () => document.getElementById('helpModal').classList.remove('hidden'));
-    document.getElementById('statsBtn').addEventListener('click', () => { updateStatsDisplay(); document.getElementById('statsModal').classList.remove('hidden'); });
-    document.getElementById('newGameHeaderBtn').addEventListener('click', startNewGame);
-    document.getElementById('newGameFromStats').addEventListener('click', () => { startNewGame(); document.getElementById('statsModal').classList.add('hidden'); });
-    document.getElementById('startGameBtn').addEventListener('click', () => { document.getElementById('helpModal').classList.add('hidden'); startNewGame(); });
-    document.getElementById('closeHelp').addEventListener('click', () => document.getElementById('helpModal').classList.add('hidden'));
-    document.getElementById('closeStats').addEventListener('click', () => document.getElementById('statsModal').classList.add('hidden'));
-    document.getElementById('closeGameResult').addEventListener('click', () => document.getElementById('gameResultModal').classList.add('hidden'));
-    document.getElementById('playAgainBtn').addEventListener('click', () => { startNewGame(); document.getElementById('gameResultModal').classList.add('hidden'); });
-    document.getElementById('viewStatsBtn').addEventListener('click', () => { document.getElementById('gameResultModal').classList.add('hidden'); updateStatsDisplay(); document.getElementById('statsModal').classList.remove('hidden'); });
-    document.getElementById('themeToggle').addEventListener('click', () => {
+    themeToggle.addEventListener('click', () => {
         const isLight = document.body.classList.toggle('light-mode');
-        const icon = document.querySelector('#themeToggle i');
-        icon.className = isLight ? 'fas fa-moon text-lg' : 'fas fa-sun text-lg';
+        icon.className = isLight ? 'fas fa-moon text-xl' : 'fas fa-sun text-xl';
         localStorage.setItem('numberle_theme', isLight ? 'light' : 'dark');
     });
-}
-
-function init() {
-    loadData();
-    loadTheme();
-    loadDifficulty();
-    createKeyboard();
-    createGrid();
-    startNewGame();
-    setupEventListeners();
-    if (!localStorage.getItem('numberle_help_seen')) {
-        setTimeout(() => document.getElementById('helpModal').classList.remove('hidden'), 500);
-        localStorage.setItem('numberle_help_seen', 'true');
-    }
-}
-
-window.addEventListener('load', init);
 </script>
+
 </body>
 </html>
