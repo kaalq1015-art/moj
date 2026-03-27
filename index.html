@@ -1,1 +1,545 @@
-javascript:(function(){const E="aa11@ooslo.sa",K="AGENTS",D=[{ag:"عبدالله الجريوي",aid:"1025158781",ph:"535588832",en:"شركة الراجحي للتطوير المحدودة",poa:"461065673",eid:"7010997174",dob:"1395-04-02",em:"a@aaoooslo.sa"},{ag:"فارس العودة",aid:"1081406603",ph:"563800669",en:"شركة الراجحي للتطوير المحدودة",poa:"461066479",eid:"7010997174",dob:"1413-07-11",em:"a@aaoooslo.sa"},{ag:"فارس العودة",aid:"1081406603",ph:"563800669",en:"شركة الراجحي المصرفية للاستثمار",poa:"452371956",eid:"7000102744",dob:"1413-07-11",em:"a@aaoooslo.sa"},{ag:"عبدالله الجريوي",aid:"1025158781",ph:"535588832",en:"شركة الراجحي المصرفية للاستثمار",poa:"452370185",eid:"7000102744",dob:"1395-04-02",em:"a@aaoooslo.sa"},{ag:"عمر السبيعي العنزي",aid:"1000919983",ph:"544474441",en:"البنك السعودي الأول",poa:"453178121",eid:"7000018668",dob:"1402-08-14",em:"a@aaoooslo.sa"},{ag:"عمر السبيعي العنزي",aid:"1000919983",ph:"544474441",en:"شركة الأول العقارية",poa:"466211100",eid:"7001711535",dob:"1402-08-14",em:"a@aaoooslo.sa"},{ag:"عمر السبيعي العنزي",aid:"1000919983",ph:"544474441",en:"شركة عقارات العربية المحدودة",poa:"453042497",eid:"7001750764",dob:"1402-08-14",em:"a@aaoooslo.sa"},{ag:"عطالله العنزي",aid:"1129928683",ph:"554057160",en:"البنك السعودي الأول",poa:"453178833",eid:"7000018668",dob:"1402-07-01",em:"a@aaoooslo.sa"},{ag:"عطالله العنزي",aid:"1129928683",ph:"554057160",en:"شركة الأول العقارية",poa:"433574040",eid:"7001711535",dob:"1402-07-01",em:"a@aaoooslo.sa"},{ag:"فهد آل مسيعد",aid:"1083195683",ph:"560876000",en:"بنك الأهلي",poa:"444934078",eid:"7000025887",dob:"1414-06-29",em:"a@aaoooslo.sa"},{ag:"فهد ال مسيعد",aid:"1083195683",ph:"560876000",en:"شركة العقارية شركة شخص واحد",poa:"462275954",eid:"7001793590",dob:"1414-06-29",em:"a@aaoooslo.sa"},{ag:"احمد حنبوك",aid:"1082819309",ph:"550636001",en:"بنك الأهلي",poa:"46582320",eid:"7000025887",dob:"1414-02-27",em:"a@aaoooslo.sa"},{ag:"عجب الدوسري",aid:"1104319791",ph:"558404808",en:"بنك الأهلي",poa:"46582907",eid:"7000025887",dob:"1416-08-12",em:"a@aaoooslo.sa"},{ag:"ضاوي الوعله",aid:"1082532605",ph:"556077117",en:"بنك الأهلي",poa:"465825321",eid:"7000025887",dob:"1414-02-17",em:"a@aaoooslo.sa"},{ag:"ضاوي اليامي",aid:"1082532605",ph:"556077117",en:"شركة العقارية شركة شخص واحد",poa:"462277727",eid:"7001793590",dob:"1414-02-17",em:"a@aaoooslo.sa"},{ag:"سعود العنزي",aid:"1127487724",ph:"552028788",en:"المؤسسة العامة للتأمينات الإجتماعية",poa:"444765194",eid:"7000874383",dob:"1415-07-01",em:"a@aaoooslo.sa"},{ag:"سعود العنزي",aid:"1127487724",ph:"552028788",en:"شركة دار التمليك",poa:"471828043",eid:"7001562953",dob:"1415-07-01",em:"a@aaoooslo.sa"},{ag:"مشعل الداود",aid:"1036498606",ph:"554276664",en:"بنك الرياض",poa:"463623612",eid:"7000022868",dob:"1401-03-08",em:"a@aaoooslo.sa"},{ag:"مشعل الداود",aid:"1036498606",ph:"554276664",en:"شركة إثراء الرياض العقارية",poa:"455416173",eid:"7001793285",dob:"1401-03-08",em:"a@aaoooslo.sa"},{ag:"عارف الشمري",aid:"1059812683",ph:"540308120",en:"بنك الرياض",poa:"4613326",eid:"7000022868",dob:"1395-07-01",em:"a@aaoooslo.sa"},{ag:"عارف الشمري",aid:"1059812683",ph:"540308120",en:"شركة إثراء الرياض العقارية",poa:"455416173",eid:"7001793285",dob:"1395-07-01",em:"a@aaoooslo.sa"},{ag:"نايف الصايغ",aid:"1008060699",ph:"504478316",en:"بنك الرياض",poa:"463623784",eid:"7000022868",dob:"1400-07-01",em:"a@aaoooslo.sa"},{ag:"نايف الصايغ",aid:"1008060699",ph:"504478316",en:"شركة إثراء الرياض العقارية",poa:"455416173",eid:"7001793285",dob:"1400-07-01",em:"a@aaoooslo.sa"},{ag:"صالح العجيمي",aid:"1041325372",ph:"566977908",en:"بنك الرياض",poa:"465029080",eid:"7000022868",dob:"1398-07-01",em:"a@aaoooslo.sa"},{ag:"سعود العواد",aid:"1098052457",ph:"531020003",en:"بنك الجزيرة",poa:"464481918",eid:"7000120712",dob:"1409-04-28",em:"a@aaoooslo.sa"},{ag:"سعود العواد",aid:"1098052457",ph:"531020003",en:"شركه امان للتطوير والاستثمار العقاري",poa:"442190272",eid:"7010472897",dob:"1409-04-28",em:"a@aaoooslo.sa"},{ag:"سعود معيض العنزي",aid:"1088849730",ph:"503250916",en:"بنك الجزيرة",poa:"451151904",eid:"7000120712",dob:"1406-05-19",em:"a@aaoooslo.sa"},{ag:"سعود معيض العنزي",aid:"1088849730",ph:"503250916",en:"شركة أمان للتطوير والاستثمار العقاري",poa:"442696912",eid:"7010472897",dob:"1406-05-19",em:"a@aaoooslo.sa"},{ag:"عبدالعزيز ميرعالم",aid:"1093598322",ph:"598776654",en:"بنك الجزيرة",poa:"464480934",eid:"7000120712",dob:"1413-01-26",em:"a@aaoooslo.sa"},{ag:"فيصل السيف",aid:"1038169007",ph:"503116970",en:"بنك الجزيرة",poa:"46242607",eid:"7000120712",dob:"1395-10-23",em:"a@aaoooslo.sa"},{ag:"ابراهيم عسل",aid:"1070308232",ph:"566404024",en:"بنك الجزيرة",poa:"464483278",eid:"7000120712",dob:"1407-11-26",em:"a@aaoooslo.sa"},{ag:"ابراهيم عسل",aid:"1070308232",ph:"566404024",en:"شركة أمان للتطوير والاستثمار العقاري",poa:"442190189",eid:"7010472897",dob:"1407-11-26",em:"a@aaoooslo.sa"},{ag:"يحيى ناصر",aid:"1043432408",ph:"508606065",en:"بنك الجزيرة",poa:"464483647",eid:"7000120712",dob:"1396-07-01",em:"a@aaoooslo.sa"},{ag:"عبدالله الهاجري",aid:"1038044515",ph:"550501154",en:"بنك البلاد",poa:"442680059",eid:"7001473102",dob:"1393-07-01",em:"a@aaoooslo.sa"},{ag:"عبدالله الهاجري",aid:"1038044515",ph:"550501154",en:"شركة البلاد العقارية",poa:"456339411",eid:"7001473102",dob:"1393-07-01",em:"a@aaoooslo.sa"},{ag:"عبدالله العجاجي",aid:"1065510057",ph:"533551142",en:"مصرف الإنماء",poa:"451530542",eid:"7001514442",dob:"1410-05-04",em:"a@aaoooslo.sa"},{ag:"وليد المطيري",aid:"1075712909",ph:"555055505",en:"مصرف الإنماء",poa:"451530542",eid:"7001514442",dob:"1411-09-09",em:"a@aaoooslo.sa"},{ag:"صالح الخضير",aid:"1008470989",ph:"504250172",en:"مصرف الإنماء",poa:"451530542",eid:"7001514442",dob:"1391-12-08",em:"a@aaoooslo.sa"},{ag:"صالح الخضير",aid:"1008470989",ph:"504250172",en:"شركة التنوير العقارية",poa:"453978682",eid:"7001788335",dob:"1391-12-08",em:"a@aaoooslo.sa"},{ag:"سلطان الشمري",aid:"1116066257",ph:"507033378",en:"البنك السعودي الفرنسي",poa:"46367115",eid:"7000025333",dob:"1418-02-27",em:"a@aaoooslo.sa"},{ag:"فيصل الشهوان",aid:"1023162686",ph:"558222252",en:"البنك السعودي الفرنسي",poa:"464073731",eid:"7000025333",dob:"1400-05-09",em:"a@aaoooslo.sa"},{ag:"عبدالله الصفيان",aid:"1077594891",ph:"549989363",en:"البنك السعودي الفرنسي",poa:"441480520",eid:"7000025333",dob:"1412-05-23",em:"a@aaoooslo.sa"},{ag:"محمد الجنيدلي",aid:"1079670707",ph:"501233263",en:"شركة سهل للتمويل",poa:"45946241",eid:"7001540165",dob:"1402-11-02",em:"a@aaoooslo.sa"},{ag:"محمد الجنيدلي",aid:"1079670707",ph:"501233263",en:"شركه مملكه التقسيط للتجاره",poa:"462702543",eid:"7001540165",dob:"1402-11-02",em:"a@aaoooslo.sa"},{ag:"ناصر الرشيد",aid:"1007447566",ph:"503417720",en:"شركة سهل للتمويل",poa:"45946241",eid:"7001540165",dob:"1401-10-18",em:"a@aaoooslo.sa"},{ag:"عبدالله المطيري",aid:"1044909636",ph:"505190022",en:"البنك العربي الوطني",poa:"424081807",eid:"7000018007",dob:"1394-11-28",em:"a@aaoooslo.sa"},{ag:"عبدالله المطيري",aid:"1044909636",ph:"505190022",en:"شركة المنزل المبارك",poa:"456396366",eid:"7009413191",dob:"1394-11-28",em:"a@aaoooslo.sa"},{ag:"علي الحميد",aid:"1055759755",ph:"555958766",en:"البنك العربي الوطني",poa:"472411170",eid:"7000018007",dob:"1392-07-01",em:"a@aaoooslo.sa"},{ag:"علي الحميد",aid:"1055759755",ph:"555958766",en:"شركة المنزل المبارك",poa:"456396366",eid:"7009413191",dob:"1392-07-01",em:"a@aaoooslo.sa"},{ag:"ناصر مدسوس العنزي",aid:"1127461026",ph:"554000934",en:"البنك العربي الوطني",poa:"455050806",eid:"7000018007",dob:"1395-01-01",em:"a@aaoooslo.sa"},{ag:"عبدالمجيد العتيبي",aid:"1060779624",ph:"540404098",en:"الشركة السعودية لإعادة التمويل العقاري",poa:"464830288",eid:"7010471998",dob:"1407-04-12",em:"a@aaoooslo.sa"},{ag:"عبدالعزيز الدخين",aid:"1068889920",ph:"533899727",en:"بنك الامارات دبي الوطني",poa:"455353859",eid:"7001460414",dob:"1411-03-07",em:"a@aaoooslo.sa"},{ag:"حاكم العنزي",aid:"1094831581",ph:"557837263",en:"شركة الخليج للتملك شخص واحد",poa:"452967754",eid:"7009282117",dob:"1417-06-12",em:"a@aaoooslo.sa"},{ag:"عبدالرحمن العضيب",aid:"1101632170",ph:"580575491",en:"مسار النمو للتمويل",poa:"463238609",eid:"7009282117",dob:"1418-10-04",em:"a@aaoooslo.sa"},{ag:"عبدالرحمن العضيب",aid:"1101632170",ph:"580575491",en:"شركة المنزل المبارك",poa:"461955199",eid:"7001611057",dob:"1418-10-04",em:"a@aaoooslo.sa"},{ag:"محمد الشقحاء",aid:"1032630434",ph:"540002045",en:"البنك السعودي الفرنسي",poa:"411085773",eid:"7000025333",dob:"1396-05-16",em:"a@aaoooslo.sa"},{ag:"ابو عيش",aid:"1000191765",ph:"506402412",en:"البنك السعودي الفرنسي",poa:"464182296",eid:"7000025333",dob:"1393-06-26",em:"a@aaoooslo.sa"},{ag:"محمد الخالدي",aid:"1122030156",ph:"541261255",en:"شركة بداية للتمويل",poa:"464628226",eid:"7009175717",dob:"1398-07-01",em:"a@aaoooslo.sa"},{ag:"صالح آل فلان",aid:"1011798558",ph:"555175781",en:"شركة أرامكو السعودية",poa:"441554335",eid:"7012382193",dob:"1390-09-04",em:"a@aaoooslo.sa"},{ag:"عبداللطيف فادن",aid:"1049626326",ph:"554554573",en:"شركة أرامكو السعودية",poa:"441554335",eid:"7012382193",dob:"1408-03-11",em:"a@aaoooslo.sa"},{ag:"شاكر الرويس",aid:"1014950099",ph:"500040016",en:"البنك السعودي للاستثمار",poa:"475087015",eid:"7000029889",dob:"1404-10-21",em:"a@aaoooslo.sa"},{ag:"منصور القرني",aid:"1050705357",ph:"505987249",en:"شركة سابك",poa:"464094328",eid:"7000876867",dob:"1402-01-27",em:"a@aaoooslo.sa"},{ag:"صافي المجاهد",aid:"1100442456",ph:"503373107",en:"شركة ينال للتمويل",poa:"456504572",eid:"7001406292",dob:"1419-03-16",em:"a@aaoooslo.sa"},{ag:"غازي القحطاني",aid:"1108401561",ph:"563603132",en:"شركة صكوك المالية",poa:"464830311",eid:"7001406292",dob:"1419-03-16",em:"a@aaoooslo.sa"},{ag:"سعود المهيني",aid:"1018066710",ph:"555050597",en:"البنك السعودي الأول",poa:"453178700",eid:"7000018668",dob:"1399-3-25",em:"a@aaoooslo.sa"},{ag:"حمود القرني",aid:"1051242152",ph:"554356110",en:"بنك أبو ظبي الأول",poa:"47234842",eid:"7004453903",dob:"1408-4-15",em:"a@aaoooslo.sa"}];let ags=JSON.parse(localStorage.getItem(K))||D;document.head.insertAdjacentHTML("beforeend",`<style>@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap%27);#U_POP{font-family:'Cairo',sans-serif;direction:rtl;position:fixed;top:60px;left:40px;width:380px;background:rgba(2,6,23,0.96);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border-radius:32px;border:1px solid rgba(255,255,255,0.1);box-shadow:0 30px 60px rgba(0,0,0,0.8);z-index:9999999;color:#fff;overflow:hidden}#U_POP .hdr{padding:20px;cursor:move;display:flex;justify-content:space-between;align-items:center;background:rgba(30,41,59,0.5);border-bottom:1px solid rgba(255,255,255,0.05)}#U_POP .hdr b{font-size:18px;color:#ffffff;letter-spacing:0.5px}#U_POP .hdr button{background:rgba(255,255,255,0.1);color:#fff;border:none;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:16px}#U_POP .alert-red{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);margin:15px 15px 0;padding:12px;border-radius:18px;font-size:12px;color:#fca5a5;line-height:1.6;text-align:center}#U_POP .main{padding:15px}#U_POP .box{display:flex;gap:10px;margin-bottom:15px}#U_POP .box input{flex:1;padding:12px 18px;background:rgba(15,23,42,0.8);border:1px solid #334155;border-radius:15px;color:#fff;font-size:14px;outline:none}#U_POP .box input:focus{border-color:#3b82f6}#U_POP .box button{background:#3b82f6;color:#fff;border:none;padding:0 20px;border-radius:15px;font-weight:700;cursor:pointer}#U_POP .lst{max-height:400px;overflow-y:auto;scrollbar-width:none}#U_POP .crd{background:rgba(255,255,255,0.03);padding:18px;border-radius:22px;border:1px solid rgba(255,255,255,0.05);margin-bottom:12px;cursor:pointer;transition:0.3s;box-shadow: 0 4px 15px rgba(0,0,0,0.3)}#U_POP .crd:hover{background:rgba(59,130,246,0.15);border-color:#3b82f6;transform:translateY(-2px);box-shadow: 0 10px 25px rgba(59,130,246,0.2)}#U_POP .crd i{color:#60a5fa;font-size:14px;font-weight:700;display:block;margin-bottom:6px;font-style:normal;line-height:1.4}#U_POP .crd b{font-size:17px;display:flex;justify-content:space-between;align-items:center}#U_POP .crd .ed{color:#94a3b8;font-size:18px;padding:4px}#U_POP .crd .ed:hover{color:#fff}#E_MOD{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:#0f172a;padding:25px;border-radius:32px;z-index:10000005;border:1px solid #3b82f6;width:340px;box-shadow:0 0 70px #000;color:#fff;font-family:'Cairo'}#E_MOD input{width:100%;padding:10px;background:#1e293b;color:#fff;border:1px solid #334155;border-radius:12px;box-sizing:border-box;outline:none;margin-top:5px}</style>%60);function sV(e,v){if(!e)return;e.focus();Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(e,v);['input','change'].forEach(ev=>e.dispatchEvent(new Event(ev,{bubbles:true})));e.blur()}function edit(i,x){const m=document.createElement('div');m.id='E_MOD';const fs=[['الجهة','en'],['اسم الوكيل','ag'],['700','eid'],['الهوية','aid'],['الجوال','ph'],['الوكالة','poa'],['الميلاد','dob'],['الإيميل','em']];let h='';fs.forEach(f=>h+=%60<label style="font-size:10px;color:#94a3b8;margin-top:8px;display:block">${f[0]}</label><input value="${i[f[1]]||""}" id="z-${f[1]}">%60);m.innerHTML=h+%60<div style="display:flex;gap:10px;margin-top:20px"><button id="sv" style="flex:1;background:#3b82f6;color:#fff;padding:12px;border:none;border-radius:14px;font-weight:700;cursor:pointer">حفظ</button><button id="cl" style="flex:1;background:#334155;color:#fff;border:none;border-radius:14px;cursor:pointer">إلغاء</button></div>%60;document.body.appendChild(m);m.querySelector('#cl').onclick=()=>m.remove();m.querySelector('#sv').onclick=()=>{fs.forEach(f=>i[f[1]]=m.querySelector("#z-"+f[1]).value);if(x===-1)ags.push(i);localStorage.setItem(K,JSON.stringify(ags));location.reload()}}const h=document.createElement('div');h.id="U_POP";h.innerHTML=%60<div class="hdr" id="dr"><b>وكلاء الرهن</b><button onclick="this.closest('#U_POP').remove()">×</button></div><div class="alert-red">إن هذا النموذج لا يغني عن التحقق من بيانات الوكيل وسريان الوكالة والمراجعة النهائية مع الأطراف<br></div><div class="main"><div class="box"><input id="q" placeholder="بحث سريع.."><button id="nb" style="background:#3b82f6;color:#fff;border:none;padding:0 15px;border-radius:12px;font-weight:700;cursor:pointer">+</button></div><div id="lst" class="lst"></div></div>%60;document.body.appendChild(h);let dr=false,ox,oy;h.querySelector('#dr').onmousedown=e=>{dr=true;ox=e.clientX-h.offsetLeft;oy=e.clientY-h.offsetTop};document.onmousemove=e=>{if(dr){h.style.left=(e.clientX-ox)+'px';h.style.top=(e.clientY-oy)+'px'}};document.onmouseup=()=>dr=false;const rend=(f="")=>{const l=h.querySelector('#lst');l.innerHTML='';ags.filter(a=>(a.en||'').includes(f)||(a.ag||'').includes(f)).forEach((i,x)=>{const c=document.createElement('div');c.className='crd';c.innerHTML=%60<i>${i.en}</i><b><span>${i.ag}</span><span class="ed">⚙%EF%B8%8F</span></b>%60;c.onclick=(e)=>{if(e.target.className==='ed'){edit(i,x);return}if(!confirm("يجب التحقق من اختيار نوع صاحب الحق، والجهة، ونوع الهوية قبل البدء."))return;sV(document.querySelector('[name="entityIdentity"]'),i.eid);sV(document.querySelector('[name="entityemail"]'),i.em||E);sV(document.querySelector('[name="attorneyIdentity"]'),i.aid);sV(document.querySelector('[name="attorneyDateOfBirth"]'),i.dob);sV(document.querySelector('[name="attorneyemail"]'),i.em||E);sV(document.querySelector('[name="attorneyPowerOfAttorney"]'),i.poa);const m="+966"+i.ph.toString().replace(/^(00966|966|0|\\+966)/,'');document.querySelectorAll('input[type="tel"]').forEach(t=>{sV(t,"");setTimeout(()=>sV(t,m),100)})};l.appendChild(c)})};h.querySelector('#q').oninput=e=>rend(e.target.value);h.querySelector('#nb').onclick=()=>edit({em:E},-1);rend()})();
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>12345</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
+*{font-family:'Tajawal',sans-serif;box-sizing:border-box;}
+:root{--correct-color:#4a9e52;--correct-glow:rgba(74,158,82,0.35);--present-color:#c9a227;--present-glow:rgba(201,162,39,0.35);--absent-color:#3a3a3c;--default-color:#565758;--bg-color:#0f0f10;--surface-color:#1a1a1b;--text-color:#f0f0f0;--text-muted:#818384;--border-color:#2d2d2e;--border-active:#555557;--key-bg:#4a4a4e;--key-text:#e8e8e8;--enter-color:#2563a8;--backspace-color:#9b2335;--newgame-color:#2563a8;--newgame-hover:#2f74c0;--easy-color:#4a9e52;--hard-color:#c0293f;--header-border:rgba(255,255,255,0.07);--max-rows:6;}
+.light-mode{--correct-color:#4a9e52;--correct-glow:rgba(74,158,82,0.2);--present-color:#c9a227;--present-glow:rgba(201,162,39,0.2);--absent-color:#6c6e70;--default-color:#e0e2e5;--bg-color:#f0f0f2;--surface-color:#ffffff;--text-color:#1a1a1b;--text-muted:#6c6e70;--border-color:#c8cacd;--border-active:#999ba0;--key-bg:#e0e2e5;--key-text:#1a1a1b;--enter-color:#2563a8;--backspace-color:#c0293f;--newgame-color:#2563a8;--newgame-hover:#2f74c0;--easy-color:#4a9e52;--hard-color:#c0293f;--header-border:rgba(0,0,0,0.08);}
+body{background-color:var(--bg-color);color:var(--text-color);transition:all 0.3s ease;margin:0;padding:0;height:100dvh;max-height:100dvh;display:flex;flex-direction:column;overflow:hidden;touch-action:manipulation;}
+.game-wrapper{flex:1;display:flex;flex-direction:column;justify-content:space-between;width:100%;max-width:800px;margin:0 auto;padding:6px 10px;overflow:hidden;min-height:0;}
+@media(max-width:768px){.game-wrapper{max-width:600px;}}
+/* إجبار الأرقام على الاتجاه من اليسار لليمين */
+#grid, .grid-row, .keyboard-row, .key, .tile, .matrix-grid, .matrix-row, .correct-number, .matrix-tile {
+    direction: ltr !important;
+    unicode-bidi: plaintext;
+}
+.tile{--tile-size:62px;width:var(--tile-size);height:var(--tile-size);border:2px solid var(--border-color);display:flex;align-items:center;justify-content:center;font-size:calc(var(--tile-size)*0.50);font-weight:bold;user-select:none;transition:all 0.3s ease;border-radius:4px;flex-shrink:0;}
+.tile.filled{border-color:#878a8c;animation:pop 0.1s ease;}
+@keyframes pop{0%{transform:scale(1);}50%{transform:scale(1.1);}100%{transform:scale(1);}}
+.tile.correct{background-color:var(--correct-color);border-color:var(--correct-color);color:white;box-shadow:0 0 12px var(--correct-glow);}
+.tile.present{background-color:var(--present-color);border-color:var(--present-color);color:white;box-shadow:0 0 12px var(--present-glow);}
+.tile.absent{background-color:var(--absent-color);border-color:var(--absent-color);color:white;}
+.flip{animation:flip 0.6s ease;}
+@keyframes flip{0%{transform:rotateX(0);}50%{transform:rotateX(90deg);}100%{transform:rotateX(0);}}
+.keyboard-row{display:flex;justify-content:center;gap:4px;margin-bottom:6px;width:100%;}
+.key{height:clamp(42px,6vh,58px);min-width:clamp(28px,6vw,43px);background-color:var(--key-bg);color:var(--key-text);border:none;border-radius:4px;font-weight:bold;font-size:clamp(0.85rem,3vw,1.1rem);display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;transition:all 0.2s ease;flex:1;margin:0 2px;padding:0 2px;touch-action:manipulation;}
+.key.enter{background-color:var(--enter-color);color:white;font-size:clamp(0.7rem,2.5vw,0.9rem);}
+.key.backspace{background-color:var(--backspace-color);color:white;}
+@media(max-width:480px){.key{height:clamp(38px,5.5vh,50px);min-width:clamp(24px,5vw,34px);font-size:clamp(0.8rem,2.8vw,1rem);margin:0 1px;padding:0 1px;}.key.enter{font-size:clamp(0.65rem,2.2vw,0.8rem);}.keyboard-row{gap:2px;margin-bottom:5px;}}
+.key:hover{opacity:0.85;transform:translateY(-1px);}
+.key:active{transform:translateY(0);opacity:1;}
+.key.correct{background-color:var(--correct-color);color:white;box-shadow:0 0 8px var(--correct-glow);}
+.key.present{background-color:var(--present-color);color:white;box-shadow:0 0 8px var(--present-glow);}
+.key.absent{background-color:#1f1f21!important;color:#b0b0b2!important;box-shadow:none;}
+.light-mode .key.absent{background-color:#7c7e82!important;color:#f0f0f0!important;}
+.shake{animation:shake 0.5s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}10%,30%,50%,70%,90%{transform:translateX(-5px);}20%,40%,60%,80%{transform:translateX(5px);}}
+.bounce{animation:bounce 0.5s ease;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+.modal-overlay{background-color:rgba(0,0,0,0.7);backdrop-filter:blur(4px);}
+header{padding:8px 12px;border-bottom:1px solid var(--header-border);background-color:var(--bg-color);}
+h1{font-size:1.6rem;text-align:center;letter-spacing:0.08em;background:linear-gradient(135deg,var(--correct-color)0%,var(--text-color)50%,var(--present-color)100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+#newGameHeaderBtn{background-color:var(--newgame-color);color:white;transition:background-color 0.2s ease,transform 0.15s ease;border-radius:50%;width:50px;height:50px;display:flex;align-items:center;justify-content:center;}
+@media(max-width:480px){#newGameHeaderBtn{width:40px;height:40px;}}
+#newGameHeaderBtn:hover{background-color:var(--newgame-hover);}
+#newGameHeaderBtn:active{transform:scale(0.92) rotate(-30deg);}
+.grid-row{display:flex;justify-content:center;gap:6px;margin-bottom:5px;}
+#message{font-size:1rem;min-height:40px;margin-bottom:12px;display:flex;align-items:center;justify-content:center;padding:0 10px;text-align:center;gap:8px;flex-wrap:wrap;}
+.modal-content{width:95%;max-width:500px;max-height:90vh;overflow-y:auto;margin:10px;}
+.correct-number{background:linear-gradient(135deg,var(--correct-color),#2d7a34);color:white;padding:14px 20px;border-radius:10px;margin:12px 0;text-align:center;font-size:1.6rem;font-weight:bold;letter-spacing:0.15em;animation:pulse 2s infinite;box-shadow:0 4px 20px var(--correct-glow);}
+@keyframes pulse{0%{transform:scale(1);}50%{transform:scale(1.05);}100%{transform:scale(1);}}
+.color-example{display:flex;align-items:center;gap:12px;margin-bottom:15px;padding:10px;border-radius:8px;background-color:rgba(129,131,132,0.1);}
+.color-box{width:45px;height:45px;border:2px solid var(--border-color);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:bold;flex-shrink:0;}
+.color-box.correct{background-color:var(--correct-color);border-color:var(--correct-color);color:white;}
+.color-box.present{background-color:var(--present-color);border-color:var(--present-color);color:white;}
+.color-box.absent{background-color:var(--absent-color);border-color:var(--absent-color);color:white;}
+.color-description{flex:1;font-size:0.95rem;text-align:right;}
+.attempts-table-container{max-height:250px;overflow-y:auto;margin:15px 0;border:1px solid var(--border-color);border-radius:8px;padding:8px;}
+.attempts-table{width:100%;border-collapse:collapse;font-size:0.9rem;}
+.attempts-table th{background-color:var(--default-color);padding:8px;text-align:center;border-bottom:2px solid var(--border-color);}
+.attempts-table td{padding:6px;text-align:center;border-bottom:1px solid var(--border-color);}
+.attempt-number{font-weight:bold;color:var(--correct-color);}
+.attempt-result{font-size:1.1rem;font-weight:bold;}
+.attempt-result.win{color:var(--correct-color);}
+.attempt-result.loss{color:var(--absent-color);}
+.attempts-title{font-size:1.2rem;font-weight:bold;margin:12px 0 8px;text-align:center;color:var(--text-color);}
+.win-celebration{animation:winCelebration 2s ease infinite;}
+@keyframes winCelebration{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+.no-attempts-message{text-align:center;padding:15px;color:var(--absent-color);font-style:italic;font-size:0.95rem;}
+.attempt-matrix-container{margin:20px 0;padding:15px;border:2px solid var(--border-color);border-radius:10px;background-color:rgba(129,131,132,0.05);}
+.matrix-title{font-size:1.2rem;font-weight:bold;margin-bottom:12px;text-align:center;color:var(--text-color);}
+.matrix-grid{display:flex;flex-direction:column;align-items:center;gap:5px;margin-bottom:12px;}
+.matrix-row{display:flex;justify-content:center;gap:5px;}
+.matrix-tile{--mt-size:42px;width:var(--mt-size);height:var(--mt-size);border:2px solid transparent;border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:calc(var(--mt-size)*0.48);color:white;user-select:none;}
+@media(max-width:400px){.matrix-tile{--mt-size:34px;}}
+.matrix-tile.correct{background-color:var(--correct-color);border-color:var(--correct-color);}
+.matrix-tile.present{background-color:var(--present-color);border-color:var(--present-color);}
+.matrix-tile.absent{background-color:var(--absent-color);border-color:var(--absent-color);}
+.matrix-legend{display:flex;justify-content:center;gap:15px;margin-top:10px;flex-wrap:wrap;}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:0.8rem;}
+.legend-color{width:16px;height:16px;border-radius:3px;}
+.legend-color.correct{background-color:var(--correct-color);}
+.legend-color.present{background-color:var(--present-color);}
+.legend-color.absent{background-color:var(--absent-color);}
+.result-buttons{display:flex;gap:10px;margin-top:20px;}
+.result-buttons button{flex:1;padding:12px;border-radius:8px;font-weight:bold;font-size:1rem;transition:all 0.2s ease;}
+@media(max-width:480px){.result-buttons{flex-direction:column;gap:8px;}}
+.difficulty-dropdown{position:relative;display:inline-block;}
+.difficulty-toggle{padding:8px 16px;border-radius:6px;font-weight:bold;font-size:0.9rem;cursor:pointer;transition:all 0.3s ease;border:2px solid var(--border-color);background-color:var(--bg-color);color:var(--text-color);display:flex;align-items:center;gap:8px;min-width:120px;justify-content:center;}
+.difficulty-menu{position:absolute;top:100%;left:0;right:0;margin-top:5px;background-color:var(--bg-color);border:2px solid var(--border-color);border-radius:6px;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,0.1);display:none;}
+.difficulty-menu.show{display:block;}
+.difficulty-option{width:100%;padding:12px 16px;text-align:center;border:none;background:none;color:var(--text-color);font-size:0.9rem;cursor:pointer;display:block;border-bottom:1px solid var(--border-color);}
+.difficulty-option.active{color:var(--correct-color);font-weight:bold;}
+</style>
+</head>
+<body>
+<header class="grid grid-cols-3 items-center px-2 py-3 border-b border-[var(--border-color)] min-h-[60px]">
+<div class="flex items-center gap-1"><button id="helpBtn" class="p-1.5 hover:bg-[var(--default-color)] rounded-full"><i class="fas fa-question-circle text-lg"></i></button><button id="statsBtn" class="p-1.5 hover:bg-[var(--default-color)] rounded-full"><i class="fas fa-chart-bar text-lg"></i></button></div>
+<div class="flex justify-center"><h1 class="font-bold text-lg sm:text-xl whitespace-nowrap">12345</h1></div>
+<div class="flex items-center justify-end gap-1 sm:gap-2">
+<div class="difficulty-dropdown"><button id="difficultyToggle" class="flex items-center gap-1 px-1.5 py-1 sm:px-2 sm:py-1.5 border-2 border-[var(--border-color)] rounded-lg bg-[var(--bg-color)]"><span class="text-[10px] sm:text-sm font-bold">الصعوبة</span><i class="fas fa-chevron-down text-[8px] sm:text-[10px]"></i></button><div id="difficultyMenu" class="difficulty-menu text-xs sm:text-sm"><button data-difficulty="hard" class="difficulty-option active">صعب</button><button data-difficulty="easy" class="difficulty-option">سهل</button></div></div>
+<button id="newGameHeaderBtn" class="w-8 h-8 sm:w-9 sm:h-9 flex items-center justify-center bg-[var(--newgame-color)] text-white rounded-full shrink-0"><i class="fas fa-redo-alt text-xs sm:text-sm"></i></button>
+<button id="themeToggle" class="p-1.5 hover:bg-[var(--default-color)] rounded-full shrink-0"><i class="fas fa-sun text-lg"></i></button>
+</div>
+</header>
+<div class="game-wrapper"><div id="message" class="text-center font-bold"></div><div id="grid" class="mb-4"></div><div id="keyboard" class="w-full"></div></div>
+
+<div id="helpModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4"><div class="bg-[var(--bg-color)] border border-[var(--border-color)] rounded-lg modal-content"><div class="p-5"><div class="flex justify-between items-center mb-5"><h2 class="text-xl font-bold">طريقة اللعب</h2><button id="closeHelp" class="text-xl hover:text-[var(--absent-color)]">&times;</button></div><div class="mb-6"><p class="text-base mb-5 text-center" id="helpAttemptsText">خمّن الرقم المكون من 5 خانات في 6 محاولات.</p><div class="color-example"><div class="color-box correct">5</div><div class="color-description"><h3 class="font-bold mb-1">اللون الأخضر</h3><p>الرقم صحيح وفي المكان الصحيح.</p></div></div><div class="color-example"><div class="color-box present">2</div><div class="color-description"><h3 class="font-bold mb-1">اللون الأصفر</h3><p>الرقم صحيح ولكن في المكان الخطأ.</p></div></div><div class="color-example"><div class="color-box absent">7</div><div class="color-description"><h3 class="font-bold mb-1">اللون الرمادي</h3><p>الرقم غير موجود في الرقم السري.</p></div></div></div><div class="text-center mt-5"><button id="startGameBtn" class="bg-[var(--correct-color)] text-white px-6 py-3 rounded-lg font-bold hover:opacity-90 text-base">فهمت، ابدأ اللعب</button></div></div></div></div>
+
+<div id="statsModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4"><div class="bg-[var(--bg-color)] border border-[var(--border-color)] rounded-lg modal-content"><div class="p-5"><div class="flex justify-between items-center mb-5"><h2 class="text-xl font-bold">الإحصائيات</h2><button id="closeStats" class="text-xl hover:text-[var(--absent-color)]">&times;</button></div><div id="gameResultInfo" class="mb-4"></div><div id="attemptsTableContainer" class="attempts-table-container"><div class="attempts-title">سجل المحاولات</div><div id="noAttemptsMessage" class="no-attempts-message hidden">لا توجد محاولات سابقة. ابدأ اللعب الآن!</div><table class="attempts-table"><thead><tr><th>#</th><th>المحاولة</th><th>النتيجة</th> </tr></thead><tbody id="attemptsTableBody"></tbody> </table></div><div class="flex justify-around mb-6"><div class="text-center"><div id="playedCount" class="text-2xl font-bold">0</div><div class="text-xs">العب</div></div><div class="text-center"><div id="winPercent" class="text-2xl font-bold">0%</div><div class="text-xs">فوز</div></div><div class="text-center"><div id="currentStreak" class="text-2xl font-bold">0</div><div class="text-xs">تتابع</div></div><div class="text-center"><div id="maxStreak" class="text-2xl font-bold">0</div><div class="text-xs">أعلى تتابع</div></div></div><div class="space-y-2"><button id="newGameFromStats" class="w-full border border-[var(--border-color)] py-2.5 rounded font-bold hover:bg-[var(--default-color)] text-sm">لعبة جديدة</button></div></div></div></div>
+
+<div id="gameResultModal" class="fixed inset-0 modal-overlay z-50 flex items-center justify-center hidden p-4"><div class="bg-[var(--bg-color)] border border-[var(--border-color)] rounded-lg modal-content"><div class="p-5"><div class="flex justify-between items-center mb-5"><h2 class="text-xl font-bold" id="resultModalTitle">نتيجة اللعبة</h2><button id="closeGameResult" class="text-xl hover:text-[var(--absent-color)]">&times;</button></div><div id="gameResultDetails" class="text-center mb-4"></div><div id="attemptMatrixContainer" class="attempt-matrix-container"><h3 class="matrix-title">خريطة رحلتك في التفكير</h3><div id="matrixGrid" class="matrix-grid"></div><div class="matrix-legend"><div class="legend-item"><div class="legend-color correct"></div><span>صحيح</span></div><div class="legend-item"><div class="legend-color present"></div><span>موجود بموقع آخر</span></div><div class="legend-item"><div class="legend-color absent"></div><span>غير موجود</span></div></div></div><div class="result-buttons"><button id="playAgainBtn" class="bg-[var(--correct-color)] text-white hover:opacity-90"><i class="fas fa-redo-alt ml-2"></i>العب مرة أخرى</button><button id="viewStatsBtn" class="border border-[var(--border-color)] hover:bg-[var(--default-color)]"><i class="fas fa-chart-bar ml-2"></i>عرض الإحصائيات</button></div></div></div></div>
+
+<script>
+const MAX_DIGITS = 5;
+let targetNumber = "";
+let currentRow = 0;
+let currentGuess = "";
+let gameOver = false;
+let gameWon = false;
+let startTime = null;
+let attemptResults = [];
+let stats = { played: 0, wins: 0, currentStreak: 0, maxStreak: 0 };
+let attemptsHistory = [];
+let attemptMatrices = [];
+let isProcessing = false;
+let inputLock = false;
+let difficulty = 'hard';
+let maxAttempts = 6;
+
+function convertArabicDigits(str) {
+    const arabicDigits = /[٠-٩]/g;
+    return str.replace(arabicDigits, d => String.fromCharCode(d.charCodeAt(0) - 1632 + 48));
+}
+
+function generateRandomNumber() {
+    let num = "";
+    for (let i = 0; i < MAX_DIGITS; i++) num += Math.floor(Math.random() * 10);
+    return num;
+}
+
+function calculateGuessResult(guess, target) {
+    const result = Array(MAX_DIGITS).fill('absent');
+    const targetCount = {};
+    for (const d of target) targetCount[d] = (targetCount[d] || 0) + 1;
+    for (let i = 0; i < MAX_DIGITS; i++) if (guess[i] === target[i]) { result[i] = 'correct'; targetCount[guess[i]]--; }
+    for (let i = 0; i < MAX_DIGITS; i++) if (result[i] !== 'correct' && targetCount[guess[i]] > 0) { result[i] = 'present'; targetCount[guess[i]]--; }
+    return result;
+}
+
+function updateKeyboard(digit, status) {
+    const key = document.querySelector(`.key[data-key="${digit}"]`);
+    if (!key) return;
+    if (status === 'correct') { key.classList.add('correct'); key.classList.remove('present','absent'); }
+    else if (status === 'present' && !key.classList.contains('correct')) { key.classList.add('present'); key.classList.remove('absent'); }
+    else if (status === 'absent' && !key.classList.contains('correct') && !key.classList.contains('present')) key.classList.add('absent');
+}
+
+function updateCurrentRow() {
+    for (let i = 0; i < MAX_DIGITS; i++) {
+        const tile = document.getElementById(`tile-${currentRow}-${i}`);
+        if (tile) tile.textContent = currentGuess[i] || '';
+    }
+}
+
+function showMessage(msg, duration = 3000) {
+    const msgDiv = document.getElementById('message');
+    const original = msgDiv.innerHTML;
+    msgDiv.innerHTML = msg;
+    if (window._msgTimeout) clearTimeout(window._msgTimeout);
+    window._msgTimeout = setTimeout(() => { if (msgDiv.innerHTML === msg) msgDiv.innerHTML = original; }, duration);
+}
+
+function shakeRow() {
+    const row = document.getElementById(`row-${currentRow}`);
+    if (row) { row.classList.add('shake'); setTimeout(() => row.classList.remove('shake'), 500); }
+}
+
+function evaluateGuess() {
+    const guess = currentGuess;
+    const result = calculateGuessResult(guess, targetNumber);
+    attemptResults[currentRow] = result;
+    inputLock = true;
+    let completed = 0;
+    for (let i = 0; i < MAX_DIGITS; i++) {
+        const tile = document.getElementById(`tile-${currentRow}-${i}`);
+        if (!tile) continue;
+        setTimeout(() => {
+            tile.classList.add('flip');
+            setTimeout(() => {
+                tile.classList.add(result[i]);
+                updateKeyboard(guess[i], result[i]);
+                completed++;
+                if (completed === MAX_DIGITS) {
+                    setTimeout(() => {
+                        if (guess === targetNumber) {
+                            gameWon = true;
+                            gameOver = true;
+                            handleWin();
+                        } else if (currentRow === maxAttempts - 1) {
+                            gameOver = true;
+                            handleLoss();
+                        } else {
+                            currentRow++;
+                            currentGuess = "";
+                            inputLock = false;
+                            updateCurrentRow();
+                        }
+                        isProcessing = false;
+                    }, 300);
+                }
+            }, 300);
+        }, i * 300);
+    }
+}
+
+function handleWin() {
+    showMessage('🎉 أحسنت! لقد فزت!');
+    const matrix = [];
+    for (let r = 0; r <= currentRow; r++) {
+        const rowColors = [];
+        for (let c = 0; c < MAX_DIGITS; c++) {
+            const tile = document.getElementById(`tile-${r}-${c}`);
+            if (tile.classList.contains('correct')) rowColors.push('correct');
+            else if (tile.classList.contains('present')) rowColors.push('present');
+            else rowColors.push('absent');
+        }
+        matrix.push(rowColors);
+    }
+    attemptMatrices.unshift({ matrix, result: 'win', attempts: currentRow + 1, word: targetNumber });
+    if (attemptMatrices.length > 50) attemptMatrices.pop();
+    localStorage.setItem('numberle_matrices', JSON.stringify(attemptMatrices));
+
+    attemptsHistory.unshift({ number: attemptsHistory.length + 1, attempts: currentRow + 1, result: 'win', target: targetNumber });
+    if (attemptsHistory.length > 100) attemptsHistory.pop();
+    localStorage.setItem('numberle_history', JSON.stringify(attemptsHistory));
+
+    stats.played++; stats.wins++; stats.currentStreak++;
+    if (stats.currentStreak > stats.maxStreak) stats.maxStreak = stats.currentStreak;
+    localStorage.setItem('numberle_stats', JSON.stringify(stats));
+    updateStatsDisplay();
+    setTimeout(() => showGameResultModal(true), 2500);
+}
+
+function handleLoss() {
+    showMessage(`💔 انتهت المحاولات! الرقم الصحيح: ${targetNumber}`);
+    const matrix = [];
+    for (let r = 0; r < maxAttempts; r++) {
+        const rowColors = [];
+        for (let c = 0; c < MAX_DIGITS; c++) {
+            const tile = document.getElementById(`tile-${r}-${c}`);
+            if (tile.classList.contains('correct')) rowColors.push('correct');
+            else if (tile.classList.contains('present')) rowColors.push('present');
+            else rowColors.push('absent');
+        }
+        matrix.push(rowColors);
+    }
+    attemptMatrices.unshift({ matrix, result: 'loss', attempts: maxAttempts, word: targetNumber });
+    localStorage.setItem('numberle_matrices', JSON.stringify(attemptMatrices));
+
+    attemptsHistory.unshift({ number: attemptsHistory.length + 1, attempts: maxAttempts, result: 'loss', target: targetNumber });
+    localStorage.setItem('numberle_history', JSON.stringify(attemptsHistory));
+
+    stats.played++; stats.currentStreak = 0;
+    localStorage.setItem('numberle_stats', JSON.stringify(stats));
+    updateStatsDisplay();
+    setTimeout(() => showGameResultModal(false), 1500);
+}
+
+function renderAttemptMatrix() {
+    const container = document.getElementById('matrixGrid');
+    container.innerHTML = '';
+    const used = attemptResults.filter(r => r && r.length);
+    const guessedNumbers = [];
+    for (let r = 0; r < used.length; r++) {
+        let num = '';
+        for (let c = 0; c < MAX_DIGITS; c++) {
+            const tile = document.getElementById(`tile-${r}-${c}`);
+            num += tile ? (tile.textContent || '') : '';
+        }
+        guessedNumbers.push(num);
+    }
+    used.forEach((res, idx) => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'matrix-row';
+        res.forEach((st, col) => {
+            const tile = document.createElement('div');
+            tile.className = `matrix-tile ${st}`;
+            tile.textContent = guessedNumbers[idx]?.[col] || '';
+            rowDiv.appendChild(tile);
+        });
+        container.appendChild(rowDiv);
+    });
+}
+
+function showGameResultModal(isWin) {
+    const modal = document.getElementById('gameResultModal');
+    document.getElementById('resultModalTitle').textContent = isWin ? '🎉 مبروك! فزت!' : '💔 انتهت المحاولات!';
+    document.getElementById('gameResultDetails').innerHTML = `
+        <div class="${isWin ? 'text-green-600' : 'text-red-600'} font-bold text-lg mb-2">${isWin ? 'لقد فزت في المحاولة ' + (currentRow + 1) : 'انتهت محاولاتك!'}</div>
+        <div class="text-gray-600 dark:text-gray-400 mb-3">الرقم الصحيح:</div>
+        <div class="correct-number">${targetNumber}</div>
+    `;
+    renderAttemptMatrix();
+    modal.classList.remove('hidden');
+}
+
+function updateStatsDisplay() {
+    document.getElementById('playedCount').textContent = stats.played;
+    const winPercent = stats.played ? Math.round((stats.wins / stats.played) * 100) : 0;
+    document.getElementById('winPercent').textContent = winPercent + '%';
+    document.getElementById('currentStreak').textContent = stats.currentStreak;
+    document.getElementById('maxStreak').textContent = stats.maxStreak;
+
+    const body = document.getElementById('attemptsTableBody');
+    const noMsg = document.getElementById('noAttemptsMessage');
+    const table = document.querySelector('.attempts-table');
+    if (attemptsHistory.length > 0) {
+        noMsg.classList.add('hidden');
+        table.classList.remove('hidden');
+        body.innerHTML = '';
+        [...attemptsHistory].reverse().forEach(a => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td class="attempt-number">${a.number}</td><td>${a.attempts}</td><td><span class="attempt-result ${a.result}">${a.result === 'win' ? 'فوز ✓' : 'خسارة ✗'}</span></td>`;
+            body.appendChild(tr);
+        });
+    } else {
+        noMsg.classList.remove('hidden');
+        table.classList.add('hidden');
+    }
+}
+
+function startNewGame() {
+    targetNumber = generateRandomNumber();
+    currentRow = 0;
+    currentGuess = "";
+    gameOver = false;
+    gameWon = false;
+    isProcessing = false;
+    inputLock = false;
+    startTime = new Date();
+    attemptResults = [];
+
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    for (let r = 0; r < maxAttempts; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'grid-row';
+        rowDiv.id = `row-${r}`;
+        for (let c = 0; c < MAX_DIGITS; c++) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.id = `tile-${r}-${c}`;
+            rowDiv.appendChild(tile);
+        }
+        grid.appendChild(rowDiv);
+    }
+    document.querySelectorAll('.key').forEach(k => k.classList.remove('correct', 'present', 'absent'));
+    updateCurrentRow();
+    document.getElementById('message').innerHTML = '';
+    document.getElementById('gameResultModal').classList.add('hidden');
+    document.getElementById('statsModal').classList.add('hidden');
+}
+
+function handleInput(value) {
+    if (inputLock || gameOver || isProcessing) return;
+    if (value === 'Enter') {
+        if (currentGuess.length !== MAX_DIGITS) {
+            showMessage(`يجب إدخال ${MAX_DIGITS} أرقام`);
+            shakeRow();
+            return;
+        }
+        isProcessing = true;
+        evaluateGuess();
+    } else if (value === 'Backspace') {
+        if (currentGuess.length > 0) {
+            currentGuess = currentGuess.slice(0, -1);
+            updateCurrentRow();
+        }
+    } else if (/^\d$/.test(value)) {
+        if (currentGuess.length < MAX_DIGITS) {
+            currentGuess += value;
+            updateCurrentRow();
+            const tile = document.getElementById(`tile-${currentRow}-${currentGuess.length-1}`);
+            if (tile) { tile.classList.add('filled'); setTimeout(() => tile.classList.remove('filled'), 100); }
+        }
+    }
+}
+
+function createKeyboard() {
+    const keyboard = document.getElementById('keyboard');
+    const layout = [['1','2','3','4','5'],['6','7','8','9','0'],['Enter','Backspace']];
+    keyboard.innerHTML = '';
+    layout.forEach(row => {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'keyboard-row';
+        row.forEach(key => {
+            const btn = document.createElement('button');
+            btn.className = 'key';
+            if (key === 'Enter') btn.classList.add('enter');
+            if (key === 'Backspace') btn.classList.add('backspace');
+            btn.textContent = key === 'Backspace' ? '⌫' : key;
+            btn.dataset.key = key;
+            btn.addEventListener('click', () => handleInput(key));
+            rowDiv.appendChild(btn);
+        });
+        keyboard.appendChild(rowDiv);
+    });
+}
+
+function loadData() {
+    const savedStats = localStorage.getItem('numberle_stats');
+    if (savedStats) stats = JSON.parse(savedStats);
+    const savedHistory = localStorage.getItem('numberle_history');
+    if (savedHistory) attemptsHistory = JSON.parse(savedHistory);
+    const savedMatrices = localStorage.getItem('numberle_matrices');
+    if (savedMatrices) attemptMatrices = JSON.parse(savedMatrices);
+    updateStatsDisplay();
+}
+
+function loadTheme() {
+    const saved = localStorage.getItem('numberle_theme');
+    const icon = document.querySelector('#themeToggle i');
+    if (saved === 'light') {
+        document.body.classList.add('light-mode');
+        icon.className = 'fas fa-moon text-lg';
+    } else {
+        document.body.classList.remove('light-mode');
+        icon.className = 'fas fa-sun text-lg';
+    }
+}
+
+function updateGridTileSize() {
+    const headerH = document.querySelector('header')?.offsetHeight || 60;
+    const keyboardH = document.getElementById('keyboard')?.offsetHeight || 180;
+    const msgH = 44, padding = 24, gridGaps = (maxAttempts - 1) * 5;
+    const availableH = window.innerHeight - headerH - keyboardH - msgH - padding - gridGaps;
+    const tileByHeight = Math.floor(availableH / maxAttempts);
+    const tileByWidth = Math.floor((Math.min(window.innerWidth, 480) - 60) / MAX_DIGITS);
+    const tileSize = Math.min(tileByHeight, tileByWidth, 75);
+    const finalSize = Math.max(tileSize, 32);
+    document.querySelectorAll('.tile').forEach(t => t.style.setProperty('--tile-size', finalSize + 'px'));
+}
+
+function loadDifficulty() {
+    const saved = localStorage.getItem('numberle_difficulty');
+    difficulty = (saved === 'easy' || saved === 'hard') ? saved : 'hard';
+    maxAttempts = difficulty === 'hard' ? 6 : 8;
+    const helpText = document.getElementById('helpAttemptsText');
+    helpText.textContent = `خمّن الرقم المكون من 5 خانات في ${maxAttempts} محاولات.`;
+    const easyOpt = document.querySelector('[data-difficulty="easy"]');
+    const hardOpt = document.querySelector('[data-difficulty="hard"]');
+    if (difficulty === 'hard') { hardOpt.classList.add('active'); easyOpt.classList.remove('active'); }
+    else { hardOpt.classList.remove('active'); easyOpt.classList.add('active'); }
+}
+
+function changeDifficulty(newDiff) {
+    if (newDiff === difficulty) return;
+    difficulty = newDiff;
+    maxAttempts = difficulty === 'hard' ? 6 : 8;
+    localStorage.setItem('numberle_difficulty', difficulty);
+    loadDifficulty();
+    createGrid();
+    startNewGame();
+}
+
+function createGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    for (let r = 0; r < maxAttempts; r++) {
+        const rowDiv = document.createElement('div');
+        rowDiv.className = 'grid-row';
+        rowDiv.id = `row-${r}`;
+        for (let c = 0; c < MAX_DIGITS; c++) {
+            const tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.id = `tile-${r}-${c}`;
+            rowDiv.appendChild(tile);
+        }
+        grid.appendChild(rowDiv);
+    }
+    requestAnimationFrame(updateGridTileSize);
+}
+
+function setupEventListeners() {
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        let key = e.key;
+        if (key === 'Enter') handleInput('Enter');
+        else if (key === 'Backspace') handleInput('Backspace');
+        else if (/^\d$/.test(key)) handleInput(key);
+        else {
+            const converted = convertArabicDigits(key);
+            if (/^\d$/.test(converted)) handleInput(converted);
+        }
+    });
+    window.addEventListener('resize', () => requestAnimationFrame(updateGridTileSize));
+    const diffToggle = document.getElementById('difficultyToggle');
+    const diffMenu = document.getElementById('difficultyMenu');
+    diffToggle.addEventListener('click', (e) => { e.stopPropagation(); diffMenu.classList.toggle('show'); });
+    document.addEventListener('click', () => diffMenu?.classList.remove('show'));
+    document.querySelectorAll('.difficulty-option').forEach(opt => {
+        opt.addEventListener('click', function() { changeDifficulty(this.dataset.difficulty); });
+    });
+    document.getElementById('helpBtn').addEventListener('click', () => document.getElementById('helpModal').classList.remove('hidden'));
+    document.getElementById('statsBtn').addEventListener('click', () => { updateStatsDisplay(); document.getElementById('statsModal').classList.remove('hidden'); });
+    document.getElementById('newGameHeaderBtn').addEventListener('click', startNewGame);
+    document.getElementById('newGameFromStats').addEventListener('click', () => { startNewGame(); document.getElementById('statsModal').classList.add('hidden'); });
+    document.getElementById('startGameBtn').addEventListener('click', () => { document.getElementById('helpModal').classList.add('hidden'); startNewGame(); });
+    document.getElementById('closeHelp').addEventListener('click', () => document.getElementById('helpModal').classList.add('hidden'));
+    document.getElementById('closeStats').addEventListener('click', () => document.getElementById('statsModal').classList.add('hidden'));
+    document.getElementById('closeGameResult').addEventListener('click', () => document.getElementById('gameResultModal').classList.add('hidden'));
+    document.getElementById('playAgainBtn').addEventListener('click', () => { startNewGame(); document.getElementById('gameResultModal').classList.add('hidden'); });
+    document.getElementById('viewStatsBtn').addEventListener('click', () => { document.getElementById('gameResultModal').classList.add('hidden'); updateStatsDisplay(); document.getElementById('statsModal').classList.remove('hidden'); });
+    document.getElementById('themeToggle').addEventListener('click', () => {
+        const isLight = document.body.classList.toggle('light-mode');
+        const icon = document.querySelector('#themeToggle i');
+        icon.className = isLight ? 'fas fa-moon text-lg' : 'fas fa-sun text-lg';
+        localStorage.setItem('numberle_theme', isLight ? 'light' : 'dark');
+    });
+}
+
+function init() {
+    loadData();
+    loadTheme();
+    loadDifficulty();
+    createKeyboard();
+    createGrid();
+    startNewGame();
+    setupEventListeners();
+    if (!localStorage.getItem('numberle_help_seen')) {
+        setTimeout(() => document.getElementById('helpModal').classList.remove('hidden'), 500);
+        localStorage.setItem('numberle_help_seen', 'true');
+    }
+}
+
+window.addEventListener('load', init);
+</script>
+</body>
+</html>
