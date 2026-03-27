@@ -3,194 +3,97 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ألعاب التخمين</title>
+<title>ألعاب ووردل</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700&display=swap');
 *{font-family:'Tajawal',sans-serif;box-sizing:border-box;}
-
-/* نفس الألوان المتناسقة اللي تعودنا عليها */
-:root{--correct-color:#4a9e52;--present-color:#c9a227;--absent-color:#3a3a3c;--default-color:#565758;--bg-color:#0f0f10;--surface-color:#1a1a1b;--text-color:#f0f0f0;--text-muted:#818384;--border-color:#2d2d2e;--header-border:rgba(255,255,255,0.07);}
-.light-mode{--correct-color:#4a9e52;--present-color:#c9a227;--absent-color:#6c6e70;--default-color:#e0e2e5;--bg-color:#f0f0f2;--surface-color:#ffffff;--text-color:#1a1a1b;--text-muted:#6c6e70;--border-color:#c8cacd;--header-border:rgba(0,0,0,0.08);}
-
-body {
-    background-color: var(--bg-color);
-    color: var(--text-color);
-    transition: all 0.3s ease;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--header-border);
-    background-color: var(--bg-color);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-h1 {
-    font-size: 1.8rem;
-    font-weight: bold;
-    letter-spacing: 0.05em;
-    background: linear-gradient(135deg, var(--correct-color) 0%, var(--text-color) 50%, var(--present-color) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin: 0;
-}
-
-/* تنسيق كروت اختيار الألعاب */
-.game-card {
-    background-color: var(--surface-color);
-    border: 2px solid var(--border-color);
-    border-radius: 16px;
-    padding: 40px 20px;
-    text-align: center;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    text-decoration: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
-
-.game-card:hover {
-    border-color: var(--correct-color);
-    transform: translateY(-8px);
-    box-shadow: 0 10px 25px rgba(74, 158, 82, 0.15);
-}
-
-.light-mode .game-card:hover {
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-
-.game-icon {
-    font-size: 3.5rem;
-    margin-bottom: 10px;
-    transition: transform 0.3s ease;
-}
-
-.game-card:hover .game-icon {
-    transform: scale(1.1);
-}
-
-.card-words .game-icon {
-    color: var(--correct-color); /* أخضر للحروف */
-}
-
-.card-numbers .game-icon {
-    color: var(--present-color); /* أصفر للأرقام */
-}
-
-.game-title {
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--text-color);
-}
-
-.game-desc {
-    font-size: 1rem;
-    color: var(--text-muted);
-    line-height: 1.5;
-}
-
-/* تأثيرات المربعات الصغيرة كزينة في الخلفية */
-.mini-tiles {
-    display: flex;
-    gap: 5px;
-    margin-top: 10px;
-}
-
-.mini-tile {
-    width: 24px;
-    height: 24px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: white;
-}
-
-.bg-correct { background-color: var(--correct-color); }
-.bg-present { background-color: var(--present-color); }
-.bg-absent { background-color: var(--absent-color); }
-
+:root{--correct-color:#4a9e52;--present-color:#c9a227;--absent-color:#3a3a3c;--default-color:#565758;--bg-color:#121213;--surface-color:#18181a;--text-color:#ffffff;--text-muted:#818384;--border-color:#3a3a3c;--border-hover:#565758;--header-border:#272729;}
+.light-mode{--correct-color:#6aaa64;--present-color:#c9b458;--absent-color:#787c7e;--default-color:#d3d6da;--bg-color:#ffffff;--surface-color:#f8f9fa;--text-color:#1a1a1b;--text-muted:#787c7e;--border-color:#d3d6da;--border-hover:#878a8c;--header-border:#d3d6da;}
+body{background-color:var(--bg-color);color:var(--text-color);transition:background-color 0.3s ease, color 0.3s ease;margin:0;padding:0;min-height:100dvh;display:flex;flex-direction:column;}
+header{padding:10px 16px;border-bottom:1px solid var(--header-border);background-color:var(--bg-color);display:flex;justify-content:space-between;align-items:center;height:50px;}
+h1{font-size:1.4rem;font-weight:700;letter-spacing:0.02em;margin:0;}
+.game-card{background-color:var(--surface-color);border:1px solid var(--border-color);border-radius:12px;padding:30px 20px;text-align:center;transition:all 0.25s ease;cursor:pointer;text-decoration:none;display:flex;flex-direction:column;align-items:center;gap:12px;width:100%;max-width:280px;position:relative;overflow:hidden;}
+.game-card::before{content:"";position:absolute;top:0;left:0;width:100%;height:3px;background:transparent;transition:background 0.3s ease;}
+.card-words:hover{border-color:var(--correct-color);transform:translateY(-4px);box-shadow:0 8px 24px rgba(74,158,82,0.1);}
+.card-words:hover::before{background:var(--correct-color);}
+.card-numbers:hover{border-color:var(--present-color);transform:translateY(-4px);box-shadow:0 8px 24px rgba(201,162,39,0.1);}
+.card-numbers:hover::before{background:var(--present-color);}
+.game-icon{font-size:2rem;color:var(--text-color);transition:transform 0.3s ease, color 0.3s ease;}
+.card-words:hover .game-icon{color:var(--correct-color);transform:scale(1.05);}
+.card-numbers:hover .game-icon{color:var(--present-color);transform:scale(1.05);}
+.game-title{font-size:1.2rem;font-weight:700;color:var(--text-color);}
+.game-desc{font-size:0.85rem;color:var(--text-muted);line-height:1.4;}
+.mini-tiles{display:flex;gap:4px;margin-top:8px;}
+.mini-tile{width:22px;height:22px;border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:0.75rem;font-weight:700;color:#ffffff;}
+.bg-correct{background-color:var(--correct-color);}
+.bg-present{background-color:var(--present-color);}
+.bg-absent{background-color:var(--absent-color);}
+.light-mode .mini-tile{color:#ffffff;}
+.light-mode .bg-absent{background-color:var(--absent-color);}
+#themeToggle{background:none;border:none;color:var(--text-color);cursor:pointer;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;transition:background-color 0.2s ease;}
+#themeToggle:hover{background-color:var(--border-color);}
 </style>
 </head>
 <body>
 
 <header>
-    <div class="flex items-center gap-2">
-        <button id="themeToggle" class="p-2 hover:bg-[var(--default-color)] rounded-full transition-colors">
-            <i class="fas fa-sun text-xl"></i>
-        </button>
-    </div>
+    <div class="w-8"></div>
     <h1>ألعاب ووردل</h1>
-    <div class="w-10"></div> </header>
+    <button id="themeToggle">
+        <i class="fas fa-sun text-lg"></i>
+    </button>
+</header>
 
-<main class="flex-1 flex flex-col items-center justify-center p-6 w-full max-w-4xl mx-auto">
-    
-    <div class="text-center mb-12">
-        <h2 class="text-2xl sm:text-3xl font-bold mb-3">اختر التحدي الخاص بك!</h2>
-        <p class="text-[var(--text-muted)] text-lg">هل تفضل اللعب بالكلمات أم بالأرقام؟</p>
+<main class="flex-1 flex flex-col items-center justify-center p-4 w-full">
+    <div class="text-center mb-10">
+        <h2 class="text-xl sm:text-2xl font-bold mb-2">اختر تحدي اليوم</h2>
+        <p class="text-[var(--text-muted)] text-sm">بين الأرقام والحروف، مساحتك للتفكير.</p>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 w-full">
-        
+    <div class="flex flex-col sm:flex-row gap-5 w-full justify-center items-center">
         <a href="words.html" class="game-card card-words">
-            <div class="game-icon"><i class="fas fa-font"></i></div>
+            <div class="game-icon"><i class="fas fa-language"></i></div>
             <div class="game-title">ووردل الحروف</div>
-            <div class="game-desc">خمن الكلمة العربية المكونة من 5 حروف في 6 محاولات.</div>
-            
+            <div class="game-desc">خمن الكلمة المكونة من 5 حروف في 6 محاولات فقط.</div>
             <div class="mini-tiles">
                 <div class="mini-tile bg-correct">ك</div>
-                <div class="mini-tile bg-present">ت</div>
+                <div class="mini-tile bg-present">ل</div>
+                <div class="mini-tile bg-absent">م</div>
                 <div class="mini-tile bg-absent">ا</div>
-                <div class="mini-tile bg-correct">ب</div>
+                <div class="mini-tile bg-correct">ت</div>
             </div>
         </a>
 
         <a href="numbers.html" class="game-card card-numbers">
             <div class="game-icon"><i class="fas fa-hashtag"></i></div>
             <div class="game-title">ووردل الأرقام</div>
-            <div class="game-desc">خمن الرقم السري المكون من 5 خانات في 6 محاولات.</div>
-            
+            <div class="game-desc">خمن الرقم السري المكون من 5 خانات بذكاء ومنطق.</div>
             <div class="mini-tiles">
                 <div class="mini-tile bg-correct">1</div>
                 <div class="mini-tile bg-absent">2</div>
                 <div class="mini-tile bg-present">3</div>
                 <div class="mini-tile bg-correct">4</div>
-                <div class="mini-tile bg-correct">5</div>
+                <div class="mini-tile bg-absent">5</div>
             </div>
         </a>
-
     </div>
 </main>
 
 <script>
-    // تفعيل زر تغيير الثيم (الوضع الليلي والنهاري) بنفس الطريقة السابقة
     const themeToggle = document.getElementById('themeToggle');
     const icon = themeToggle.querySelector('i');
-    
-    // تحميل الثيم المحفوظ عشان يكون متناسق مع الألعاب
     const savedTheme = localStorage.getItem('numberle_theme');
+    
     if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
-        icon.className = 'fas fa-moon text-xl';
+        icon.className = 'fas fa-moon text-lg';
     }
 
     themeToggle.addEventListener('click', () => {
         const isLight = document.body.classList.toggle('light-mode');
-        icon.className = isLight ? 'fas fa-moon text-xl' : 'fas fa-sun text-xl';
+        icon.className = isLight ? 'fas fa-moon text-lg' : 'fas fa-sun text-lg';
         localStorage.setItem('numberle_theme', isLight ? 'light' : 'dark');
     });
 </script>
