@@ -13,10 +13,10 @@
 * { font-family: 'Tajawal', sans-serif; box-sizing: border-box; }
 
 :root {
+    /* الألوان المسحوبة من الصورة بالضبط (Dark Mode) */
     --correct-color: #538d4e;
     --present-color: #b59f3b;
     --absent-color: #3a3a3c;
-    --arrows-color: #4a90e2; /* لون مخصص للأسهم لتمييزها */
     --bg-color: #121213;
     --surface-color: #1e1e20;
     --text-color: #ffffff;
@@ -25,10 +25,10 @@
 }
 
 .light-mode {
+    /* الألوان الأصلية للوضع الفاتح */
     --correct-color: #6aaa64;
     --present-color: #c9b458;
     --absent-color: #787c7e;
-    --arrows-color: #2171cd;
     --bg-color: #ffffff;
     --surface-color: #f8f9fa;
     --text-color: #121213;
@@ -63,7 +63,7 @@ header {
     transform: translateY(-6px);
 }
 
-.card-words:hover {
+.card-words:hover, .card-arrows:hover {
     border-color: var(--correct-color);
     box-shadow: 0 12px 25px rgba(83, 141, 78, 0.15);
 }
@@ -71,11 +71,6 @@ header {
 .card-numbers:hover {
     border-color: var(--present-color);
     box-shadow: 0 12px 25px rgba(181, 159, 59, 0.15);
-}
-
-.card-arrows:hover {
-    border-color: var(--arrows-color);
-    box-shadow: 0 12px 25px rgba(74, 144, 226, 0.15);
 }
 
 .game-card::before {
@@ -88,9 +83,8 @@ header {
     transform: scaleX(0);
     transition: transform 0.3s ease;
 }
-.card-words::before { background-color: var(--correct-color); }
+.card-words::before, .card-arrows::before { background-color: var(--correct-color); }
 .card-numbers::before { background-color: var(--present-color); }
-.card-arrows::before { background-color: var(--arrows-color); }
 .game-card:hover::before { transform: scaleX(1); }
 
 .card-icon-custom {
@@ -113,7 +107,6 @@ header {
 .box-g { background-color: var(--correct-color); }
 .box-y { background-color: var(--present-color); }
 .box-d { background-color: var(--absent-color); }
-.box-a { background-color: var(--arrows-color); }
 
 .mini-tile {
     width: 30px;
@@ -130,7 +123,6 @@ header {
 .bg-correct { background-color: var(--correct-color); }
 .bg-present { background-color: var(--present-color); }
 .bg-absent { background-color: var(--absent-color); }
-.bg-arrows { background-color: var(--arrows-color); }
 
 </style>
 </head>
@@ -159,7 +151,7 @@ header {
                 <div class="icon-box box-y"></div><div class="icon-box box-d"></div><div class="icon-box box-g"></div>
             </div>
             <h3 class="text-xl font-bold text-[var(--text-color)] m-0">ووردل الحروف</h3>
-            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمن الكلمة المكونة من 5 حروف في 6 محاولات فقط.</p>
+            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمن الكلمة المكونة من 5 حروف في 6 محاولات.</p>
             <div class="flex gap-1.5 mt-2">
                 <div class="mini-tile bg-correct">ك</div>
                 <div class="mini-tile bg-present">ل</div>
@@ -176,7 +168,7 @@ header {
                 <div class="icon-box box-d"></div><div class="icon-box box-g"></div><div class="icon-box box-y"></div>
             </div>
             <h3 class="text-xl font-bold text-[var(--text-color)] m-0">ووردل الأرقام</h3>
-            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمن الرقم السري المكون من 5 خانات بذكاء ومنطق.</p>
+            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمن الرقم السري المكون من 5 خانات بذكاء.</p>
             <div class="flex gap-1.5 mt-2">
                 <div class="mini-tile bg-correct">1</div>
                 <div class="mini-tile bg-absent">2</div>
@@ -188,19 +180,19 @@ header {
 
         <a href="arrows.html" class="game-card card-arrows rounded-2xl p-8 flex flex-col items-center text-center gap-4 cursor-pointer no-underline">
             <div class="card-icon-custom">
-                <div class="icon-box box-a"></div><div class="icon-box box-d"></div><div class="icon-box box-a"></div>
-                <div class="icon-box box-d"></div><div class="icon-box box-a"></div><div class="icon-box box-d"></div>
-                <div class="icon-box box-a"></div><div class="icon-box box-d"></div><div class="icon-box box-a"></div>
+                <div class="icon-box box-g"></div><div class="icon-box box-d"></div><div class="icon-box box-g"></div>
+                <div class="icon-box box-d"></div><div class="icon-box box-y"></div><div class="icon-box box-d"></div>
+                <div class="icon-box box-g"></div><div class="icon-box box-d"></div><div class="icon-box box-g"></div>
             </div>
             <h3 class="text-xl font-bold text-[var(--text-color)] m-0">ووردل الأسهم</h3>
-            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمّن تسلسل الأسهم المكون من 6 خانات بتركيز عالي.</p>
+            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمّن تسلسل الأسهم المكون من 6 خانات.</p>
             <div class="flex gap-1.5 mt-2">
-                <div class="mini-tile bg-arrows">↑</div>
-                <div class="mini-tile bg-arrows">↓</div>
+                <div class="mini-tile bg-correct">↑</div>
+                <div class="mini-tile bg-correct">↓</div>
                 <div class="mini-tile bg-absent">←</div>
                 <div class="mini-tile bg-absent">→</div>
-                <div class="mini-tile bg-arrows">↑</div>
-                <div class="mini-tile bg-arrows">↑</div>
+                <div class="mini-tile bg-present">↑</div>
+                <div class="mini-tile bg-correct">↑</div>
             </div>
         </a>
 
