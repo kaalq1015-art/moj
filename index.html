@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>منصة ووردلات | المحترف</title>
+    <title>منصة ووردلات</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -39,7 +39,6 @@
             overflow-x: hidden;
         }
 
-        /* تأثير الظهور التدريجي */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -79,12 +78,8 @@
             width: 18px;
             height: 18px;
             border-radius: 4px;
-            transition: transform 0.3s ease;
         }
 
-        .game-card:hover .icon-box { transform: rotate(10deg); }
-
-        /* تخصيص السكرول بار */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--absent-color); border-radius: 10px; }
@@ -100,18 +95,16 @@
             </div>
             <span class="text-xl font-black tracking-tighter">ووردلاتي</span>
         </div>
-        <div class="flex items-center gap-4">
-            <button id="themeToggle" class="w-10 h-10 rounded-xl bg-[var(--surface-color)] border border-[var(--border-color)] flex items-center justify-center hover:scale(1.1) transition-all">
-                <i class="fas fa-sun text-lg text-yellow-500"></i>
-            </button>
-        </div>
+        <button id="themeToggle" class="w-10 h-10 rounded-xl bg-[var(--surface-color)] border border-[var(--border-color)] flex items-center justify-center transition-all">
+            <i class="fas fa-sun text-lg text-yellow-500"></i>
+        </button>
     </header>
 
     <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
         
         <div class="mb-12 text-right animate-fade-in" style="animation-delay: 0.1s;">
-            <h2 class="text-4xl font-extrabold mb-3">مرحباً يا بطل 👋</h2>
-            <p class="text-[var(--text-muted)] opacity-70">اختر التحدي الذي يناسبك اليوم وابدأ اللعب.</p>
+            <h2 class="text-4xl font-extrabold mb-3">مرحباً 👋</h2>
+            <p class="text-[var(--text-muted)] opacity-70">اختر التحدي الذي يناسبك وابدأ اللعب.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -127,7 +120,7 @@
                 </div>
                 <div>
                     <h3 class="text-2xl font-bold mb-2">ووردل الحروف</h3>
-                    <p class="text-sm opacity-60 leading-relaxed">تحدى لغتك العربية وخمن الكلمة المكونة من 5 حروف في 6 محاولات.</p>
+                    <p class="text-sm opacity-60 leading-relaxed">خمن الكلمة المكونة من 5 حروف في 6 محاولات.</p>
                 </div>
                 <div class="flex gap-2 mt-auto">
                     <div class="w-8 h-8 rounded bg-[var(--correct-color)] flex items-center justify-center font-bold text-xs">ك</div>
@@ -143,11 +136,11 @@
                         <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
                         <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div>
                     </div>
-                    <span class="badge bg-yellow-500 bg-opacity-20 text-yellow-500">ذكي</span>
+                    <span class="badge bg-yellow-500 bg-opacity-20 text-yellow-500">منطق</span>
                 </div>
                 <div>
                     <h3 class="text-2xl font-bold mb-2">ووردل الأرقام</h3>
-                    <p class="text-sm opacity-60 leading-relaxed">اختبر مهاراتك المنطقية واستنتج الرقم السري المكون من 5 خانات.</p>
+                    <p class="text-sm opacity-60 leading-relaxed">خمن الرقم السري المكون من 5 خانات.</p>
                 </div>
                 <div class="flex gap-2 mt-auto">
                     <div class="w-8 h-8 rounded bg-[var(--correct-color)] flex items-center justify-center font-bold text-xs">1</div>
@@ -167,7 +160,7 @@
                 </div>
                 <div>
                     <h3 class="text-2xl font-bold mb-2">ووردل الأسهم</h3>
-                    <p class="text-sm opacity-60 leading-relaxed">اللعبة الجديدة كلياً! خمن الاتجاهات الستة الصحيحة في أسرع وقت.</p>
+                    <p class="text-sm opacity-60 leading-relaxed">خمن الاتجاهات الستة الصحيحة.</p>
                 </div>
                 <div class="flex gap-2 mt-auto">
                     <div class="w-8 h-8 rounded bg-[var(--correct-color)] flex items-center justify-center font-bold text-xs">↑</div>
@@ -179,9 +172,8 @@
         </div>
     </main>
 
-    <footer class="p-8 text-center text-xs opacity-40">
-        &copy; 2026 جميع الحقوق محفوظة لـ عبد الله الخثلان
-    </footer>
+    <footer class="p-8 text-center text-xs opacity-20">
+        </footer>
 
     <script>
         const themeToggle = document.getElementById('themeToggle');
