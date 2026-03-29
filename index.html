@@ -60,14 +60,6 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        .badge {
-            font-size: 0.65rem;
-            padding: 2px 8px;
-            border-radius: 99px;
-            text-transform: uppercase;
-            font-weight: 800;
-        }
-
         .icon-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -81,14 +73,15 @@
         }
 
         .preview-tile {
-            width: 2rem;
-            height: 2rem;
+            width: 2.2rem;
+            height: 2.2rem;
             border-radius: 0.25rem;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
+            color: white;
         }
 
         ::-webkit-scrollbar { width: 6px; }
@@ -112,27 +105,24 @@
 
     <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
         
-        <div class="mb-12 text-right animate-fade-in" style="animation-delay: 0.1s;">
+        <div class="mb-12 text-center animate-fade-in" style="animation-delay: 0.1s;">
             <h2 class="text-4xl font-extrabold mb-3">مرحباً 👋</h2>
             <p class="text-[var(--text-muted)] opacity-70">اختر التحدي الذي يناسبك وابدأ اللعب.</p>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            <a href="words.html" class="game-card glass-card rounded-3xl p-8 flex flex-col gap-6 no-underline group animate-fade-in" style="animation-delay: 0.2s;">
-                <div class="flex justify-between items-start">
-                    <div class="icon-grid">
-                        <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div>
-                        <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
-                        <div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                    </div>
-                    <span class="badge bg-green-500 bg-opacity-20 text-green-500">يومي</span>
+            <a href="words.html" class="game-card glass-card rounded-3xl p-10 flex flex-col items-center text-center gap-8 no-underline group animate-fade-in" style="animation-delay: 0.2s;">
+                <div class="icon-grid">
+                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div>
+                    <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
+                    <div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
                 </div>
-                <div class="text-center">
+                <div>
                     <h3 class="text-2xl font-bold mb-2">ووردل الحروف</h3>
-                    <p class="text-sm opacity-60 leading-relaxed">خمن الكلمة المكونة من 5 حروف في 6 محاولات.</p>
+                    <p class="text-sm opacity-60 leading-relaxed max-w-[200px]">خمن الكلمة المكونة من 5 حروف في 6 محاولات.</p>
                 </div>
-                <div class="flex gap-1.5 mt-auto justify-center">
+                <div class="flex gap-1.5 justify-center">
                     <div class="preview-tile bg-[var(--correct-color)]">ك</div>
                     <div class="preview-tile bg-[var(--present-color)]">ل</div>
                     <div class="preview-tile bg-[var(--absent-color)]">م</div>
@@ -141,20 +131,17 @@
                 </div>
             </a>
 
-            <a href="numbers.html" class="game-card glass-card rounded-3xl p-8 flex flex-col gap-6 no-underline group animate-fade-in" style="animation-delay: 0.3s;">
-                <div class="flex justify-between items-start">
-                    <div class="icon-grid">
-                        <div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                        <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
-                        <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div>
-                    </div>
-                    <span class="badge bg-yellow-500 bg-opacity-20 text-yellow-500">منطق</span>
+            <a href="numbers.html" class="game-card glass-card rounded-3xl p-10 flex flex-col items-center text-center gap-8 no-underline group animate-fade-in" style="animation-delay: 0.3s;">
+                <div class="icon-grid">
+                    <div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
+                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
+                    <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div>
                 </div>
-                <div class="text-center">
+                <div>
                     <h3 class="text-2xl font-bold mb-2">ووردل الأرقام</h3>
-                    <p class="text-sm opacity-60 leading-relaxed">خمن الرقم السري المكون من 5 خانات.</p>
+                    <p class="text-sm opacity-60 leading-relaxed max-w-[200px]">خمن الرقم السري المكون من 5 خانات بذكاء.</p>
                 </div>
-                <div class="flex gap-1.5 mt-auto justify-center">
+                <div class="flex gap-1.5 justify-center">
                     <div class="preview-tile bg-[var(--correct-color)]">0</div>
                     <div class="preview-tile bg-[var(--present-color)]">3</div>
                     <div class="preview-tile bg-[var(--absent-color)]">9</div>
@@ -163,20 +150,17 @@
                 </div>
             </a>
 
-            <a href="arrows.html" class="game-card glass-card rounded-3xl p-8 flex flex-col gap-6 no-underline group animate-fade-in" style="animation-delay: 0.4s;">
-                <div class="flex justify-between items-start">
-                    <div class="icon-grid">
-                        <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                        <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
-                        <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                    </div>
-                    <span class="badge bg-blue-500 bg-opacity-20 text-blue-500">جديد</span>
+            <a href="arrows.html" class="game-card glass-card rounded-3xl p-10 flex flex-col items-center text-center gap-8 no-underline group animate-fade-in" style="animation-delay: 0.4s;">
+                <div class="icon-grid">
+                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
+                    <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
+                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
                 </div>
-                <div class="text-center">
+                <div>
                     <h3 class="text-2xl font-bold mb-2">ووردل الأسهم</h3>
-                    <p class="text-sm opacity-60 leading-relaxed">خمن الاتجاهات الستة الصحيحة.</p>
+                    <p class="text-sm opacity-60 leading-relaxed max-w-[200px]">خمن الاتجاهات الستة الصحيحة بدقة.</p>
                 </div>
-                <div class="flex gap-1.5 mt-auto justify-center">
+                <div class="flex gap-1.5 justify-center">
                     <div class="preview-tile bg-[var(--correct-color)]">↑</div>
                     <div class="preview-tile bg-[var(--present-color)]">↓</div>
                     <div class="preview-tile bg-[var(--absent-color)]">←</div>
