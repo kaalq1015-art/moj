@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>منصة ووردلات</title>
+    <title>ووردلات</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -80,10 +80,20 @@
             border-radius: 4px;
         }
 
+        .preview-tile {
+            width: 2rem;
+            height: 2rem;
+            border-radius: 0.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 0.75rem;
+        }
+
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--absent-color); border-radius: 10px; }
-
     </style>
 </head>
 <body class="p-0 m-0">
@@ -118,14 +128,16 @@
                     </div>
                     <span class="badge bg-green-500 bg-opacity-20 text-green-500">يومي</span>
                 </div>
-                <div>
+                <div class="text-center">
                     <h3 class="text-2xl font-bold mb-2">ووردل الحروف</h3>
                     <p class="text-sm opacity-60 leading-relaxed">خمن الكلمة المكونة من 5 حروف في 6 محاولات.</p>
                 </div>
-                <div class="flex gap-2 mt-auto">
-                    <div class="w-8 h-8 rounded bg-[var(--correct-color)] flex items-center justify-center font-bold text-xs">ك</div>
-                    <div class="w-8 h-8 rounded bg-[var(--present-color)] flex items-center justify-center font-bold text-xs">ل</div>
-                    <div class="w-8 h-8 rounded bg-[var(--absent-color)] flex items-center justify-center font-bold text-xs">م</div>
+                <div class="flex gap-1.5 mt-auto justify-center">
+                    <div class="preview-tile bg-[var(--correct-color)]">ك</div>
+                    <div class="preview-tile bg-[var(--present-color)]">ل</div>
+                    <div class="preview-tile bg-[var(--absent-color)]">م</div>
+                    <div class="preview-tile bg-[var(--correct-color)]">ا</div>
+                    <div class="preview-tile bg-[var(--correct-color)]">ت</div>
                 </div>
             </a>
 
@@ -138,14 +150,16 @@
                     </div>
                     <span class="badge bg-yellow-500 bg-opacity-20 text-yellow-500">منطق</span>
                 </div>
-                <div>
+                <div class="text-center">
                     <h3 class="text-2xl font-bold mb-2">ووردل الأرقام</h3>
                     <p class="text-sm opacity-60 leading-relaxed">خمن الرقم السري المكون من 5 خانات.</p>
                 </div>
-                <div class="flex gap-2 mt-auto">
-                    <div class="w-8 h-8 rounded bg-[var(--correct-color)] flex items-center justify-center font-bold text-xs">1</div>
-                    <div class="w-8 h-8 rounded bg-[var(--absent-color)] flex items-center justify-center font-bold text-xs">2</div>
-                    <div class="w-8 h-8 rounded bg-[var(--present-color)] flex items-center justify-center font-bold text-xs">3</div>
+                <div class="flex gap-1.5 mt-auto justify-center">
+                    <div class="preview-tile bg-[var(--correct-color)]">0</div>
+                    <div class="preview-tile bg-[var(--present-color)]">3</div>
+                    <div class="preview-tile bg-[var(--absent-color)]">9</div>
+                    <div class="preview-tile bg-[var(--present-color)]">5</div>
+                    <div class="preview-tile bg-[var(--correct-color)]">3</div>
                 </div>
             </a>
 
@@ -158,22 +172,24 @@
                     </div>
                     <span class="badge bg-blue-500 bg-opacity-20 text-blue-500">جديد</span>
                 </div>
-                <div>
+                <div class="text-center">
                     <h3 class="text-2xl font-bold mb-2">ووردل الأسهم</h3>
                     <p class="text-sm opacity-60 leading-relaxed">خمن الاتجاهات الستة الصحيحة.</p>
                 </div>
-                <div class="flex gap-2 mt-auto">
-                    <div class="w-8 h-8 rounded bg-[var(--correct-color)] flex items-center justify-center font-bold text-xs">↑</div>
-                    <div class="w-8 h-8 rounded bg-[var(--absent-color)] flex items-center justify-center font-bold text-xs">→</div>
-                    <div class="w-8 h-8 rounded bg-[var(--present-color)] flex items-center justify-center font-bold text-xs">↓</div>
+                <div class="flex gap-1.5 mt-auto justify-center">
+                    <div class="preview-tile bg-[var(--correct-color)]">↑</div>
+                    <div class="preview-tile bg-[var(--present-color)]">↓</div>
+                    <div class="preview-tile bg-[var(--absent-color)]">←</div>
+                    <div class="preview-tile bg-[var(--correct-color)]">→</div>
+                    <div class="preview-tile bg-[var(--present-color)]">↑</div>
+                    <div class="preview-tile bg-[var(--correct-color)]">↓</div>
                 </div>
             </a>
 
         </div>
     </main>
 
-    <footer class="p-8 text-center text-xs opacity-20">
-        </footer>
+    <footer class="p-8 text-center text-xs opacity-20"></footer>
 
     <script>
         const themeToggle = document.getElementById('themeToggle');
