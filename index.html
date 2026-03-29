@@ -16,7 +16,7 @@
     --correct-color: #538d4e;
     --present-color: #b59f3b;
     --absent-color: #3a3a3c;
-    --stocks-color: #0077b6; /* لون خاص بالأسهم */
+    --arrows-color: #4a90e2; /* لون مخصص للأسهم لتمييزها */
     --bg-color: #121213;
     --surface-color: #1e1e20;
     --text-color: #ffffff;
@@ -28,7 +28,7 @@
     --correct-color: #6aaa64;
     --present-color: #c9b458;
     --absent-color: #787c7e;
-    --stocks-color: #0096c7;
+    --arrows-color: #2171cd;
     --bg-color: #ffffff;
     --surface-color: #f8f9fa;
     --text-color: #121213;
@@ -73,9 +73,9 @@ header {
     box-shadow: 0 12px 25px rgba(181, 159, 59, 0.15);
 }
 
-.card-stocks:hover {
-    border-color: var(--stocks-color);
-    box-shadow: 0 12px 25px rgba(0, 119, 182, 0.15);
+.card-arrows:hover {
+    border-color: var(--arrows-color);
+    box-shadow: 0 12px 25px rgba(74, 144, 226, 0.15);
 }
 
 .game-card::before {
@@ -90,7 +90,7 @@ header {
 }
 .card-words::before { background-color: var(--correct-color); }
 .card-numbers::before { background-color: var(--present-color); }
-.card-stocks::before { background-color: var(--stocks-color); }
+.card-arrows::before { background-color: var(--arrows-color); }
 .game-card:hover::before { transform: scaleX(1); }
 
 .card-icon-custom {
@@ -113,7 +113,7 @@ header {
 .box-g { background-color: var(--correct-color); }
 .box-y { background-color: var(--present-color); }
 .box-d { background-color: var(--absent-color); }
-.box-b { background-color: var(--stocks-color); }
+.box-a { background-color: var(--arrows-color); }
 
 .mini-tile {
     width: 30px;
@@ -130,8 +130,7 @@ header {
 .bg-correct { background-color: var(--correct-color); }
 .bg-present { background-color: var(--present-color); }
 .bg-absent { background-color: var(--absent-color); }
-.bg-stocks { background-color: var(--stocks-color); }
-.light-mode .mini-tile { color: #ffffff; }
+.bg-arrows { background-color: var(--arrows-color); }
 
 </style>
 </head>
@@ -159,10 +158,8 @@ header {
                 <div class="icon-box box-d"></div><div class="icon-box box-g"></div><div class="icon-box box-d"></div>
                 <div class="icon-box box-y"></div><div class="icon-box box-d"></div><div class="icon-box box-g"></div>
             </div>
-            
             <h3 class="text-xl font-bold text-[var(--text-color)] m-0">ووردل الحروف</h3>
             <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمن الكلمة المكونة من 5 حروف في 6 محاولات فقط.</p>
-            
             <div class="flex gap-1.5 mt-2">
                 <div class="mini-tile bg-correct">ك</div>
                 <div class="mini-tile bg-present">ل</div>
@@ -178,10 +175,8 @@ header {
                 <div class="icon-box box-g"></div><div class="icon-box box-y"></div><div class="icon-box box-d"></div>
                 <div class="icon-box box-d"></div><div class="icon-box box-g"></div><div class="icon-box box-y"></div>
             </div>
-            
             <h3 class="text-xl font-bold text-[var(--text-color)] m-0">ووردل الأرقام</h3>
             <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمن الرقم السري المكون من 5 خانات بذكاء ومنطق.</p>
-            
             <div class="flex gap-1.5 mt-2">
                 <div class="mini-tile bg-correct">1</div>
                 <div class="mini-tile bg-absent">2</div>
@@ -191,21 +186,21 @@ header {
             </div>
         </a>
 
-        <a href="stocks.html" class="game-card card-stocks rounded-2xl p-8 flex flex-col items-center text-center gap-4 cursor-pointer no-underline">
+        <a href="arrows.html" class="game-card card-arrows rounded-2xl p-8 flex flex-col items-center text-center gap-4 cursor-pointer no-underline">
             <div class="card-icon-custom">
-                <div class="icon-box box-d"></div><div class="icon-box box-d"></div><div class="icon-box box-b"></div>
-                <div class="icon-box box-d"></div><div class="icon-box box-b"></div><div class="icon-box box-d"></div>
-                <div class="icon-box box-b"></div><div class="icon-box box-d"></div><div class="icon-box box-d"></div>
+                <div class="icon-box box-a"></div><div class="icon-box box-d"></div><div class="icon-box box-a"></div>
+                <div class="icon-box box-d"></div><div class="icon-box box-a"></div><div class="icon-box box-d"></div>
+                <div class="icon-box box-a"></div><div class="icon-box box-d"></div><div class="icon-box box-a"></div>
             </div>
-            
             <h3 class="text-xl font-bold text-[var(--text-color)] m-0">ووردل الأسهم</h3>
-            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمن رمز الشركة في تداول المكون من 4 أرقام.</p>
-            
+            <p class="text-[var(--text-muted)] text-sm m-0 leading-relaxed">خمّن تسلسل الأسهم المكون من 6 خانات بتركيز عالي.</p>
             <div class="flex gap-1.5 mt-2">
-                <div class="mini-tile bg-stocks">1</div>
-                <div class="mini-tile bg-stocks">1</div>
-                <div class="mini-tile bg-stocks">2</div>
-                <div class="mini-tile bg-stocks">0</div>
+                <div class="mini-tile bg-arrows">↑</div>
+                <div class="mini-tile bg-arrows">↓</div>
+                <div class="mini-tile bg-absent">←</div>
+                <div class="mini-tile bg-absent">→</div>
+                <div class="mini-tile bg-arrows">↑</div>
+                <div class="mini-tile bg-arrows">↑</div>
             </div>
         </a>
 
