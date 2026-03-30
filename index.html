@@ -1,196 +1,205 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>ووردلات</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ووردلات - تحدي الأونلاين</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+*{font-family:'Tajawal',sans-serif;box-sizing:border-box;}
+:root{
+    --correct-color:#538d4e;
+    --present-color:#b59f3b;
+    --absent-color:#3a3a3c;
+    --bg-color:#121213;
+    --bg-gradient:linear-gradient(180deg,#121213 0%,#050505 100%);
+    --surface-color:rgba(30,30,32,0.85);
+    --text-color:#ffffff;
+    --border-color:rgba(255,255,255,0.1);
+    --border-active:rgba(255,255,255,0.2);
+    --key-bg:rgba(255,255,255,0.08);
+    --key-text:#ffffff;
+    --correct-glow:rgba(83,141,78,0.5);
+    --present-glow:rgba(181,159,59,0.35);
+}
+body{
+    background:var(--bg-gradient); color:var(--text-color); margin:0; padding:0;
+    height:100dvh; display:flex; flex-direction:column; overflow:hidden;
+}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+/* التخطيط الجديد لجلسة التحدي */
+.game-wrapper {
+    flex:1; display:flex; flex-direction:column; width:100%; max-width:600px; 
+    margin:0 auto; padding:10px; overflow:hidden; gap: 10px;
+}
 
-        * { font-family: 'Tajawal', sans-serif; box-sizing: border-box; }
+/* مساحة الخصم (الثلث) */
+.opponent-area {
+    flex: 1; /* يأخذ ثلث المساحة */
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
+    border-radius: 16px; padding: 15px 10px; position: relative;
+}
+.opponent-badge {
+    position: absolute; top: -12px; background: #e74c3c; color: white;
+    font-size: 0.75rem; font-weight: 800; padding: 2px 12px; border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
+}
+.opponent-grid { display: flex; flex-direction: column; gap: 4px; }
+.opp-row { display: flex; gap: 4px; }
+.opp-tile {
+    width: 22px; height: 22px; border-radius: 4px;
+    background: transparent; border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+.opp-tile.filled { border-color: rgba(255,255,255,0.3); }
+.opp-tile.correct { background: var(--correct-color); border-color: var(--correct-color); box-shadow: 0 0 8px var(--correct-glow); }
+.opp-tile.present { background: var(--present-color); border-color: var(--present-color); }
+.opp-tile.absent { background: var(--absent-color); border-color: var(--absent-color); }
 
-        :root {
-            --correct-color: #538d4e;
-            --present-color: #b59f3b;
-            --absent-color: #3a3a3c;
-            --bg-gradient: linear-gradient(180deg, #121213 0%, #050505 100%);
-            --surface-color: rgba(30, 30, 32, 0.7);
-            --text-color: #ffffff;
-            --border-color: rgba(255, 255, 255, 0.1);
-        }
+/* الفاصل بين اللاعبين */
+.vs-divider {
+    display: flex; align-items: center; justify-content: center; width: 100%; height: 20px;
+}
+.vs-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); }
+.vs-text { margin: 0 10px; font-weight: 800; font-size: 0.8rem; color: rgba(255,255,255,0.5); }
 
-        .light-mode {
-            --bg-gradient: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
-            --surface-color: rgba(255, 255, 255, 0.8);
-            --text-color: #121213;
-            --border-color: rgba(0, 0, 0, 0.1);
-        }
+/* مساحة اللاعب (الثلثين) */
+.player-area {
+    flex: 2; /* يأخذ ثلثي المساحة */
+    display: flex; flex-direction: column; align-items: center; justify-content: flex-end;
+    padding-bottom: 5px;
+}
+.grid-row{display:flex; justify-content:center; gap:6px; margin-bottom:6px;}
+.tile{
+    width: clamp(45px, 12vw, 60px); height: clamp(45px, 12vw, 60px); 
+    border:2px solid var(--border-color); display:flex; align-items:center; 
+    justify-content:center; font-size: 1.8rem; font-weight:800; border-radius:8px;
+}
+.tile.correct{background-color:var(--correct-color);border-color:var(--correct-color);box-shadow:0 0 14px var(--correct-glow);}
+.tile.present{background-color:var(--present-color);border-color:var(--present-color);}
+.tile.absent{background-color:var(--absent-color);border-color:var(--absent-color);}
 
-        body {
-            background: var(--bg-gradient);
-            color: var(--text-color);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow-x: hidden;
-        }
+/* الكيبورد (نفس الحجم السابق) */
+#keyboard { padding-bottom: 10px; }
+.keyboard-row{display:flex;justify-content:center;gap:4px;margin-bottom:6px;width:100%;}
+.key{
+    height:clamp(42px,6vh,58px);min-width:clamp(28px,6vw,43px);
+    background-color:var(--key-bg);color:var(--key-text);border:1px solid var(--border-color);
+    border-radius:8px;font-weight:700;font-size:clamp(0.85rem,3vw,1.1rem);
+    display:flex;align-items:center;justify-content:center;flex:1;
+}
+.key.wide{min-width:65px;}
+.key.enter{background-color:var(--correct-color); font-size:0.8rem;}
+.key.backspace{background-color:#9b2335;}
+.key.correct{background-color:var(--correct-color);border-color:var(--correct-color);}
+.key.present{background-color:var(--present-color);border-color:var(--present-color);}
+.key.absent{background-color:var(--absent-color);opacity:0.4;}
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .animate-fade-in { animation: fadeInUp 0.6s ease-out forwards; }
-
-        .glass-card {
-            background: var(--surface-color);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: var(--correct-color);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        .icon-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
-        }
-
-        .icon-box {
-            width: 18px;
-            height: 18px;
-            border-radius: 4px;
-        }
-
-        .preview-tile {
-            width: 2.2rem;
-            height: 2.2rem;
-            border-radius: 0.25rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 0.85rem;
-            color: white;
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--absent-color); border-radius: 10px; }
-    </style>
+/* الهيدر المبسط للتحدي */
+header {
+    padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.07);
+    display:flex; align-items:center; justify-content:space-between;
+}
+.score-badge {
+    background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px;
+    font-size: 0.85rem; font-weight: 700; display: flex; gap: 8px;
+}
+.score-badge span:first-child { color: var(--correct-color); }
+</style>
 </head>
-<body class="p-0 m-0">
+<body>
 
-    <header class="sticky top-0 z-50 w-full border-b border-[var(--border-color)] backdrop-blur-md bg-opacity-80 flex justify-between items-center px-6 py-4">
-        <div class="flex items-center gap-3">
-            <div class="w-8 h-8 bg-[var(--correct-color)] rounded-lg flex items-center justify-center">
-                <i class="fas fa-layer-group text-white text-sm"></i>
+<header>
+    <div class="text-sm font-bold opacity-70"><i class="fas fa-flag-checkered mr-2"></i> سباق الوقت</div>
+    <div class="score-badge">
+        <span>أنت: 0</span> | <span class="text-red-400">الخصم: 1</span>
+    </div>
+    <button class="bg-red-500/20 text-red-400 px-3 py-1 rounded-lg text-xs font-bold border border-red-500/30">انسحاب</button>
+</header>
+
+<div class="game-wrapper">
+    
+    <div class="opponent-area">
+        <div class="opponent-badge">الخصم (Ahmed99)</div>
+        <div class="opponent-grid">
+            <div class="opp-row">
+                <div class="opp-tile absent"></div>
+                <div class="opp-tile present"></div>
+                <div class="opp-tile absent"></div>
+                <div class="opp-tile absent"></div>
+                <div class="opp-tile absent"></div>
             </div>
-            <span class="text-xl font-black tracking-tighter">ووردلات</span>
+            <div class="opp-row">
+                <div class="opp-tile correct"></div>
+                <div class="opp-tile present"></div>
+                <div class="opp-tile correct"></div>
+                <div class="opp-tile absent"></div>
+                <div class="opp-tile absent"></div>
+            </div>
+            <div class="opp-row">
+                <div class="opp-tile filled"></div>
+                <div class="opp-tile filled"></div>
+                <div class="opp-tile filled"></div>
+                <div class="opp-tile"></div>
+                <div class="opp-tile"></div>
+            </div>
+            <div class="opp-row"><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div></div>
+            <div class="opp-row"><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div></div>
+            <div class="opp-row"><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div><div class="opp-tile"></div></div>
         </div>
-        <button id="themeToggle" class="w-10 h-10 rounded-xl bg-[var(--surface-color)] border border-[var(--border-color)] flex items-center justify-center transition-all">
-            <i class="fas fa-sun text-lg text-yellow-500"></i>
-        </button>
-    </header>
+    </div>
 
-    <main class="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
-        
-        <div class="mb-12 text-center animate-fade-in" style="animation-delay: 0.1s;">
-            <h2 class="text-4xl font-extrabold mb-3">مرحباً 👋</h2>
-            <p class="text-[var(--text-muted)] opacity-70">اختر التحدي الذي يناسبك وابدأ اللعب.</p>
+    <div class="vs-divider">
+        <div class="vs-line"></div>
+        <div class="vs-text">أنت</div>
+        <div class="vs-line"></div>
+    </div>
+
+    <div class="player-area">
+        <div id="grid">
+            <div class="grid-row">
+                <div class="tile absent">م</div>
+                <div class="tile present">ل</div>
+                <div class="tile absent">ع</div>
+                <div class="tile absent">ب</div>
+                <div class="tile absent">ة</div>
+            </div>
+            <div class="grid-row">
+                <div class="tile present">س</div>
+                <div class="tile absent">ل</div>
+                <div class="tile correct">ا</div>
+                <div class="tile absent">م</div>
+                <div class="tile absent">ي</div>
+            </div>
+            <div class="grid-row">
+                <div class="tile">ق</div>
+                <div class="tile">ا</div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+                <div class="tile"></div>
+            </div>
+            <div class="grid-row"><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div></div>
+            <div class="grid-row"><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div></div>
+            <div class="grid-row"><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div><div class="tile"></div></div>
         </div>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            
-            <a href="words.html" class="game-card glass-card rounded-3xl p-10 flex flex-col items-center text-center gap-8 no-underline group animate-fade-in" style="animation-delay: 0.2s;">
-                <div class="icon-grid">
-                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div>
-                    <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
-                    <div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold mb-2">ووردل الحروف</h3>
-                    <p class="text-sm opacity-60 leading-relaxed max-w-[200px]">خمن الكلمة المكونة من 5 حروف في 6 محاولات.</p>
-                </div>
-                <div class="flex gap-1.5 justify-center">
-                    <div class="preview-tile bg-[var(--correct-color)]">ك</div>
-                    <div class="preview-tile bg-[var(--present-color)]">ل</div>
-                    <div class="preview-tile bg-[var(--absent-color)]">م</div>
-                    <div class="preview-tile bg-[var(--correct-color)]">ا</div>
-                    <div class="preview-tile bg-[var(--correct-color)]">ت</div>
-                </div>
-            </a>
-
-            <a href="numbers.html" class="game-card glass-card rounded-3xl p-10 flex flex-col items-center text-center gap-8 no-underline group animate-fade-in" style="animation-delay: 0.3s;">
-                <div class="icon-grid">
-                    <div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
-                    <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold mb-2">ووردل الأرقام</h3>
-                    <p class="text-sm opacity-60 leading-relaxed max-w-[200px]">خمن الرقم السري المكون من 5 خانات بذكاء.</p>
-                </div>
-                <div class="flex gap-1.5 justify-center">
-                    <div class="preview-tile bg-[var(--correct-color)]">0</div>
-                    <div class="preview-tile bg-[var(--present-color)]">3</div>
-                    <div class="preview-tile bg-[var(--absent-color)]">9</div>
-                    <div class="preview-tile bg-[var(--present-color)]">5</div>
-                    <div class="preview-tile bg-[var(--correct-color)]">3</div>
-                </div>
-            </a>
-
-            <a href="arrows.html" class="game-card glass-card rounded-3xl p-10 flex flex-col items-center text-center gap-8 no-underline group animate-fade-in" style="animation-delay: 0.4s;">
-                <div class="icon-grid">
-                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                    <div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--present-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div>
-                    <div class="icon-box bg-[var(--correct-color)]"></div><div class="icon-box bg-[var(--absent-color)]"></div><div class="icon-box bg-[var(--correct-color)]"></div>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold mb-2">ووردل الأسهم</h3>
-                    <p class="text-sm opacity-60 leading-relaxed max-w-[200px]">خمن الاتجاهات الستة الصحيحة بدقة.</p>
-                </div>
-                <div class="flex gap-1.5 justify-center">
-                    <div class="preview-tile bg-[var(--correct-color)]">↑</div>
-                    <div class="preview-tile bg-[var(--present-color)]">↓</div>
-                    <div class="preview-tile bg-[var(--absent-color)]">←</div>
-                    <div class="preview-tile bg-[var(--correct-color)]">→</div>
-                    <div class="preview-tile bg-[var(--present-color)]">↑</div>
-                    <div class="preview-tile bg-[var(--correct-color)]">↓</div>
-                </div>
-            </a>
-
+    <div id="keyboard">
+        <div class="keyboard-row">
+            <div class="key">ج</div><div class="key">ح</div><div class="key">خ</div><div class="key">ه</div><div class="key absent">ع</div><div class="key">غ</div><div class="key">ف</div><div class="key">ق</div><div class="key">ث</div><div class="key">ص</div>
         </div>
-    </main>
+        <div class="keyboard-row">
+            <div class="key absent">ة</div><div class="key">ك</div><div class="key absent">م</div><div class="key">ن</div><div class="key">ت</div><div class="key correct">ا</div><div class="key present">ل</div><div class="key absent">ب</div><div class="key absent">ي</div><div class="key present">س</div><div class="key">ش</div>
+        </div>
+        <div class="keyboard-row">
+            <div class="key wide enter">Enter</div><div class="key">ض</div><div class="key">و</div><div class="key">ر</div><div class="key">ز</div><div class="key">د</div><div class="key">ذ</div><div class="key">ط</div><div class="key">ظ</div><div class="key wide backspace"><i class="fas fa-backspace"></i></div>
+        </div>
+    </div>
 
-    <footer class="p-8 text-center text-xs opacity-20"></footer>
-
-    <script>
-        const themeToggle = document.getElementById('themeToggle');
-        const icon = themeToggle.querySelector('i');
-        const savedTheme = localStorage.getItem('pro_wordle_theme');
-        
-        if (savedTheme === 'light') {
-            document.body.classList.add('light-mode');
-            icon.className = 'fas fa-moon text-lg text-blue-500';
-        }
-
-        themeToggle.addEventListener('click', () => {
-            const isLight = document.body.classList.toggle('light-mode');
-            icon.className = isLight ? 'fas fa-moon text-lg text-blue-500' : 'fas fa-sun text-lg text-yellow-500';
-            localStorage.setItem('pro_wordle_theme', isLight ? 'light' : 'dark');
-        });
-    </script>
+</div>
 
 </body>
 </html>
