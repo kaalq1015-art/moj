@@ -1,703 +1,218 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ووردلات - تحدي الأونلاين</title>
+import React, { useState, useMemo } from 'react';
+import { Heart, Sparkles, RefreshCw } from 'lucide-react';
 
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+const themeColors = ['#fbcfe8', '#fce7f3', '#f472b6', '#fdf2f8', '#ec4899'];
 
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-*{font-family:'Tajawal',sans-serif;box-sizing:border-box;}
-:root{
-    --correct-color:#538d4e;
-    --present-color:#b59f3b;
-    --absent-color:#3a3a3c;
-    --bg-color:#121213;
-    --bg-gradient:linear-gradient(180deg,#121213 0%,#050505 100%);
-    --surface-color:rgba(30,30,32,0.85);
-    --text-color:#ffffff;
-    --border-color:rgba(255,255,255,0.1);
-    --border-active:rgba(255,255,255,0.2);
-    --key-bg:rgba(255,255,255,0.08);
-    --key-text:#ffffff;
-    --correct-glow:rgba(83,141,78,0.5);
-    --present-glow:rgba(181,159,59,0.35);
-}
-body{
-    background:var(--bg-gradient); color:var(--text-color); margin:0; padding:0;
-    height:100dvh; display:flex; flex-direction:column; overflow:hidden;
-}
-.game-wrapper {
-    flex:1; display:flex; flex-direction:column; width:100%; max-width:600px; 
-    margin:0 auto; padding:10px; overflow:hidden; gap: 10px;
-}
-/* منطقة الخصم */
-.opponent-area {
-    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    background: rgba(255,255,255,0.03); border: 1px solid var(--border-color);
-    border-radius: 16px; padding: 15px 10px; position: relative;
-}
-.opponent-badge {
-    position: absolute; top: -12px; background: #e74c3c; color: white;
-    font-size: 0.75rem; font-weight: 800; padding: 2px 12px; border-radius: 12px;
-    box-shadow: 0 4px 10px rgba(231, 76, 60, 0.3);
-}
-.opponent-grid { display: flex; flex-direction: column; gap: 4px; }
-.opp-row { display: flex; gap: 4px; justify-content: center; }
-.opp-tile {
-    width: 28px; height: 28px; border-radius: 4px;
-    background: transparent; border: 1px solid var(--border-color);
-    transition: all 0.3s ease;
-}
-@media (max-width: 480px) {
-    .opp-tile { width: 22px; height: 22px; }
-}
-.opp-tile.filled { border-color: rgba(255,255,255,0.3); }
-.opp-tile.correct { background: var(--correct-color); border-color: var(--correct-color); box-shadow: 0 0 8px var(--correct-glow); }
-.opp-tile.present { background: var(--present-color); border-color: var(--present-color); }
-.opp-tile.absent { background: var(--absent-color); border-color: var(--absent-color); }
-.vs-divider { display: flex; align-items: center; justify-content: center; width: 100%; height: 20px; }
-.vs-line { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent); }
-.vs-text { margin: 0 10px; font-weight: 800; font-size: 0.8rem; color: rgba(255,255,255,0.5); }
-.player-area { flex: 2; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; padding-bottom: 5px; }
-.grid-row{display:flex; justify-content:center; gap:6px; margin-bottom:6px;}
-.tile{
-    width: clamp(45px, 12vw, 60px); height: clamp(45px, 12vw, 60px); 
-    border:2px solid var(--border-color); display:flex; align-items:center; 
-    justify-content:center; font-size: 1.8rem; font-weight:800; border-radius:8px;
-}
-.tile.correct{background-color:var(--correct-color);border-color:var(--correct-color);box-shadow:0 0 14px var(--correct-glow);}
-.tile.present{background-color:var(--present-color);border-color:var(--present-color);}
-.tile.absent{background-color:var(--absent-color);border-color:var(--absent-color);}
-#keyboard { padding-bottom: 10px; }
-.keyboard-row{display:flex;justify-content:center;gap:4px;margin-bottom:6px;width:100%;}
-.key{
-    height:clamp(42px,6vh,58px);min-width:clamp(28px,6vw,43px);
-    background-color:var(--key-bg);color:var(--key-text);border:1px solid var(--border-color);
-    border-radius:8px;font-weight:700;font-size:clamp(0.85rem,3vw,1.1rem);
-    display:flex;align-items:center;justify-content:center;flex:1; cursor:pointer;
-}
-.key.wide{min-width:65px;}
-.key.enter{background-color:var(--correct-color); font-size:0.8rem;}
-.key.backspace{background-color:#9b2335;}
-.key.correct{background-color:var(--correct-color);border-color:var(--correct-color);}
-.key.present{background-color:var(--present-color);border-color:var(--present-color);}
-.key.absent{background-color:var(--absent-color);opacity:0.4;}
-header {
-    padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.07);
-    display:flex; align-items:center; justify-content:space-between;
-}
-.score-badge {
-    background: rgba(255,255,255,0.1); padding: 4px 12px; border-radius: 20px;
-    font-size: 0.85rem; font-weight: 700; display: flex; gap: 8px;
-}
-.score-badge span:first-child { color: var(--correct-color); }
-.modal {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
-    display: flex; align-items: center; justify-content: center; z-index: 1000;
-}
-.modal-content {
-    background: var(--surface-color); border-radius: 20px; padding: 20px; width: 90%; max-width: 400px;
-    border: 1px solid var(--border-color);
-}
-.word-choice-grid {
-    display: grid; grid-template-columns: repeat(2,1fr); gap: 10px; margin: 15px 0;
-}
-.word-choice-btn {
-    background: rgba(255,255,255,0.1); border: 1px solid var(--border-color);
-    padding: 10px; border-radius: 12px; font-size: 1.2rem; font-weight: bold;
-    cursor: pointer; transition: 0.2s;
-}
-.word-choice-btn:hover { background: var(--correct-color); color: white; transform: scale(1.02); }
-.hidden { display: none; }
-button { cursor: pointer; }
-</style>
-</head>
-<body>
-
-<header>
-    <div class="text-sm font-bold opacity-70"><i class="fas fa-flag-checkered mr-2"></i> سباق الوقت</div>
-    <div class="score-badge">
-        <span id="myScore">أنت: 0</span> | <span id="oppScore" class="text-red-400">الخصم: 0</span>
+// مكون الفراشة
+const Butterfly = ({ color, size, style }) => (
+  <div className="butterfly-container pointer-events-none" style={{ ...style, width: size, height: size }}>
+    <div className="butterfly-body">
+      <div className="wing-rounded left" style={{ backgroundColor: color }}></div>
+      <div className="wing-rounded right" style={{ backgroundColor: color }}></div>
     </div>
-    <button id="leaveBtn" class="bg-red-500/20 text-red-400 px-3 py-1 rounded-lg text-xs font-bold border border-red-500/30">انسحاب</button>
-</header>
+  </div>
+);
 
-<div class="game-wrapper">
-    <!-- منطقة الخصم -->
-    <div class="opponent-area">
-        <div class="opponent-badge" id="opponentName">الخصم (غير متصل)</div>
-        <div id="opponentGrid" class="opponent-grid"></div>
+// مكون أغصان الساكورا
+const SakuraBranch = ({ className, style }) => (
+  <svg viewBox="0 0 200 200" className={`pointer-events-none ${className}`} style={style} xmlns="http://www.w3.org/2000/svg">
+    <path d="M0,0 Q100,50 200,100" stroke="#5D4037" strokeWidth="4" fill="none" />
+    <path d="M50,25 Q100,80 120,150" stroke="#5D4037" strokeWidth="3" fill="none" />
+    <circle cx="100" cy="50" r="15" fill="#fbcfe8" />
+    <circle cx="95" cy="45" r="10" fill="#f472b6" />
+    <circle cx="200" cy="100" r="20" fill="#fbcfe8" />
+    <circle cx="190" cy="95" r="12" fill="#f472b6" />
+    <circle cx="120" cy="150" r="18" fill="#fbcfe8" />
+    <circle cx="150" cy="120" r="14" fill="#fbcfe8" />
+  </svg>
+);
+
+const App = () => {
+  const [currentStep, setCurrentStep] = useState(-1);
+  const [isStarted, setIsStarted] = useState(false);
+
+  // العبارات بتشكيلك الدقيق
+  const slides = [
+    { text: "إليكِ يا أُمي" },
+    { text: "أنتِ أجملُ نِعَمِ حياتي، والروحُ التي لا غنى لي عنها" },
+    { text: "أنتِ الملاذ الآمن، وأحنُّ قلب احتواني في كل أوقاتي" },
+    { text: "نصف السعادة أنتِ.. ونصفها الآخر دعوة منكِ" },
+    { text: "إنْ كان بإمكاني إعطاؤكِ شيء في هذه الحياة.." },
+    { text: "كُنتُ سأمنحكِ القدرةَ على رؤية نفسكِ في عيني" },
+    { text: "لأنّكِ استثنائية بالنسبة لي.. والأهم في حياتي" },
+    { text: "وأول من أُشاركها أفراحي وسعادتي" },
+    { text: "أريد إخباركِ اليوم بأن ابنتكِ الصغيرة" },
+    { text: "هيا", isHighlight: true },
+    { text: "قد كبرت.. وستصبح قريبا أُمـًّا", isFinal: true },
+  ];
+
+  const handleScreenTap = () => {
+    if (!isStarted) {
+      setIsStarted(true);
+      setCurrentStep(0);
+    } else if (currentStep < slides.length - 1) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
+
+  // بتلات الزفاف المتطايرة
+  const fallingPetals = useMemo(() => {
+    return Array.from({ length: 60 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100 + "%",
+      delay: Math.random() * -20 + "s",
+      duration: Math.random() * 15 + 10 + "s",
+      size: Math.random() * 10 + 8,
+      rotation: Math.random() * 360 + "deg",
+      color: themeColors[i % 5]
+    }));
+  }, []);
+
+  // الفراشات
+  const butterflies = useMemo(() => {
+    return Array.from({ length: 20 }).map((_, i) => ({
+      id: i,
+      left: Math.random() * 100 + "%",
+      top: Math.random() * 100 + "%",
+      size: Math.random() * 15 + 20,
+      duration: Math.random() * 25 + 15 + "s",
+      delay: Math.random() * -20 + "s",
+      color: themeColors[i % 5]
+    }));
+  }, []);
+
+  return (
+    <div 
+      className="min-h-screen bg-gradient-to-br from-[#fdf2f8] to-[#fce7f3] flex flex-col items-center justify-center overflow-hidden relative p-6 text-right cursor-pointer select-none"
+      dir="rtl"
+      onClick={handleScreenTap}
+    >
+
+      {/* زر الإعادة - دائرة أعلى اليمين تظهر في النهاية فقط */}
+      {currentStep === slides.length - 1 && (
+        <button 
+          onClick={(e) => { e.stopPropagation(); setCurrentStep(0); }}
+          className="absolute top-6 right-6 md:top-8 md:right-8 w-12 h-12 flex items-center justify-center text-pink-500 bg-white/90 rounded-full backdrop-blur-md shadow-lg border border-pink-100 z-50 hover:scale-110 hover:rotate-180 pointer-events-auto transition-all duration-500"
+          title="إعادة الرسالة"
+        >
+          <RefreshCw className="w-6 h-6" />
+        </button>
+      )}
+
+      {/* بتلات الزفاف */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        {fallingPetals.map((petal) => (
+          <div
+            key={`petal-${petal.id}`}
+            className="absolute rounded-tl-full rounded-br-full opacity-60"
+            style={{
+              left: petal.left,
+              top: '-10%',
+              width: petal.size,
+              height: petal.size * 1.5,
+              backgroundColor: petal.color,
+              animation: `fallDown ${petal.duration} infinite linear`,
+              animationDelay: petal.delay,
+              transform: `rotate(${petal.rotation})`
+            }}
+          />
+        ))}
+      </div>
+
+      {/* الفراشات */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        {butterflies.map((b) => (
+          <Butterfly 
+            key={`bf-${b.id}`} 
+            color={b.color} 
+            size={b.size}
+            style={{
+              position: 'absolute',
+              left: b.left,
+              top: b.top,
+              animation: `floatAround ${b.duration} infinite linear`,
+              animationDelay: b.delay
+            }}
+          />
+        ))}
+      </div>
+      
+      {/* أغصان الساكورا الثابتة */}
+      <div className="absolute top-0 left-0 w-full z-10 opacity-80 pointer-events-none transition-opacity duration-1000">
+        <SakuraBranch className="absolute top-0 left-0 w-64 h-64 -ml-10 -mt-10" />
+        <SakuraBranch className="absolute top-0 right-0 w-80 h-80 -mr-10 -mt-10 transform scale-x-[-1]" />
+      </div>
+
+      {!isStarted ? (
+        <div className="z-20 text-center flex flex-col items-center justify-center h-full pb-10 mt-20">
+          <div className="mb-8 relative group">
+             <div className="w-44 h-44 bg-white/70 backdrop-blur-md rounded-full flex items-center justify-center border-4 border-white shadow-xl animate-breath">
+                <Heart className="w-20 h-20 text-pink-500 fill-pink-500/20 animate-pulse" />
+             </div>
+             <Sparkles className="absolute -top-2 -right-2 text-pink-600 w-10 h-10 animate-spin-slow" />
+          </div>
+          <h1 className="text-4xl text-pink-900 mb-6 font-ruqaa font-bold">رسالة مليئة بالحب..</h1>
+          <p className="text-xl font-ruqaa text-pink-600 animate-bounce">المسي الشاشة لفتح الرسالة يا أمي</p>
+        </div>
+      ) : (
+        <div className="w-full max-w-4xl z-20 px-4 h-full flex flex-col items-center justify-center">
+          {/* النص في المنتصف بمسافة لحمايته من الأغصان */}
+          <div className="relative w-full aspect-square md:aspect-video flex items-center justify-center mt-24">
+            {slides.map((slide, index) => (
+              <div 
+                key={index}
+                className={`absolute inset-0 flex flex-col items-center justify-center text-center transition-opacity duration-1000 ease-in-out
+                  ${index === currentStep ? 'opacity-100 z-20' : 'opacity-0 z-0 pointer-events-none'}`}
+              >
+                <h2 className={`font-ruqaa leading-relaxed text-shadow-elegant transition-colors
+                  ${slide.isHighlight ? 'text-[120px] md:text-[160px] text-pink-600 font-bold' : 
+                    slide.isFinal ? 'text-5xl md:text-6xl font-bold text-gray-900' : 'text-4xl md:text-5xl text-pink-900'}`}
+                >
+                  {slide.text}
+                </h2>
+                {slide.isFinal && (
+                  <div className="mt-10 scale-125">
+                     <div className="relative bg-white/90 p-8 rounded-full shadow-2xl border-2 border-white inline-block">
+                        <Heart className="w-16 h-16 text-pink-500 fill-pink-500/20 animate-pulse" />
+                     </div>
+                     <div className="mt-6 text-4xl text-pink-600 font-ruqaa font-bold text-shadow-elegant">مبارك يا جدتي الغالية!</div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap');
+        .font-ruqaa { font-family: 'Aref Ruqaa', serif; }
+        .text-shadow-elegant { text-shadow: 2px 2px 15px white, 0 0 30px rgba(255,255,255,0.8); }
+        .butterfly-container { transform-style: preserve-3d; perspective: 600px; }
+        .butterfly-body { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateX(45deg); }
+        .wing-rounded { position: absolute; width: 50%; height: 100%; top: 0; opacity: 0.85; border-radius: 50%; border: 0.5px solid rgba(255,255,255,0.3); }
+        .wing-rounded.left { left: 0; transform-origin: right center; animation: flapLeft 0.4s infinite alternate; }
+        .wing-rounded.right { right: 0; transform-origin: left center; animation: flapRight 0.4s infinite alternate; }
+        @keyframes flapLeft { from { transform: rotateY(0deg); } to { transform: rotateY(60deg); } }
+        @keyframes flapRight { from { transform: rotateY(0deg); } to { transform: rotateY(-60deg); } }
+        @keyframes floatAround {
+          0% { transform: translate(0, 0) scale(1); }
+          25% { transform: translate(15vw, -15vh) scale(1.1); }
+          50% { transform: translate(30vw, 5vh) scale(0.9); }
+          100% { transform: translate(0, 0) scale(1); }
+        }
+        @keyframes fallDown {
+          0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+          10% { opacity: 0.8; }
+          100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+        .animate-breath { animation: breath 3s infinite alternate; }
+        @keyframes breath { from { transform: scale(1); } to { transform: scale(1.05); } }
+        .animate-spin-slow { animation: spin 25s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      `}</style>
     </div>
-
-    <div class="vs-divider">
-        <div class="vs-line"></div>
-        <div class="vs-text">أنت</div>
-        <div class="vs-line"></div>
-    </div>
-
-    <div class="player-area">
-        <div id="playerGrid"></div>
-    </div>
-
-    <div id="keyboard"></div>
-</div>
-
-<!-- Modal لاختيار الكلمة -->
-<div id="wordSelectModal" class="modal hidden">
-    <div class="modal-content">
-        <h2 class="text-xl font-bold text-center mb-4">اختر كلمتك للخصم</h2>
-        <div id="wordOptions" class="word-choice-grid"></div>
-        <button id="randomWordBtn" class="w-full bg-gray-600 py-2 rounded-lg mt-2">اختيار عشوائي</button>
-    </div>
-</div>
-
-<script>
-// ====================== إعداد Firebase ======================
-// ضع بيانات مشروعك هنا (تجدها في إعدادات Firebase)
-const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_SENDER_ID",
-    appId: "YOUR_APP_ID"
-};
-// تهيئة Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-
-// ====================== قاموس الكلمات ======================
-// قاموس للتحقق من صحة التخمين (أكثر من 100 كلمة)
-const VALID_WORDS = [
-    "كلمة", "بيت", "ماء", "شمس", "قمر", "نجم", "ورد", "نهر", "جبل", "وادي",
-    "كتاب", "قلم", "ورق", "حاسوب", "هاتف", "شاشة", "طاولة", "كرسي", "باب", "نافذة",
-    "سيارة", "طريق", "جسر", "مدينة", "قرية", "مدرسة", "جامعة", "مستشفى", "مطعم", "فندق",
-    "طائر", "سمكة", "أسد", "نمر", "فيل", "زرافة", "ثعلب", "أرنب", "حصان", "بقرة",
-    "تفاح", "موز", "برتقال", "عنب", "فراولة", "مانجو", "بطيخ", "خوخ", "كرز", "ليمون"
-]; // يمكنك إضافة المزيد
-
-// قائمة أكبر لاختيار الـ 10 كلمات (نأخذ 10 عشوائية)
-function getRandomWords(count = 10) {
-    const shuffled = [...VALID_WORDS];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled.slice(0, count);
-}
-
-// التحقق من صحة كلمة
-function isValidWord(word) {
-    return VALID_WORDS.includes(word);
-}
-
-// ====================== متغيرات اللعبة ======================
-let roomId = null;
-let playerId = null; // معرف اللاعب في الغرفة (يتم توليده)
-let myName = null;
-let opponentId = null;
-let gameState = {
-    status: 'waiting', // waiting, selecting, playing, finished
-    myWord: null,
-    opponentWord: null,
-    myGuesses: [], // قائمة التخمينات (نصوص)
-    opponentGuesses: [],
-    myScore: 0,
-    opponentScore: 0,
-    myTurn: true, // لكن اللعب متزامن
-};
-let currentGuess = "";
-let currentRow = 0;
-let maxAttempts = 6;
-let unsubRoom = null;
-
-// ====================== دوال المساعدة ======================
-function showModal(id) { document.getElementById(id).classList.remove('hidden'); }
-function hideModal(id) { document.getElementById(id).classList.add('hidden'); }
-
-// توليد معرف لاعب عشوائي
-function generatePlayerId() {
-    return 'player_' + Math.random().toString(36).substr(2, 9);
-}
-
-// إنشاء شبكة اللاعب (6 صفوف)
-function renderPlayerGrid() {
-    const container = document.getElementById('playerGrid');
-    container.innerHTML = '';
-    for (let row = 0; row < maxAttempts; row++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'grid-row';
-        for (let col = 0; col < 5; col++) {
-            const tile = document.createElement('div');
-            tile.className = 'tile';
-            if (row < gameState.myGuesses.length) {
-                const guess = gameState.myGuesses[row];
-                if (guess && guess.word) {
-                    tile.textContent = guess.word[col] || '';
-                    const result = guess.result[col];
-                    tile.classList.add(result);
-                }
-            } else if (row === gameState.myGuesses.length && currentGuess && row === currentRow) {
-                tile.textContent = currentGuess[col] || '';
-                if (currentGuess[col]) tile.classList.add('filled');
-            }
-            rowDiv.appendChild(tile);
-        }
-        container.appendChild(rowDiv);
-    }
-}
-
-// عرض شبكة الخصم (يتم تحديثها من بيانات Firebase)
-function renderOpponentGrid() {
-    const container = document.getElementById('opponentGrid');
-    container.innerHTML = '';
-    // نعرض 6 صفوف للخصم
-    for (let row = 0; row < maxAttempts; row++) {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'opp-row';
-        for (let col = 0; col < 5; col++) {
-            const tile = document.createElement('div');
-            tile.className = 'opp-tile';
-            if (row < gameState.opponentGuesses.length) {
-                const guess = gameState.opponentGuesses[row];
-                if (guess && guess.result) {
-                    tile.classList.add(guess.result[col]);
-                } else {
-                    tile.classList.add('filled');
-                }
-            } else if (row === gameState.opponentGuesses.length && gameState.opponentGuesses.length < maxAttempts) {
-                // صف جاري
-                if (gameState.opponentGuesses.length === row) {
-                    tile.classList.add('filled');
-                }
-            }
-            rowDiv.appendChild(tile);
-        }
-        container.appendChild(rowDiv);
-    }
-}
-
-// تحديث لوحة المفاتيح بناءً على الألوان المسجلة
-function updateKeyboardColors() {
-    // إعادة تعيين الكلاس
-    document.querySelectorAll('.key').forEach(k => {
-        if (!k.classList.contains('enter') && !k.classList.contains('backspace'))
-            k.classList.remove('correct', 'present', 'absent');
-    });
-    // لكل تخمين من تخمينات اللاعب، نحدث المفاتيح
-    gameState.myGuesses.forEach(guess => {
-        if (!guess || !guess.result) return;
-        for (let i = 0; i < 5; i++) {
-            const letter = guess.word[i];
-            const status = guess.result[i];
-            const key = document.querySelector(`.key[data-key="${letter}"]`);
-            if (key) {
-                if (status === 'correct') key.classList.add('correct');
-                else if (status === 'present' && !key.classList.contains('correct')) key.classList.add('present');
-                else if (status === 'absent' && !key.classList.contains('correct') && !key.classList.contains('present')) key.classList.add('absent');
-            }
-        }
-    });
-}
-
-// حساب نتيجة تخمين
-function calculateResult(guess, target) {
-    const result = Array(5).fill('absent');
-    const targetCount = {};
-    for (let ch of target) targetCount[ch] = (targetCount[ch] || 0) + 1;
-    for (let i = 0; i < 5; i++) {
-        if (guess[i] === target[i]) {
-            result[i] = 'correct';
-            targetCount[guess[i]]--;
-        }
-    }
-    for (let i = 0; i < 5; i++) {
-        if (result[i] !== 'correct' && targetCount[guess[i]] > 0) {
-            result[i] = 'present';
-            targetCount[guess[i]]--;
-        }
-    }
-    return result;
-}
-
-// إرسال تخمين
-async function submitGuess() {
-    if (gameState.status !== 'playing') {
-        alert('اللعبة لم تبدأ بعد أو انتهت.');
-        return;
-    }
-    if (currentGuess.length !== 5) {
-        alert('يجب إدخال 5 أحرف');
-        return;
-    }
-    if (!isValidWord(currentGuess)) {
-        alert('الكلمة غير موجودة في القاموس');
-        return;
-    }
-    // التحقق من عدم تكرار التخمين
-    if (gameState.myGuesses.some(g => g.word === currentGuess)) {
-        alert('لقد جربت هذه الكلمة من قبل');
-        return;
-    }
-
-    const result = calculateResult(currentGuess, gameState.opponentWord);
-    const newGuess = { word: currentGuess, result: result };
-    const newGuesses = [...gameState.myGuesses, newGuess];
-    const win = currentGuess === gameState.opponentWord;
-
-    // تحديث محلي
-    gameState.myGuesses = newGuesses;
-    currentGuess = '';
-    currentRow = newGuesses.length;
-    renderPlayerGrid();
-    updateKeyboardColors();
-
-    // تحديث في Firebase
-    const roomRef = db.collection('rooms').doc(roomId);
-    await roomRef.update({
-        [`players.${playerId}.guesses`]: newGuesses,
-        [`players.${playerId}.currentGuess`]: '' // إعادة تعيين
-    });
-
-    if (win) {
-        // أعلن فوز هذا اللاعب
-        await roomRef.update({
-            winner: playerId,
-            status: 'finished'
-        });
-        alert('مبروك! لقد فزت!');
-        // تحديث النقاط
-        gameState.myScore++;
-        document.getElementById('myScore').innerText = `أنت: ${gameState.myScore}`;
-        await roomRef.update({ scores: { [playerId]: gameState.myScore, [opponentId]: gameState.opponentScore } });
-    } else if (newGuesses.length === maxAttempts) {
-        alert('انتهت المحاولات! الخصم فاز.');
-        // خسارة
-        gameState.opponentScore++;
-        document.getElementById('oppScore').innerText = `الخصم: ${gameState.opponentScore}`;
-        await roomRef.update({ winner: opponentId, status: 'finished', scores: { [playerId]: gameState.myScore, [opponentId]: gameState.opponentScore } });
-    }
-}
-
-// معالجة الإدخال من لوحة المفاتيح
-function handleKey(key) {
-    if (gameState.status !== 'playing') return;
-    if (key === 'Enter') {
-        submitGuess();
-    } else if (key === 'Backspace') {
-        currentGuess = currentGuess.slice(0, -1);
-        renderPlayerGrid();
-    } else if (/^[\u0600-\u06FF]$/.test(key) && currentGuess.length < 5) {
-        currentGuess += key;
-        renderPlayerGrid();
-    }
-}
-
-// إنشاء لوحة المفاتيح
-function buildKeyboard() {
-    const layout = [
-        ["ج","ح","خ","ه","ع","غ","ف","ق","ث","ص"],
-        ["ة","ك","م","ن","ت","ا","ل","ب","ي","س","ش"],
-        ["ض","و","ر","ز","د","ذ","ط","ظ"]
-    ];
-    const keyboardDiv = document.getElementById('keyboard');
-    keyboardDiv.innerHTML = '';
-    layout.forEach((row, idx) => {
-        const rowDiv = document.createElement('div');
-        rowDiv.className = 'keyboard-row';
-        if (idx === 2) {
-            const enterKey = document.createElement('div');
-            enterKey.className = 'key wide enter';
-            enterKey.textContent = 'Enter';
-            enterKey.dataset.key = 'Enter';
-            enterKey.addEventListener('click', () => handleKey('Enter'));
-            rowDiv.appendChild(enterKey);
-        }
-        row.forEach(letter => {
-            const key = document.createElement('div');
-            key.className = 'key';
-            key.textContent = letter;
-            key.dataset.key = letter;
-            key.addEventListener('click', () => handleKey(letter));
-            rowDiv.appendChild(key);
-        });
-        if (idx === 2) {
-            const backspace = document.createElement('div');
-            backspace.className = 'key wide backspace';
-            backspace.innerHTML = '<i class="fas fa-backspace"></i>';
-            backspace.dataset.key = 'Backspace';
-            backspace.addEventListener('click', () => handleKey('Backspace'));
-            rowDiv.appendChild(backspace);
-        }
-        keyboardDiv.appendChild(rowDiv);
-    });
-}
-
-// ====================== اختيار الكلمة ======================
-async function showWordSelection() {
-    const words = getRandomWords(10);
-    const container = document.getElementById('wordOptions');
-    container.innerHTML = '';
-    words.forEach(word => {
-        const btn = document.createElement('button');
-        btn.className = 'word-choice-btn';
-        btn.textContent = word;
-        btn.onclick = async () => {
-            // اختيار هذه الكلمة
-            await db.collection('rooms').doc(roomId).update({
-                [`players.${playerId}.word`]: word,
-                [`players.${playerId}.wordSelected`]: true
-            });
-            hideModal('wordSelectModal');
-            // بعد اختيار الكلمة، نتحقق إن كان الخصم اختار أيضاً
-            checkBothSelected();
-        };
-        container.appendChild(btn);
-    });
-    document.getElementById('randomWordBtn').onclick = () => {
-        const randomWord = words[Math.floor(Math.random() * words.length)];
-        // محاكاة الضغط
-        const btn = Array.from(document.querySelectorAll('.word-choice-btn')).find(b => b.textContent === randomWord);
-        if (btn) btn.click();
-    };
-    showModal('wordSelectModal');
-}
-
-async function checkBothSelected() {
-    const roomSnap = await db.collection('rooms').doc(roomId).get();
-    const roomData = roomSnap.data();
-    const players = roomData.players;
-    const allSelected = Object.values(players).every(p => p.wordSelected);
-    if (allSelected) {
-        // تعيين كلمات اللاعبين لبعضهم
-        const myWord = players[playerId].word;
-        const oppWord = players[opponentId].word;
-        await db.collection('rooms').doc(roomId).update({
-            status: 'playing',
-            words: { [playerId]: myWord, [opponentId]: oppWord }
-        });
-        // تحديث محلي
-        gameState.opponentWord = oppWord;
-        gameState.myWord = myWord;
-        gameState.status = 'playing';
-        // إعادة ضبط التخمينات
-        gameState.myGuesses = [];
-        gameState.opponentGuesses = [];
-        currentGuess = "";
-        currentRow = 0;
-        renderPlayerGrid();
-        renderOpponentGrid();
-    }
-}
-
-// ====================== الاستماع لتغييرات الغرفة ======================
-function listenToRoom() {
-    if (unsubRoom) unsubRoom();
-    unsubRoom = db.collection('rooms').doc(roomId).onSnapshot(async (docSnap) => {
-        if (!docSnap.exists) {
-            alert('الغرفة غير موجودة');
-            return;
-        }
-        const data = docSnap.data();
-        // تحديث حالة اللعبة
-        gameState.status = data.status;
-        if (data.status === 'selecting') {
-            // عرض اختيار الكلمة إذا لم يختر بعد
-            if (!data.players[playerId]?.wordSelected) {
-                showWordSelection();
-            }
-        } else if (data.status === 'playing') {
-            // تحديث الكلمات
-            gameState.opponentWord = data.words[opponentId];
-            gameState.myWord = data.words[playerId];
-            // تحديث تخمينات الخصم
-            if (data.players[opponentId]?.guesses) {
-                gameState.opponentGuesses = data.players[opponentId].guesses;
-            } else {
-                gameState.opponentGuesses = [];
-            }
-            // تحديث تخميناتي
-            if (data.players[playerId]?.guesses) {
-                gameState.myGuesses = data.players[playerId].guesses;
-                // حساب الصف الحالي
-                currentRow = gameState.myGuesses.length;
-                if (currentRow < maxAttempts && gameState.myGuesses.length > 0) {
-                    currentGuess = ""; // نبدأ صف جديد
-                }
-            } else {
-                gameState.myGuesses = [];
-                currentRow = 0;
-            }
-            renderPlayerGrid();
-            renderOpponentGrid();
-            updateKeyboardColors();
-        } else if (data.status === 'finished') {
-            // عرض الفائز
-            const winner = data.winner;
-            if (winner === playerId) {
-                alert('فزت أنت!');
-                gameState.myScore = (data.scores?.[playerId] || 0) + 1;
-                gameState.opponentScore = data.scores?.[opponentId] || 0;
-            } else {
-                alert('الخصم فاز!');
-                gameState.opponentScore = (data.scores?.[opponentId] || 0) + 1;
-                gameState.myScore = data.scores?.[playerId] || 0;
-            }
-            document.getElementById('myScore').innerText = `أنت: ${gameState.myScore}`;
-            document.getElementById('oppScore').innerText = `الخصم: ${gameState.opponentScore}`;
-            // يمكن إعادة اللعب تلقائياً أو عرض زر
-            alert('انتهت الجولة. سيتم بدء جولة جديدة قريباً');
-            // بدء جولة جديدة
-            startNewRound();
-        }
-        // تحديث اسم الخصم
-        const oppData = data.players[opponentId];
-        if (oppData && oppData.name) {
-            document.getElementById('opponentName').innerText = oppData.name;
-        }
-    });
-}
-
-// بدء جولة جديدة بعد انتهاء الجولة
-async function startNewRound() {
-    // إعادة تعيين حالة اللاعبين
-    await db.collection('rooms').doc(roomId).update({
-        status: 'selecting',
-        winner: null,
-        [`players.${playerId}.wordSelected`]: false,
-        [`players.${opponentId}.wordSelected`]: false,
-        [`players.${playerId}.word`]: null,
-        [`players.${opponentId}.word`]: null,
-        [`players.${playerId}.guesses`]: [],
-        [`players.${opponentId}.guesses`]: [],
-        words: {}
-    });
-    gameState.status = 'selecting';
-    gameState.myGuesses = [];
-    gameState.opponentGuesses = [];
-    currentGuess = "";
-    currentRow = 0;
-    renderPlayerGrid();
-    renderOpponentGrid();
-    // عرض اختيار الكلمة للاعب
-    showWordSelection();
-}
-
-// ====================== إنشاء أو الانضمام إلى غرفة ======================
-async function createRoom() {
-    playerId = generatePlayerId();
-    myName = prompt('أدخل اسمك:') || 'لاعب';
-    const roomRef = db.collection('rooms').doc();
-    roomId = roomRef.id;
-    const roomData = {
-        players: {
-            [playerId]: {
-                name: myName,
-                word: null,
-                wordSelected: false,
-                guesses: [],
-                currentGuess: ''
-            }
-        },
-        status: 'waiting',
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        scores: { [playerId]: 0 }
-    };
-    await roomRef.set(roomData);
-    // انتظار خصم ينضم
-    alert('تم إنشاء الغرفة! الرمز: ' + roomId + '\nأرسله لصديقك للانضمام.');
-    await waitForOpponent(roomRef);
-}
-
-async function joinRoom() {
-    const code = prompt('أدخل رمز الغرفة:');
-    if (!code) return;
-    roomId = code;
-    const roomRef = db.collection('rooms').doc(roomId);
-    const doc = await roomRef.get();
-    if (!doc.exists) {
-        alert('الغرفة غير موجودة');
-        return;
-    }
-    playerId = generatePlayerId();
-    myName = prompt('أدخل اسمك:') || 'لاعب';
-    // إضافة اللاعب إلى الغرفة
-    await roomRef.update({
-        [`players.${playerId}`]: {
-            name: myName,
-            word: null,
-            wordSelected: false,
-            guesses: [],
-            currentGuess: ''
-        },
-        [`scores.${playerId}`]: 0
-    });
-    // بعد الانضمام، نحدد الخصم
-    const data = doc.data();
-    const otherPlayer = Object.keys(data.players).find(id => id !== playerId);
-    if (otherPlayer) {
-        opponentId = otherPlayer;
-        // بدء مرحلة اختيار الكلمة
-        await roomRef.update({ status: 'selecting' });
-    } else {
-        // انتظر الخصم
-        alert('بانتظار الخصم...');
-        await waitForOpponent(roomRef);
-    }
-}
-
-async function waitForOpponent(roomRef) {
-    return new Promise((resolve) => {
-        const unsub = roomRef.onSnapshot(async (snap) => {
-            const data = snap.data();
-            const players = data.players;
-            const playerIds = Object.keys(players);
-            if (playerIds.length === 2) {
-                unsub();
-                opponentId = playerIds.find(id => id !== playerId);
-                await roomRef.update({ status: 'selecting' });
-                resolve();
-            }
-        });
-    });
-}
-
-// ====================== بدء اللعبة ======================
-async function initGame() {
-    buildKeyboard();
-    // اختيار بين إنشاء غرفة أو انضمام
-    const choice = confirm('هل تريد إنشاء غرفة جديدة؟\n(اضغط موافق لإنشاء، إلغاء للانضمام)');
-    if (choice) {
-        await createRoom();
-    } else {
-        await joinRoom();
-    }
-    listenToRoom();
-}
-
-// زر الانسحاب
-document.getElementById('leaveBtn').onclick = () => {
-    if (roomId && playerId) {
-        db.collection('rooms').doc(roomId).update({
-            [`players.${playerId}`]: firebase.firestore.FieldValue.delete()
-        }).then(() => {
-            alert('تم الانسحاب');
-            window.location.reload();
-        });
-    } else {
-        window.location.reload();
-    }
+  );
 };
 
-// بدء
-initGame();
-</script>
-</body>
-</html>
+export default App;
