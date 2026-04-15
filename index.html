@@ -1,1 +1,290 @@
-نمةيبل
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رسالة مليئة بالحب</title>
+    <!-- استدعاء خط الرقعة -->
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+    <!-- استدعاء مكتبة Tailwind CSS للتنسيق -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Aref Ruqaa', serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom right, #fdf2f8, #fce7f3);
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .text-shadow-elegant { text-shadow: 2px 2px 15px white, 0 0 30px rgba(255,255,255,0.8); }
+        
+        /* الفراشات */
+        .butterfly-container { transform-style: preserve-3d; perspective: 600px; position: absolute; pointer-events: none; }
+        .butterfly-body { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transform: rotateX(45deg); }
+        .wing-rounded { position: absolute; width: 50%; height: 100%; top: 0; opacity: 0.85; border-radius: 50%; border: 0.5px solid rgba(255,255,255,0.3); }
+        .wing-rounded.left { left: 0; transform-origin: right center; animation: flapLeft 0.4s infinite alternate; }
+        .wing-rounded.right { right: 0; transform-origin: left center; animation: flapRight 0.4s infinite alternate; }
+        
+        @keyframes flapLeft { from { transform: rotateY(0deg); } to { transform: rotateY(60deg); } }
+        @keyframes flapRight { from { transform: rotateY(0deg); } to { transform: rotateY(-60deg); } }
+        
+        @keyframes floatAround {
+            0% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(15vw, -15vh) scale(1.1); }
+            50% { transform: translate(30vw, 5vh) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* حركة البتلات المتساقطة */
+        @keyframes fallDown {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.8; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
+        }
+
+        .animate-breath { animation: breath 3s infinite alternate; }
+        @keyframes breath { from { transform: scale(1); } to { transform: scale(1.05); } }
+        
+        .animate-spin-slow { animation: spin 25s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* الشفافية والانتقالات */
+        .fade-transition {
+            transition: opacity 1s ease-in-out;
+        }
+
+        .slide-hidden {
+            opacity: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .slide-visible {
+            opacity: 1;
+            z-index: 20;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center relative p-6 text-right cursor-pointer" onclick="handleScreenTap()">
+
+    <!-- بتلات الزفاف المتطايرة -->
+    <div id="petals-container" class="absolute inset-0 pointer-events-none z-0 overflow-hidden"></div>
+
+    <!-- الفراشات -->
+    <div id="butterflies-container" class="absolute inset-0 pointer-events-none z-0"></div>
+
+    <!-- أغصان الساكورا الثابتة -->
+    <div class="absolute top-0 left-0 w-full z-10 opacity-80 pointer-events-none">
+        <svg viewBox="0 0 200 200" class="absolute top-0 left-0 w-64 h-64 -ml-10 -mt-10" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,0 Q100,50 200,100" stroke="#5D4037" stroke-width="4" fill="none" />
+            <path d="M50,25 Q100,80 120,150" stroke="#5D4037" stroke-width="3" fill="none" />
+            <circle cx="100" cy="50" r="15" fill="#fbcfe8" />
+            <circle cx="95" cy="45" r="10" fill="#f472b6" />
+            <circle cx="200" cy="100" r="20" fill="#fbcfe8" />
+            <circle cx="190" cy="95" r="12" fill="#f472b6" />
+            <circle cx="120" cy="150" r="18" fill="#fbcfe8" />
+            <circle cx="150" cy="120" r="14" fill="#fbcfe8" />
+        </svg>
+        <svg viewBox="0 0 200 200" class="absolute top-0 right-0 w-80 h-80 -mr-10 -mt-10 transform scale-x-[-1]" xmlns="http://www.w3.org/2000/svg">
+            <path d="M0,0 Q100,50 200,100" stroke="#5D4037" stroke-width="4" fill="none" />
+            <path d="M50,25 Q100,80 120,150" stroke="#5D4037" stroke-width="3" fill="none" />
+            <circle cx="100" cy="50" r="15" fill="#fbcfe8" />
+            <circle cx="95" cy="45" r="10" fill="#f472b6" />
+            <circle cx="200" cy="100" r="20" fill="#fbcfe8" />
+            <circle cx="190" cy="95" r="12" fill="#f472b6" />
+            <circle cx="120" cy="150" r="18" fill="#fbcfe8" />
+            <circle cx="150" cy="120" r="14" fill="#fbcfe8" />
+        </svg>
+    </div>
+
+    <!-- زر الإعادة (مخفي في البداية) -->
+    <button id="restart-btn" onclick="restart(event)" class="slide-hidden absolute top-6 right-6 md:top-8 md:right-8 w-12 h-12 flex items-center justify-center text-pink-500 bg-white/90 rounded-full backdrop-blur-md shadow-lg border border-pink-100 z-50 hover:scale-110 hover:rotate-180 pointer-events-auto transition-all duration-500" title="إعادة الرسالة">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+    </button>
+
+    <!-- شاشة البداية -->
+    <div id="start-screen" class="z-20 text-center flex flex-col items-center justify-center h-full pb-10 mt-20 fade-transition">
+        <div class="mb-8 relative group">
+            <div class="w-44 h-44 bg-white/70 backdrop-blur-md rounded-full flex items-center justify-center border-4 border-white shadow-xl animate-breath">
+                <!-- أيقونة القلب -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-20 h-20 text-pink-500 fill-pink-500/20 animate-pulse"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </div>
+            <!-- أيقونة اللمعان -->
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="absolute -top-2 -right-2 text-pink-600 w-10 h-10 animate-spin-slow"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+        </div>
+        <h1 class="text-4xl text-pink-900 mb-6 font-bold">رسالة مليئة بالحب..</h1>
+        <p class="text-xl text-pink-600 animate-bounce">المسي الشاشة لفتح الرسالة يا أمي</p>
+    </div>
+
+    <!-- حاوية العبارات -->
+    <div id="slides-wrapper" class="w-full max-w-4xl z-20 px-4 h-full flex flex-col items-center justify-center slide-hidden fade-transition fixed inset-0 pointer-events-none">
+        <div id="slides-container" class="relative w-full aspect-square md:aspect-video flex items-center justify-center mt-24">
+            <!-- سيتم إضافة العبارات هنا عبر جافاسكربت -->
+        </div>
+    </div>
+
+    <script>
+        const themeColors = ['#fbcfe8', '#fce7f3', '#f472b6', '#fdf2f8', '#ec4899'];
+        let currentStep = -1;
+        let isStarted = false;
+
+        const slidesData = [
+            { text: "إليكِ يا أُمي" },
+            { text: "أنتِ أجملُ نِعَمِ حياتي، والروحُ التي لا غنى لي عنها" },
+            { text: "أنتِ الملاذ الآمن، وأحنُّ قلب احتواني في كل أوقاتي" },
+            { text: "نصف السعادة أنتِ.. ونصفها الآخر دعوة منكِ" },
+            { text: "إنْ كان بإمكاني إعطاؤكِ شيء في هذه الحياة.." },
+            { text: "كُنتُ سأمنحكِ القدرةَ على رؤية نفسكِ في عيني" },
+            { text: "لأنّكِ استثنائية بالنسبة لي.. والأهم في حياتي" },
+            { text: "وأول من أُشاركها أفراحي وسعادتي" },
+            { text: "أريد إخباركِ اليوم بأن ابنتكِ الصغيرة" },
+            { text: "هيا", isHighlight: true },
+            { text: "قد كبرت.. وستصبح قريبا أُمـًّا", isFinal: true },
+        ];
+
+        // توليد البتلات المتساقطة
+        function initPetals() {
+            const container = document.getElementById('petals-container');
+            for(let i=0; i<60; i++) {
+                const petal = document.createElement('div');
+                const left = Math.random() * 100 + "%";
+                const delay = Math.random() * -20 + "s";
+                const duration = Math.random() * 15 + 10 + "s";
+                const size = Math.random() * 10 + 8 + "px";
+                const rotation = Math.random() * 360 + "deg";
+                const color = themeColors[i % 5];
+
+                petal.className = "absolute rounded-tl-full rounded-br-full opacity-60";
+                petal.style.left = left;
+                petal.style.top = '-10%';
+                petal.style.width = size;
+                petal.style.height = (parseFloat(size) * 1.5) + "px";
+                petal.style.backgroundColor = color;
+                petal.style.animation = `fallDown ${duration} infinite linear`;
+                petal.style.animationDelay = delay;
+                petal.style.transform = `rotate(${rotation})`;
+                container.appendChild(petal);
+            }
+        }
+
+        // توليد الفراشات
+        function initButterflies() {
+            const container = document.getElementById('butterflies-container');
+            for(let i=0; i<20; i++) {
+                const bContainer = document.createElement('div');
+                const left = Math.random() * 100 + "%";
+                const top = Math.random() * 100 + "%";
+                const size = Math.random() * 15 + 20 + "px";
+                const duration = Math.random() * 25 + 15 + "s";
+                const delay = Math.random() * -20 + "s";
+                const color = themeColors[i % 5];
+
+                bContainer.className = "butterfly-container";
+                bContainer.style.left = left;
+                bContainer.style.top = top;
+                bContainer.style.width = size;
+                bContainer.style.height = size;
+                bContainer.style.animation = `floatAround ${duration} infinite linear`;
+                bContainer.style.animationDelay = delay;
+
+                bContainer.innerHTML = `
+                    <div class="butterfly-body">
+                        <div class="wing-rounded left" style="background-color: ${color}"></div>
+                        <div class="wing-rounded right" style="background-color: ${color}"></div>
+                    </div>
+                `;
+                container.appendChild(bContainer);
+            }
+        }
+
+        // توليد العبارات (Slides)
+        function initSlides() {
+            const container = document.getElementById('slides-container');
+            slidesData.forEach((slide, index) => {
+                const slideDiv = document.createElement('div');
+                slideDiv.id = `slide-${index}`;
+                slideDiv.className = "absolute inset-0 flex flex-col items-center justify-center text-center fade-transition slide-hidden";
+                
+                let h2Class = "leading-relaxed text-shadow-elegant transition-colors ";
+                if (slide.isHighlight) {
+                    h2Class += "text-[120px] md:text-[160px] text-pink-600 font-bold";
+                } else if (slide.isFinal) {
+                    h2Class += "text-5xl md:text-6xl font-bold text-gray-900";
+                } else {
+                    h2Class += "text-4xl md:text-5xl text-pink-900";
+                }
+
+                let slideContent = `<div class="relative p-6 w-full flex flex-col items-center justify-center"><h2 class="${h2Class}">${slide.text}</h2></div>`;
+
+                if (slide.isFinal) {
+                    slideContent += `
+                    <div class="mt-10 scale-125">
+                        <div class="relative bg-white/90 p-8 rounded-full shadow-2xl border-2 border-white inline-block">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-16 h-16 text-pink-500 fill-pink-500/20 animate-pulse"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                        </div>
+                        <div class="mt-6 text-4xl text-pink-600 font-bold text-shadow-elegant">مبارك يا جدتي الغالية!</div>
+                    </div>`;
+                }
+
+                slideDiv.innerHTML = slideContent;
+                container.appendChild(slideDiv);
+            });
+        }
+
+        // دالة التقليب
+        function handleScreenTap() {
+            if (!isStarted) {
+                isStarted = true;
+                document.getElementById('start-screen').classList.add('slide-hidden');
+                document.getElementById('slides-wrapper').classList.remove('slide-hidden');
+                currentStep = 0;
+                updateSlides();
+            } else if (currentStep < slidesData.length - 1) {
+                currentStep++;
+                updateSlides();
+            }
+        }
+
+        // دالة الإعادة
+        function restart(event) {
+            event.stopPropagation();
+            currentStep = 0;
+            updateSlides();
+        }
+
+        // تحديث ظهور العبارات
+        function updateSlides() {
+            slidesData.forEach((_, index) => {
+                const slide = document.getElementById(`slide-${index}`);
+                if (index === currentStep) {
+                    slide.classList.remove('slide-hidden');
+                    slide.classList.add('slide-visible');
+                } else {
+                    slide.classList.remove('slide-visible');
+                    slide.classList.add('slide-hidden');
+                }
+            });
+
+            // إظهار/إخفاء زر الإعادة
+            const restartBtn = document.getElementById('restart-btn');
+            if (currentStep === slidesData.length - 1) {
+                restartBtn.classList.remove('slide-hidden');
+                restartBtn.classList.add('slide-visible');
+            } else {
+                restartBtn.classList.remove('slide-visible');
+                restartBtn.classList.add('slide-hidden');
+            }
+        }
+
+        // تهيئة الصفحة
+        window.onload = () => {
+            initPetals();
+            initButterflies();
+            initSlides();
+        };
+    </script>
+</body>
+</html>
