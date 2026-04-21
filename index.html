@@ -1,9 +1,10 @@
+html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>رسالة لأمي</title>
+    <title>رسالة إلى أخواتي</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -17,10 +18,12 @@
             overflow: hidden !important;
             position: fixed;
             top: 0; left: 0;
-            touch-action: pan-y;
+            touch-action: none; /* يمنع السحب باللمس */
             font-family: 'Aref Ruqaa', serif;
             background: linear-gradient(to bottom right, #fdf2f8, #fce7f3);
             -webkit-tap-highlight-color: transparent;
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         .font-ruqaa { font-family: 'Aref Ruqaa', serif; }
@@ -38,8 +41,8 @@
         
         @keyframes floatAround {
             0% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(15vw, -15vh) scale(1.1); }
-            50% { transform: translate(30vw, 5vh) scale(0.9); }
+            25% { transform: translate(10vw, -10vh) scale(1.1); }
+            50% { transform: translate(20vw, 5vh) scale(0.9); }
             75% { transform: translate(-15vw, 20vh) scale(1.05); }
             100% { transform: translate(0, 0) scale(1); }
         }
@@ -69,6 +72,7 @@
             opacity: 0;
             pointer-events: none;
             z-index: 0;
+            padding: 0 1rem;
         }
         .slide.active {
             opacity: 1;
@@ -76,23 +80,26 @@
         }
     </style>
 </head>
-<body id="app" class="flex flex-col items-center justify-center overflow-hidden relative p-6 text-right cursor-pointer select-none">
+<body id="app" class="flex flex-col items-center justify-center overflow-hidden relative p-4 md:p-6 text-center cursor-pointer select-none">
 
+    <!-- زر الإعادة - دائرة أعلى اليمين -->
     <button id="replayBtn" class="hidden absolute top-6 right-6 md:top-8 md:right-8 w-12 h-12 flex items-center justify-center text-pink-500 bg-white/90 rounded-full backdrop-blur-md shadow-lg border border-pink-100 z-50 hover:scale-110 hover:rotate-180 pointer-events-auto transition-all duration-500" title="إعادة الرسالة">
         <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
     </button>
 
+    <!-- بتلات الزفاف المتطايرة والفراشات -->
     <div id="effects-container" class="absolute inset-0 pointer-events-none z-0 overflow-hidden"></div>
 
+    <!-- أغصان الساكورا الثابتة -->
     <div class="absolute top-0 left-0 w-full z-10 opacity-80 pointer-events-none transition-opacity duration-1000">
-        <svg viewBox="0 0 200 200" class="absolute top-0 left-0 w-64 h-64 -ml-10 -mt-10" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 200 200" class="absolute top-0 left-0 w-48 h-48 md:w-64 md:h-64 -ml-8 -mt-8" xmlns="http://www.w3.org/2000/svg">
             <path d="M0,0 Q100,50 200,100" stroke="#5D4037" stroke-width="4" fill="none" />
             <path d="M50,25 Q100,80 120,150" stroke="#5D4037" stroke-width="3" fill="none" />
             <circle cx="100" cy="50" r="15" fill="#fbcfe8" /><circle cx="95" cy="45" r="10" fill="#f472b6" />
             <circle cx="200" cy="100" r="20" fill="#fbcfe8" /><circle cx="190" cy="95" r="12" fill="#f472b6" />
             <circle cx="120" cy="150" r="18" fill="#fbcfe8" /><circle cx="150" cy="120" r="14" fill="#fbcfe8" />
         </svg>
-        <svg viewBox="0 0 200 200" class="absolute top-0 right-0 w-80 h-80 -mr-10 -mt-10 transform scale-x-[-1]" xmlns="http://www.w3.org/2000/svg">
+        <svg viewBox="0 0 200 200" class="absolute top-0 right-0 w-56 h-56 md:w-80 md:h-80 -mr-8 -mt-8 transform scale-x-[-1]" xmlns="http://www.w3.org/2000/svg">
             <path d="M0,0 Q100,50 200,100" stroke="#5D4037" stroke-width="4" fill="none" />
             <path d="M50,25 Q100,80 120,150" stroke="#5D4037" stroke-width="3" fill="none" />
             <circle cx="100" cy="50" r="15" fill="#fbcfe8" /><circle cx="95" cy="45" r="10" fill="#f472b6" />
@@ -101,37 +108,46 @@
         </svg>
     </div>
 
-    <div id="intro" class="z-20 text-center flex flex-col items-center justify-center h-full pb-10 mt-20">
+    <!-- شاشة البداية -->
+    <div id="intro" class="z-20 flex flex-col items-center justify-center w-full h-full pb-10 mt-16">
         <div class="mb-8 relative group">
-           <div class="w-44 h-44 bg-white/70 backdrop-blur-md rounded-full flex items-center justify-center border-4 border-white shadow-xl animate-breath">
-              <svg class="w-20 h-20 text-pink-500 fill-pink-500/20 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+           <div class="w-40 h-40 md:w-44 md:h-44 bg-white/70 backdrop-blur-md rounded-full flex items-center justify-center border-4 border-white shadow-xl animate-breath">
+              <!-- ثلاث قلوب متداخلة ترمز للأخوات -->
+              <div class="relative w-20 h-20 flex items-center justify-center">
+                  <svg class="absolute -ml-6 mt-4 w-12 h-12 text-pink-400 fill-pink-400/30 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  <svg class="absolute z-10 w-16 h-16 text-pink-600 fill-pink-600/30 animate-pulse" style="animation-delay: 0.2s" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                  <svg class="absolute -mr-6 mt-4 w-12 h-12 text-pink-400 fill-pink-400/30 animate-pulse" style="animation-delay: 0.4s" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+              </div>
            </div>
-           <svg class="absolute -top-2 -right-2 text-pink-600 w-10 h-10 animate-spin-slow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+           <svg class="absolute -top-2 -right-2 text-pink-600 w-8 h-8 md:w-10 md:h-10 animate-spin-slow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
         </div>
-        <h1 class="text-4xl text-pink-900 mb-6 font-ruqaa font-bold">رسالة مليئة بالحب..</h1>
-        <p class="text-xl font-ruqaa text-pink-600 animate-bounce">المسي الشاشة لفتح الرسالة يا أمي</p>
+        <h1 class="text-3xl md:text-5xl text-pink-900 mb-6 font-ruqaa font-bold">رسالة من القلب..</h1>
+        <p class="text-lg md:text-xl font-ruqaa text-pink-600 animate-bounce">المسن الشاشة لفتح الرسالة يا أخواتي</p>
     </div>
 
-    <div id="slides-area" class="hidden w-full max-w-4xl z-20 px-4 h-full flex-col items-center justify-center">
-        <div id="slides-wrapper" class="relative w-full aspect-square md:aspect-video flex items-center justify-center mt-24">
-            </div>
+    <!-- حاوية الشرائح -->
+    <div id="slides-area" class="hidden w-full max-w-3xl z-20 px-2 flex-1 flex-col items-center justify-center">
+        <div id="slides-wrapper" class="relative w-full h-full flex items-center justify-center mt-20 md:mt-24">
+            <!-- سيتم توليد الشرائح هنا -->
+        </div>
     </div>
 
     <script>
         const themeColors = ['#fbcfe8', '#fce7f3', '#f472b6', '#fdf2f8', '#ec4899'];
         
+        // العبارات المنسقة للأخوات
         const slides = [
-            { text: "إليكِ يا أُمي" },
-            { text: "أنتِ أجملُ نِعَمِ حياتي، والروحُ التي لا غنى لي عنها" },
-            { text: "أنتِ الملاذ الآمن، وأحنُّ قلب احتواني في كل أوقاتي" },
-            { text: "نصف السعادة أنتِ.. ونصفها الآخر دعوة منكِ" },
-            { text: "إنْ كان بإمكاني إعطاؤكِ شيء في هذه الحياة.." },
-            { text: "كُنتُ سأمنحكِ القدرةَ على رؤية نفسكِ في عيني" },
-            { text: "لأنّكِ استثنائية بالنسبة لي.. والأهم في حياتي" },
-            { text: "وأول من أُشاركها أفراحي وسعادتي" },
-            { text: "أريد إخباركِ اليوم بأن ابنتكِ الصغيرة" },
-            { text: "هيا", isHighlight: true },
-            { text: "قد كبرت.. وستصبح قريبا أُمـًّا", isFinal: true },
+            { text: "إلى أخواتي.. رفيقاتُ العُمر" },
+            { text: "أنتنّ النعمةُ التي لا تُقدّر بثمن، والقلوبُ التي لا تتبدّل" },
+            { text: "كبرنا معاً.. وما زالت روحُ الطفولةِ تجمعنا" },
+            { text: "لا أذكر فرحةً في عمري.. إلا وأنتنّ جزءٌ منها" },
+            { text: "أنتنّ أولُ من أشاركه أخباري، وأولُ من يفرحُ لفرحي" },
+            { text: "ولأن فرحتي ليست فرحتي.. ما لم تكن فرحتكنّ" },
+            { text: "اليوم لديّ خبرٌ يستحقُ أن تكنّ أول من يسمعه" },
+            { text: "استعددنّ لدورٍ وحُبٍّ جديد.." },
+            { text: "لأن أخوكنّ.." }, 
+            { text: "قريباً", isHighlight: true },
+            { text: "سيجعلكن عمات!", isFinal: true },
         ];
 
         let currentStep = -1;
@@ -144,37 +160,38 @@
         const replayBtn = document.getElementById('replayBtn');
         const effectsContainer = document.getElementById('effects-container');
 
-        // تجهيز الشرائح داخل HTML بنفس الكلاسات التي طلبتها
+        // تجهيز الشرائح داخل HTML
         slides.forEach((slide, index) => {
             const div = document.createElement('div');
             div.className = 'slide';
             div.id = `slide-${index}`;
             
             let textClasses = slide.isHighlight 
-                ? 'text-[120px] md:text-[160px] text-pink-600 font-bold' 
+                ? 'text-[80px] sm:text-[100px] md:text-[140px] text-pink-600 font-bold' 
                 : slide.isFinal 
-                ? 'text-5xl md:text-6xl font-bold text-gray-900' 
-                : 'text-4xl md:text-5xl text-pink-900';
+                ? 'text-4xl md:text-6xl font-bold text-gray-900' 
+                : 'text-3xl md:text-5xl text-pink-900';
                 
-            let html = `<h2 class="font-ruqaa leading-relaxed text-shadow-elegant transition-colors ${textClasses}">${slide.text}</h2>`;
+            let html = `<h2 class="font-ruqaa leading-relaxed text-shadow-elegant transition-colors w-full ${textClasses}">${slide.text}</h2>`;
             
             if (slide.isFinal) {
                 html += `
-                <div class="mt-10 scale-125">
-                   <div class="relative bg-white/90 p-8 rounded-full shadow-2xl border-2 border-white inline-block">
-                      <svg class="w-16 h-16 text-pink-500 fill-pink-500/20 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                <div class="mt-8 md:mt-12 scale-110 md:scale-125 flex flex-col items-center">
+                   <div class="relative bg-white/90 p-6 md:p-8 rounded-full shadow-2xl border-2 border-white inline-block">
+                      <svg class="w-12 h-12 md:w-16 md:h-16 text-pink-500 fill-pink-500/20 animate-pulse" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
                    </div>
-                   <div class="mt-6 text-4xl text-pink-600 font-ruqaa font-bold text-shadow-elegant">مبارك يا جدتي الغالية!</div>
+                   <div class="mt-6 text-3xl md:text-4xl text-pink-600 font-ruqaa font-bold text-shadow-elegant">مبارك يا غاليّات!</div>
+                   <div class="mt-2 text-lg md:text-xl text-pink-900 font-ruqaa">فرحة جديدة ستجمعنا قريباً</div>
                 </div>`;
             }
             div.innerHTML = html;
             slidesWrapper.appendChild(div);
         });
 
-        // تشغيل المؤثرات (البتلات والفراشات) بنفس الأعداد المطلوبة (60 بتلة و 20 فراشة)
-        for(let i=0; i<60; i++){
+        // توليد البتلات الوردية المتساقطة
+        for(let i=0; i<50; i++){
             let p = document.createElement('div');
-            let size = Math.random() * 10 + 8;
+            let size = Math.random() * 8 + 6;
             p.className = 'absolute rounded-tl-full rounded-br-full opacity-60';
             p.style.left = (Math.random() * 100) + '%';
             p.style.top = '-10%';
@@ -187,19 +204,20 @@
             effectsContainer.appendChild(p);
         }
 
-        for(let i=0; i<20; i++){
-            let b = document.createElement('div');
-            let size = Math.random() * 15 + 20;
+        // توليد الفراشات الوردية
+        for(let i=0; i<15; i++){
+            let bf = document.createElement('div');
+            let size = Math.random() * 15 + 15;
             let color = themeColors[i % 5];
-            b.className = 'butterfly-container';
-            b.style.left = (Math.random() * 100) + '%';
-            b.style.top = (Math.random() * 100) + '%';
-            b.style.width = size + 'px';
-            b.style.height = size + 'px';
-            b.style.animation = `floatAround ${Math.random() * 25 + 15}s infinite linear`;
-            b.style.animationDelay = `${Math.random() * -20}s`;
-            b.innerHTML = `<div class="butterfly-body"><div class="wing-rounded left" style="background-color:${color}"></div><div class="wing-rounded right" style="background-color:${color}"></div></div>`;
-            effectsContainer.appendChild(b);
+            bf.className = 'butterfly-container';
+            bf.style.left = (Math.random() * 100) + '%';
+            bf.style.top = (Math.random() * 100) + '%';
+            bf.style.width = size + 'px';
+            bf.style.height = size + 'px';
+            bf.style.animation = `floatAround ${Math.random() * 25 + 15}s infinite linear`;
+            bf.style.animationDelay = `${Math.random() * -20}s`;
+            bf.innerHTML = `<div class="butterfly-body"><div class="wing-rounded left" style="background-color:${color}"></div><div class="wing-rounded right" style="background-color:${color}"></div></div>`;
+            effectsContainer.appendChild(bf);
         }
 
         function updateSlides() {
