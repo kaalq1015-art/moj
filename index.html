@@ -1,1 +1,360 @@
-javascript:(async function(){const d=document;let inp=prompt("أدخل البيانات بالترتيب للتأكيد أو اضغط Enter مباشرة:\n[1] اسم المالك, [2] جوال المالك, [3] بريد المالك\n[4] هوية وكيل المالك, [5] وكالة المالك, [6] ميلاد وكيل المالك, [7] جوال وكيل المالك, [8] بريد وكيل المالك\n[9] اسم البنك, [10] جوال البنك, [11] بريد البنك\n[12] هوية وكيل البنك, [13] وكالة البنك, [14] ميلاد وكيل البنك, [15] جوال وكيل البنك, [16] بريد وكيل البنك","شركة آريك ريد,0543683333,aksirfdlfk@eeldkf.sa,1099701706,475211326,1417-10-02,543683333,a2lsdol2slk@rrerr.com,البنك العربي الوطني,505190022,aksirfdlfk@eeldkf.sa,1044909636,472408222,1394-11-28,505190022,aksirfdlfk@eeldkf.sa");if(!inp)return;let data=inp.split(",");let oName=data[0]?data[0].trim():"",oMob=data[1]?data[1].trim():"",oMail=data[2]?data[2].trim():"";let oaId=data[3]?data[3].trim():"",oaPoa=data[4]?data[4].trim():"",oaDob=data[5]?data[5].trim():"",oaMob=data[6]?data[6].trim():"",oaMail=data[7]?data[7].trim():"";let cName=data[8]?data[8].trim():"",cMob=data[9]?data[9].trim():"",cMail=data[10]?data[10].trim():"";let baId=data[11]?data[11].trim():"",baPoa=data[12]?data[12].trim():"",baDob=data[13]?data[13].trim():"",baMob=data[14]?data[14].trim():"",baMail=data[15]?data[15].trim():"";const slp=ms=>new Promise(r=>setTimeout(r,ms));const trg=(el,vl)=>{if(!el)return;const setter=Object.getOwnPropertyDescriptor(el.tagName==='TEXTAREA'?window.HTMLTextAreaElement.prototype:window.HTMLInputElement.prototype,'value').set;setter.call(el,vl);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));el.dispatchEvent(new Event('blur',{bubbles:true}))};const trgSel=(sel,vl,root)=>{const el=(root||d).querySelector(sel);if(!el)return;const setter=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;setter.call(el,vl);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))};const findEl=(txt,tag='*')=>{return d.evaluate(`//${tag}[contains(text(),'${txt}') or normalize-space(.)='${txt}']`,d,null,9,null).singleNodeValue};const getActiveInput=(sel)=>{let els=Array.from(d.querySelectorAll(sel));return els.find(el=>!el.disabled&&el.getBoundingClientRect().width>0)||els.pop()};const sSel=async(ctrl,optVal)=>{if(!ctrl)return false;ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));await slp(650);let menu=d.querySelector('[class*="-menu"]');if(!menu)return false;let opt=optVal=='FIRST'?menu.querySelector('[id*="-option"]'):Array.from(menu.querySelectorAll('[id*="-option"]')).find(x=>x.textContent.trim().includes(optVal));if(opt){opt.click();await slp(650);return true}return false};const waitFor=async(fn,maxMs=5000)=>{const s=Date.now();while(Date.now()-s<maxMs){let r;try{r=fn();}catch(e){}if(r)return r;await slp(200);}return null};const getModal=()=>Array.from(d.querySelectorAll('.ReactModal__Content')).find(x=>x.getBoundingClientRect().width>0)||null;const tableVerify=()=>{let tbl=Array.from(d.querySelectorAll('table')).find(t=>t.getBoundingClientRect().width>0);if(!tbl)return null;return Array.from(tbl.querySelectorAll('td p')).find(p=>p.textContent.trim()==='التحقق'&&p.getBoundingClientRect().width>0)||null};const tableAdd=()=>{let tbl=Array.from(d.querySelectorAll('table')).find(t=>t.getBoundingClientRect().width>0);if(!tbl)return null;return Array.from(tbl.querySelectorAll('td p')).find(p=>{let t=p.textContent.trim();return(t==='إضافة'||t==='*إضافة'||t.endsWith('إضافة'))&&p.className.includes('text-[#4A6BA3]')&&p.getBoundingClientRect().width>0})||null};const btnInModal=(modal,txt)=>{let b=Array.from(modal.querySelectorAll('button')).find(x=>x.textContent.trim()===txt);if(b)b.click();return!!b};try{let b1=findEl('التصرفات العقارية','button');if(b1)b1.click();await slp(1500);let b2=findEl('إدارة الحقوق، القيود، والالتزامات','p');if(b2)b2.closest('div').click();await slp(1500);let bConfirm=findEl('التأكيد','button');if(bConfirm)bConfirm.click();await slp(3000);let b3=findEl('تعديل الحقوق، القيود، والالتزامات','p');if(b3)b3.closest('div').click();await slp(1500);await sSel(d.querySelectorAll('[class*="-control"]')[0],'رهن');await slp(2000);await sSel(d.querySelectorAll('[class*="-control"]')[1],'FIRST');await slp(1000);await sSel(d.querySelectorAll('[class*="-control"]')[2],'FIRST');await slp(1000);let b4=findEl('التحقق','p');if(b4)b4.click();await slp(1500);trg(getActiveInput('input[name="NationalityEn"]'),oName);let tels=d.querySelectorAll('input[type="tel"]');if(tels.length>0){trg(tels[0],"+966"+oMob.replace(/^(0|966|\+966)/,''))}let mails=d.querySelectorAll('input[type="email"]');if(mails.length>0){trg(mails[0],oMail)}await slp(1000);let b5=findEl('التحقق','button');if(b5)b5.click();await slp(4000);let b6=d.evaluate("//p[(text()='إضافة' or contains(text(),'إضافة')) and contains(@class,'text-[#4A6BA3]')]",d,null,9,null).singleNodeValue;if(!b6)b6=findEl('إضافة','p');if(b6)b6.click();await slp(2500);let m1=d.querySelector('.ReactModal__Content');if(m1){await sSel(m1.querySelector('[class*="-control"]'),'FIRST');await slp(800);trg(m1.querySelector('input[name="Identity"]'),oaId);trg(m1.querySelector('input[name="DateOfBirth"]'),oaDob);trg(m1.querySelector('input[name="poaNumber"]'),oaPoa);trg(m1.querySelector('input[type="tel"]'),"+966"+oaMob.replace(/^(0|966|\+966)/,''));trg(m1.querySelector('input[type="email"]'),oaMail);await slp(1000);let bSaveAg1=Array.from(m1.querySelectorAll('button')).find(b=>b.textContent.trim()==='التحقق من البيانات');if(bSaveAg1)bSaveAg1.click();await slp(3000)}let bManage=findEl('إدارة أصحاب الحقوق','button');if(bManage)bManage.click();let cv2=await waitFor(tableVerify,8000);if(!cv2)return;cv2.click();await slp(2500);trgSel('input[name="NationalityEn"]',cName);trgSel('input[type="tel"]',"+966"+cMob.replace(/^(0|966|\+966)/,''));trgSel('input[type="email"]',cMail);await slp(1000);let mc=getModal();if(mc)btnInModal(mc,'التحقق');await slp(4000);let bAdd2=await waitFor(tableAdd,6000);if(!bAdd2)return;bAdd2.click();await slp(2500);let ctrl2=d.querySelector('.ReactModal__Content [class*="-control"]');await sSel(ctrl2,'FIRST');await slp(800);trgSel('input[name="Identity"]',baId);trgSel('input[name="DateOfBirth"]',baDob);trgSel('input[name="poaNumber"]',baPoa);trgSel('input[type="tel"]',"+966"+baMob.replace(/^(0|966|\+966)/,''));trgSel('input[name="email"]',baMail);await slp(1000);let m2=getModal();if(m2)btnInModal(m2,'التحقق من البيانات');await slp(3000);let bNext=await waitFor(()=>Array.from(d.querySelectorAll('button')).find(b=>b.textContent.trim()==='التالي: تفاصيل الحق'&&!b.disabled&&b.getBoundingClientRect().width>0),6000);if(bNext)bNext.click()}catch(e){}})();
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <p>
+النص الظاهر: "التحقق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): p.font-bold.text-sm
+الكود الهيكلي الكامل للعنصر:
+<p class="font-bold text-[#4A6BA3] text-sm dark:text-blue-500 ">التحقق</p>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: NationalityEn
+المسار المقترح (Selector): .ReactModal__Content input[name="NationalityEn"]
+الكود الهيكلي الكامل للعنصر:
+<input name="NationalityEn" placeholder="" class="
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            ">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content input.form-control.mt-1.block.rounded-md.border-gray-300.shadow-sm.py-6.border-l-redBg
+الكود الهيكلي الكامل للعنصر:
+<input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: email
+المسار المقترح (Selector): .ReactModal__Content input[name="email"]
+الكود الهيكلي الكامل للعنصر:
+<input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value="">
+--------------------------------------------------
+
+
+
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <p>
+النص الظاهر: "التحقق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): p.font-bold.text-sm
+الكود الهيكلي الكامل للعنصر:
+<p class="font-bold text-[#4A6BA3] text-sm dark:text-blue-500 ">التحقق</p>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: NationalityEn
+المسار المقترح (Selector): .ReactModal__Content input[name="NationalityEn"]
+الكود الهيكلي الكامل للعنصر:
+<input name="NationalityEn" placeholder="" class="
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            ">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content input.form-control.mt-1.block.rounded-md.border-gray-300.shadow-sm.py-6.border-l-redBg
+الكود الهيكلي الكامل للعنصر:
+<input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: email
+المسار المقترح (Selector): .ReactModal__Content input[name="email"]
+الكود الهيكلي الكامل للعنصر:
+<input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: NationalityEn
+المسار المقترح (Selector): .ReactModal__Content input[name="NationalityEn"]
+الكود الهيكلي الكامل للعنصر:
+<input name="NationalityEn" placeholder="" class="
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            ">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content input.form-control.mt-1.block.rounded-md.border-gray-300.shadow-sm.py-6.border-l-redBg
+الكود الهيكلي الكامل للعنصر:
+<input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <div>
+النص الظاهر: "نوع المالكمنشأة نوع الهويةالرقم الموحد ل"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content div.flex.flex-wrap.justify-center
+الكود الهيكلي الكامل للعنصر:
+<div class="flex flex-wrap justify-center"><div class="flex flex-[0_0_33.33%] flex-col"><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-2">نوع المالك</label><span class="mt-2 text-lg font-medium mt-8">منشأة </span></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">نوع الهوية</p><div class="mt-4 border-lightgrey w-
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: email
+المسار المقترح (Selector): .ReactModal__Content input[name="email"]
+الكود الهيكلي الكامل للعنصر:
+<input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التحقق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content button.my-5.mx-3.bg-bluerega.text-white.py-5.px-8.border-cyan.rounded.text-base.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق</button>
+--------------------------------------------------
+
+
+
+
+  [تم رصد نقرة تفعيلة]
+العنصر المظغوط: <p>
+النص الظاهر: "التحقق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): p.font-bold.text-sm
+الكود الهيكلي الكامل للعنصر:
+<p class="font-bold text-[#4A6BA3] text-sm dark:text-blue-500 ">التحقق</p>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: NationalityEn
+المسار المقترح (Selector): .ReactModal__Content input[name="NationalityEn"]
+الكود الهيكلي الكامل للعنصر:
+<input name="NationalityEn" placeholder="" class="
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            ">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content input.form-control.mt-1.block.rounded-md.border-gray-300.shadow-sm.py-6.border-l-redBg
+الكود الهيكلي الكامل للعنصر:
+<input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: email
+المسار المقترح (Selector): .ReactModal__Content input[name="email"]
+الكود الهيكلي الكامل للعنصر:
+<input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: NationalityEn
+المسار المقترح (Selector): .ReactModal__Content input[name="NationalityEn"]
+الكود الهيكلي الكامل للعنصر:
+<input name="NationalityEn" placeholder="" class="
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            ">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content input.form-control.mt-1.block.rounded-md.border-gray-300.shadow-sm.py-6.border-l-redBg
+الكود الهيكلي الكامل للعنصر:
+<input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <div>
+النص الظاهر: "نوع المالكمنشأة نوع الهويةالرقم الموحد ل"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content div.flex.flex-wrap.justify-center
+الكود الهيكلي الكامل للعنصر:
+<div class="flex flex-wrap justify-center"><div class="flex flex-[0_0_33.33%] flex-col"><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-2">نوع المالك</label><span class="mt-2 text-lg font-medium mt-8">منشأة </span></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">نوع الهوية</p><div class="mt-4 border-lightgrey w-
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: email
+المسار المقترح (Selector): .ReactModal__Content input[name="email"]
+الكود الهيكلي الكامل للعنصر:
+<input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التحقق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content button.my-5.mx-3.bg-bluerega.text-white.py-5.px-8.border-cyan.rounded.text-base.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق</button>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <p>
+النص الظاهر: "*إضافة"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): p.font-bold
+الكود الهيكلي الكامل للعنصر:
+<p class="font-bold text-[#4A6BA3]  dark:text-blue-500 "><span class="my-2 text-rose-600">*</span>إضافة</p>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <div>
+النص الظاهر: "اختيار"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content div.css-1yks1fv-control
+الكود الهيكلي الكامل للعنصر:
+<div class=" css-1yks1fv-control"><div class=" css-hlgwow"><div class=" css-1jqq78o-placeholder" id="react-select-12-placeholder">اختيار</div><input id="react-select-12-input" tabindex="0" inputmode="none" aria-autocomplete="list" aria-expanded="true" aria-haspopup="true" role="combobox" aria-readonly="true" aria-describedby="react-select-12-placeholder" class="css-1hac4vs-dummyInput" value="" aria-controls="react-select-12-listbox" aria-owns="re
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <div>
+النص الظاهر: "وكالة شرعية"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content div#react-select-12-option-0
+الكود الهيكلي الكامل للعنصر:
+<div class=" css-d7l1ni-option" aria-disabled="false" id="react-select-12-option-0" tabindex="-1">وكالة شرعية</div>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: Identity
+المسار المقترح (Selector): .ReactModal__Content input[name="Identity"]
+الكود الهيكلي الكامل للعنصر:
+<input name="Identity" placeholder="" type="number" class="bg-white 
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            " value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: poaNumber
+المسار المقترح (Selector): .ReactModal__Content input[name="poaNumber"]
+الكود الهيكلي الكامل للعنصر:
+<input name="poaNumber" placeholder="" class=" !w-[90%]     !w-[90%]
+              
+                new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                              placeholder   mt-2 
+                        " value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content input.form-control.mt-1.block.rounded-md.border-gray-300.shadow-sm.py-6.border-l-redBg.!pr-2.!border-l-redBg
+الكود الهيكلي الكامل للعنصر:
+<input class="form-control !w-[90%] mt-1
+                  p-[20px] 
+                  block
+                  rounded-md
+                  border-gray-300
+                  shadow-sm
+                  py-6 border-l-[7px] border-l-redBg
+                  focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50&quot;
+                 
+                  focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50 !pr
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: email
+المسار المقترح (Selector): .ReactModal__Content input[name="email"]
+الكود الهيكلي الكامل للعنصر:
+<input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-3 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: DateOfBirth
+المسار المقترح (Selector): .ReactModal__Content input[name="DateOfBirth"]
+الكود الهيكلي الكامل للعنصر:
+<input type="text" name="DateOfBirth" class="
+        block 
+        rounded-md
+        border-2
+        border-lightShade
+        shadow-sm
+        h-[50px]
+        
+        focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+        
+                  custom-input  !w-[90%] border-l-[7px]
+                  new-form-input     px-4 py-3  my-1    border-lightShade2   outline-bluerega   rounded-md  border   focus:border-light
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التحقق من البيانات"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content button.my-5.mx-3.bg-bluerega.text-white.py-5.px-8.border-cyan.rounded.text-base.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق من البيانات</button>
+--------------------------------------------------
+
+
+
+  
