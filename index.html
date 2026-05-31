@@ -1,1 +1,70 @@
-javascript:(function(){let box=document.getElementById('element-logger-box');if(box)box.remove();box=document.createElement('div');box.id='element-logger-box';box.style="position:fixed;bottom:15px;left:15px;width:480px;height:400px;background:#1e293b;color:#f8fafc;z-index:2147483647;padding:15px;border-radius:12px;font-family:system-ui,-apple-system,sans-serif;box-shadow:0 12px 40px rgba(0,0,0,0.5);display:flex;flex-direction:column;direction:rtl;border:2px solid #38bdf8;";box.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><span style="font-weight:bold;color:#38bdf8;font-size:14px;">🔍 رادار رصد النقرات والأزرار النشط تلقائياً</span><button onclick="document.getElementById('element-logger-box').remove()" style="background:#ef4444;color:white;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:12px;">إغلاق</button></div><p style="margin:0 0 10px 0;color:#94a3b8;font-size:11px;line-height:1.5;">السكريبت الآن يسجل تلقائياً أي شيء تضغط عليه (أزرار، حقول، فقرات). اضغط على الأزرار والخانات بالترتيب لنسخ الكود الدقيق.</p><textarea id="logger-textarea" style="flex:1;background:#0f172a;color:#4ade80;border:1px solid #334155;padding:10px;border-radius:8px;resize:none;direction:ltr;text-align:left;font-family:monospace;font-size:11px;line-height:1.4;" placeholder="اضغط على أي عنصر أو زر في الموقع لتسجيل كوده هنا فوراً..."></textarea><button onclick="document.getElementById('logger-textarea').select();document.execCommand('copy');alert('تم نسخ البيانات بنجاح! ألصقها لي الآن في المحادثة.')" style="margin-top:8px;background:#10b981;color:white;border:none;padding:8px;border-radius:6px;cursor:pointer;font-weight:bold;text-align:center;font-size:13px;">📋 نسخ البيانات بالكامل</button>`;document.body.appendChild(box);const txtArea=document.getElementById('element-logger-box').querySelector('#logger-textarea');const logElement=(e)=>{let el=e.target;if(el.id==='logger-textarea'||el.closest('#element-logger-box'))return;let tag=el.tagName.toLowerCase();let text=el.textContent.trim().substring(0,40);let name=el.getAttribute('name')||'لا يوجد';let cls=el.className||'لا يوجد';let selector=tag;if(el.id)selector+=`#${el.id}`;else if(el.getAttribute('name'))selector=`${tag}[name="${el.getAttribute('name')}"]`;else if(el.className){let cList=el.className.trim().split(/\s+/).filter(c=>!c.includes(':')&&!c.includes('[')).join('.');if(cList)selector+=`.${cList}`}if(el.closest('.ReactModal__Content'))selector=`.ReactModal__Content ${selector}`;let report=`[تم رصد نقرة تفعيلة]\nالعنصر المظغوط: <${tag}>\nالنص الظاهر: "${text}"\nاسم الحقل برمجياً: ${name}\nالمسار المقترح (Selector): ${selector}\nالكود الهيكلي الكامل للعنصر:\n${el.outerHTML.substring(0,450)}\n--------------------------------------------------\n\n`;txtArea.value+=report;txtArea.scrollTop=txtArea.scrollHeight};document.addEventListener('click',logElement,true);})();
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <p>
+النص الظاهر: "التحقق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): p.font-bold.text-sm
+الكود الهيكلي الكامل للعنصر:
+<p class="font-bold text-[#4A6BA3] text-sm dark:text-blue-500 ">التحقق</p>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: NationalityEn
+المسار المقترح (Selector): .ReactModal__Content input[name="NationalityEn"]
+الكود الهيكلي الكامل للعنصر:
+<input name="NationalityEn" placeholder="" class="
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            ">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content inp[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التحقق من البيانات"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content button.my-5.mx-3.bg-bluerega.text-white.py-5.px-8.border-cyan.rounded.text-base.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق من البيانات</button>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <body>
+النص الظاهر: "28 مرحبا عبدالله سلطان الخثلان !مشرف مدق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): body
+الكود الهيكلي الكامل للعنصر:
+<body class=""><div id="__next"><div class="transition-all flex-row-reverse    transition-all duration-700"><div><div></div></div><p class="text-[#CFE0E5]">28</p><div class="w-full p-8 transition-all duration-700" dir="rtl"><div class="max-w-8xl font-ibm-sans inner-container relative"><div class="p-8 "><div class="relative flex h-auto items-center justify-between "><div class="items-center  flex    text-sm   rounded-lg    focus:outline-none focus
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <div>اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): div.w-full.p-8.transition-all.duration-700
+الكود الهيكلي الكامل للعنصر:
+<div class="w-full p-8 transition-all duration-700" dir="rtl"><div class="max-w-8xl font-ibm-sans inner-container relative"><div class="p-8 "><div class="relative flex h-auto items-center justify-between "><div class="items-center  flex    text-sm   rounded-lg    focus:outline-none focus:ring-2 focus:ring-gray-800 focus:ring-opacity-20"><button><img alt="me" loading="lazy" width="24" height="30" decoding="async" data-nimg="1" class="hidden md:blo
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <div>
+النص الظاهر: "+  إضافة صاحب حقاسم صاحب الحقنوع الهويةر"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): div.pb-6
+الكود الهيكلي الكامل للعنصر:
+<div class="pb-6"><form><div><div></div></div></form><form><div><div></div></div></form><form><div><div></div></div></form><div class="   pt-8 relative "><div class="flex justify-between"><div></div> <button class=" uppercase rounded text-textPrimary m-5  text-[14px] leading-5  font-[500]">+  إضافة صاحب حق</button></div><div class="relative mt-7"><div class="overflow-x-auto w-full"><table class="w-full text-[15px] borderTable text-base  text-righ
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التالي: تفاصيل الحق"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): button.bg-textPrimary.border-textPrimary.px-4.py-4.uppercase.rounded.text-white.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button class="bg-textPrimary border-textPrimary px-4 py-4 uppercase rounded  text-white  text-[14px] leading-5  font-[500]">التالي: تفاصيل الحق</button>
+--------------------------------------------------
+
