@@ -1,6 +1,286 @@
-javascript:(function(){const d=document,oldUI=d.getElementById('pro-auto-container');if(oldUI)oldUI.remove();const s=d.createElement('style');s.innerHTML=`#pro-auto-container{position:fixed;top:50px;right:50px;width:380px;background:rgba(240,240,240,0.85);backdrop-filter:blur(12px) saturate(120%);-webkit-backdrop-filter:blur(12px) saturate(120%);border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;direction:rtl;text-align:right;overflow:hidden;border:1px solid rgba(0,0,0,0.08);color:#2a2a2a;opacity:0.35;transition:opacity 0.3s;}#pro-auto-container:hover{opacity:1;}#pro-auto-container .h{background:#4b4b4b;padding:16px 20px;color:#f0f0f0;cursor:move;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px;}#pro-auto-container .h span{background:rgba(255,255,255,0.12);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;font-size:16px;}#pro-auto-container .h span:hover{background:rgba(255,255,255,0.25);}#pro-auto-container .b{padding:22px;background:rgba(255,255,255,0.6);}#pro-auto-container .l{display:block;font-size:11px;font-weight:700;color:#666;margin-bottom:6px;letter-spacing:0.3px;}#pro-auto-container .i{width:100%;padding:11px 15px;border:1px solid #ccc;border-radius:14px;font-size:14px;box-sizing:border-box;margin-bottom:16px;background:rgba(255,255,255,0.8);transition:0.2s;font-family:inherit;direction:rtl;}#pro-auto-container .i:focus{border-color:#888;background:#fff;outline:none;box-shadow:0 0 0 3px rgba(0,0,0,0.06);}#pro-auto-container textarea.i{height:120px;resize:none;}#pro-auto-container #btn{width:100%;padding:13px;background:#555;color:#fff;border:none;border-radius:18px;font-weight:700;cursor:pointer;transition:0.2s;font-size:16px;margin-top:8px;}#pro-auto-container #btn:hover{background:#3d3d3d;}#pro-auto-container .spin{width:30px;height:30px;border:3px solid #ddd;border-bottom-color:#666;border-radius:50%;display:inline-block;animation:r 1s linear infinite;}@keyframes r{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}#pro-auto-container #st{font-size:14px;color:#2a2a2a;margin-top:15px;font-weight:600;}`;d.head.appendChild(s);const c=d.createElement('div');c.id='pro-auto-container';c.innerHTML=`<div class="h" id="drag"><h3 style="margin:0;font-size:15px;">تعبئة الورثة التلقائي</h3><span onclick="this.parentElement.parentElement.remove()">✕</span></div><div class="b" id="main"><div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;"><div><label class="l">رقم الجوال</label><input type="text" id="mob" class="i" placeholder="05xxxxxxxx"></div><div><label class="l">البريد</label><input type="email" id="mail" class="i" placeholder="example@mail.com"></div></div><label class="l">نص صك حصر الورثة</label><textarea id="txt" class="i" placeholder="ألصق النص هنا..."></textarea><button id="btn">بدء التنفيذ</button></div>`;d.body.appendChild(c);let isD=false,off={x:0,y:0};const h=d.getElementById('drag');h.onmousedown=(e)=>{isD=true;off.x=e.clientX-c.offsetLeft;off.y=e.clientY-c.offsetTop;};d.onmousemove=(e)=>{if(!isD)return;c.style.left=(e.clientX-off.x)+'px';c.style.top=(e.clientY-off.y)+'px';c.style.right='auto';};d.onmouseup=()=>isD=false;const slp=(ms)=>new Promise(r=>setTimeout(r,ms));const trg=(s,v)=>{const el=d.querySelector(s);if(!el)return;const set=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;set.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};async function sSel(lbl,opt){const t=Array.from(d.querySelectorAll('p,label,span,div')).find(el=>el.textContent.trim()===lbl);if(!t)return;const ctrl=t.closest('div').querySelector('[class*="-control"]');if(ctrl){ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));await slp(100);const m=d.querySelector('[class*="-menu"]');if(m){const o=Array.from(m.querySelectorAll('[id*="-option"]')).find(x=>x.textContent.trim()===opt);if(o)o.click();}}}d.getElementById('btn').onclick=async function(){const v_t=d.getElementById('txt').value,v_m=d.getElementById('mob').value.trim(),v_e=d.getElementById('mail').value;if(!/^05\d{8}$/.test(v_m))return alert("❌ رقم الجوال يجب أن يكون 10 أرقام ويبدأ بـ 05");const hrs=[];const lns=v_t.split('\n').map(l=>l.trim());for(let i=0;i<lns.length;i++){if(/^[12]\d{9}/.test(lns[i])){let dob="";for(let j=i;j<i+15&&j<lns.length;j++){let m=lns[j].match(/\d{4}\/\d{2}\/\d{2}/);if(m){dob=m[0].replace(/\//g,'-');break;}}if(dob)hrs.push({id:lns[i].match(/^[12]\d{9}/)[0],dob});}}if(!hrs.length)return alert("❌ لم يتم العثور على بيانات ورثة");if(!confirm("⚠️ تنبيه: يجب ضغط (إضافة مالك جديد) في الصفحة قبل البدء.\n\nهل أنت مستعد؟"))return;const main=d.getElementById('main');main.innerHTML=`<div style="text-align:center;padding:30px 0;"><span class="spin"></span><h3 id="st" style="font-size:14px;color:#2a2a2a;margin-top:15px;">جاري المعالجة...</h3></div>`;for(let k=0;k<hrs.length;k++){d.getElementById('st').innerText=`تعبئة الوارث ${k+1} من ${hrs.length}`;await slp(200);await sSel("نوع المالك","فرد");await slp(100);await sSel("نوع الهوية","هوية وطنية");await slp(100);trg('input[name="Identity"]',hrs[k].id);trg('input[name="DateOfBirth"]',hrs[k].dob);trg('input[name="email"]',v_e);trg('input[type="tel"]',"+966"+v_m.substring(1));await slp(1000);const vB=Array.from(d.querySelectorAll('button')).find(b=>b.innerText.includes('التحقق'));if(vB){vB.click();let ok=false;for(let a=0;a<100;a++){if(d.body.innerText.includes("بنجاح")){ok=true;break;}await slp(200);}if(ok){await slp(1000);}else if(!confirm(`⚠️ لم يتم التأكد من نجاح إضافة الوارث ${k+1}. هل نكمل؟`))break;}if(k<hrs.length-1){const ad=Array.from(d.querySelectorAll('button')).find(b=>b.innerText.includes('إضافة مالك جديد'));if(ad){ad.click();await slp(400);}}}alert("اكتملت العملية بنجاح ✅");c.remove();s.remove();};})();
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التصرفات العقارية"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): button.bg-textPrimary.flex.items-center.p-4.rounded.border.text-sm.border-textPrimary.text-white
+الكود الهيكلي الكامل للعنصر:
+<button class="bg-textPrimary flex items-center p-4 rounded border text-sm border-textPrimary text-white">التصرفات العقارية</button>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <img>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content img.pt-6.subsequent-icon-hover-black
+الكود الهيكلي الكامل للعنصر:
+<img alt="me" loading="lazy" width="32" height="34" decoding="async" data-nimg="1" class="pt-6 subsequent-icon-hover-black" src="/assets/svgs/Request icon.svg" style="color: transparent;">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التأكيد"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Con[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التحقق من البيانات"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content button.my-5.mx-3.bg-bluerega.text-white.py-5.px-8.border-cyan.rounded.text-base.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق من البيانات</button>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: DateOfBirth
+المسار المقترح (Selector): .ReactModal__Content input[name="DateOfBirth"]
+الكود الهيكلي الكامل للعنصر:
+<input type="text" name="DateOfBirth" class="
+        block 
+        rounded-md
+        border-2
+        border-lightShade
+        shadow-sm
+        h-[50px]
+        
+        focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+        
+                bg-white 
+                !w-[95%]
+                
+                new-form-input    mt-[15px]  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   round
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: DateOfBirth
+المسار المقترح (Selector): .ReactModal__Content input[name="DateOfBirth"]
+الكود الهيكلي الكامل للعنصر:
+<input type="text" name="DateOfBirth" class="
+        block 
+        rounded-md
+        border-2
+        border-lightShade
+        shadow-sm
+        h-[50px]
+        
+        focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+        
+                bg-white 
+                !w-[95%]
+                
+                new-form-input    mt-[15px]  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   round
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: DateOfBirth
+المسار المقترح (Selector): .ReactModal__Content input[name="DateOfBirth"]
+الكود الهيكلي الكامل للعنصر:
+<input type="text" name="DateOfBirth" class="
+        block 
+        rounded-md
+        border-2
+        border-lightShade
+        shadow-sm
+        h-[50px]
+        
+        focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+        
+                bg-white 
+                !w-[95%]
+                
+                new-form-input    mt-[15px]  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   round
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التحقق من البيانات"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): .ReactModal__Content button.my-5.mx-3.bg-bluerega.text-white.py-5.px-8.border-cyan.rounded.text-base.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق من البيانات</button>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التالي: نسب التملك"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): button.bg-textPrimary.border-textPrimary.px-4.py-4.uppercase.rounded.text-white.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button class="bg-textPrimary border-textPrimary px-4 py-4 uppercase rounded  text-white  text-[14px] leading-5  font-[500]">التالي: نسب التملك</button>
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <tbody>
+النص الظاهر: "شركة كدف للتطوير العقاريمنشأةالرقم الموح"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): tbody
+الكود الهيكلي الكامل للعنصر:
+<tbody><tr class="cursor-pointer relative   " style="background: white;"><td class="relative p-3   text-center"><div class="font-bold text-[#4A6BA3] text-sm dark:text-blue-500 ">شركة كدف للتطوير العقاري</div></td><td class="p-3 relative justify-center  text-center">منشأة</td><td class="p-3 relative justify-center  text-center">الرقم الموحد للمنشأت</td><td class="p-3 relative   text-center"><p>7008655875</p></td><td class="p-3 relative   text-cent
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): input.w-12.border-none.border-transparent.px-1.text-center.outline-none.ring-0.!ring-transparent
+الكود الهيكلي الكامل للعنصر:
+<input type="number" min="0" pattern="[0-9]" minlength="1" class="w-12 border-none border-transparent px-1 text-center outline-none ring-0 !ring-transparent" value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <input>
+النص الظاهر: ""
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): input.w-12.border-none.border-transparent.text-center.outline-none.px-1.overflow-hidden.ring-0.!ring-transparent
+الكود الهيكلي الكامل للعنصر:
+<input type="number" min="1" pattern="[0-9]" class="w-12 border-none border-transparent text-center outline-none px-1 overflow-hidden ring-0 !ring-transparent" value="">
+--------------------------------------------------
+
+[تم رصد نقرة تفعيلة]
+العنصر المظغوط: <button>
+النص الظاهر: "التالي: تفاصيل نقل الملكية"
+اسم الحقل برمجياً: لا يوجد
+المسار المقترح (Selector): button.bg-textPrimary.border-textPrimary.px-4.py-4.uppercase.rounded.text-white.leading-5
+الكود الهيكلي الكامل للعنصر:
+<button class="bg-textPrimary border-textPrimary px-4 py-4 uppercase rounded  text-white  text-[14px] leading-5  font-[500]">التالي: تفاصيل نقل الملكية</button>
+--------------------------------------------------
 
 
-.
-.
-.javascript:(function(){const d=document,oldUI=d.getElementById('pro-auto-container');if(oldUI)oldUI.remove();const s=d.createElement('style');s.innerHTML=`#pro-auto-container{position:fixed;top:50px;right:50px;width:380px;background:rgba(240,240,240,0.85);backdrop-filter:blur(12px) saturate(120%);-webkit-backdrop-filter:blur(12px) saturate(120%);border-radius:24px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Tahoma,Arial,sans-serif;direction:rtl;text-align:right;overflow:hidden;border:1px solid rgba(0,0,0,0.08);color:#2a2a2a;opacity:0.35;transition:opacity 0.3s;}#pro-auto-container:hover{opacity:1;}#pro-auto-container .h{background:#4b4b4b;padding:16px 20px;color:#f0f0f0;cursor:move;display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:15px;}#pro-auto-container .h span{background:rgba(255,255,255,0.12);width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:0.2s;font-size:16px;}#pro-auto-container .h span:hover{background:rgba(255,255,255,0.25);}#pro-auto-container .b{padding:22px;background:rgba(255,255,255,0.6);}#pro-auto-container .l{display:block;font-size:11px;font-weight:700;color:#666;margin-bottom:6px;letter-spacing:0.3px;}#pro-auto-container .i{width:100%;padding:11px 15px;border:1px solid #ccc;border-radius:14px;font-size:14px;box-sizing:border-box;margin-bottom:16px;background:rgba(255,255,255,0.8);transition:0.2s;font-family:inherit;direction:rtl;}#pro-auto-container .i:focus{border-color:#888;background:#fff;outline:none;box-shadow:0 0 0 3px rgba(0,0,0,0.06);}#pro-auto-container textarea.i{height:120px;resize:none;}#pro-auto-container #btn{width:100%;padding:13px;background:#555;color:#fff;border:none;border-radius:18px;font-weight:700;cursor:pointer;transition:0.2s;font-size:16px;margin-top:8px;}#pro-auto-container #btn:hover{background:#3d3d3d;}#pro-auto-container .spin{width:30px;height:30px;border:3px solid #ddd;border-bottom-color:#666;border-radius:50%;display:inline-block;animation:r 1s linear infinite;}@keyframes r{0%{transform:rotate(0deg);}100%{transform:rotate(360deg);}}#pro-auto-container #st{font-size:14px;color:#2a2a2a;margin-top:15px;font-weight:600;}`;d.head.appendChild(s);const c=d.createElement('div');c.id='pro-auto-container';c.innerHTML=`<div class="h" id="drag"><h3 style="margin:0;font-size:15px;">تعبئة الورثة التلقائي</h3><span onclick="this.parentElement.parentElement.remove()">✕</span></div><div class="b" id="main"><div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;"><div><label class="l">رقم الجوال</label><input type="text" id="mob" class="i" placeholder="05xxxxxxxx"></div><div><label class="l">البريد</label><input type="email" id="mail" class="i" placeholder="example@mail.com"></div></div><label class="l">نص صك حصر الورثة</label><textarea id="txt" class="i" placeholder="ألصق النص هنا..."></textarea><button id="btn">بدء التنفيذ</button></div>`;d.body.appendChild(c);let isD=false,off={x:0,y:0};const h=d.getElementById('drag');h.onmousedown=(e)=>{isD=true;off.x=e.clientX-c.offsetLeft;off.y=e.clientY-c.offsetTop;};d.onmousemove=(e)=>{if(!isD)return;c.style.left=(e.clientX-off.x)+'px';c.style.top=(e.clientY-off.y)+'px';c.style.right='auto';};d.onmouseup=()=>isD=false;const slp=(ms)=>new Promise(r=>setTimeout(r,ms));const trg=(s,v)=>{const el=d.querySelector(s);if(!el)return;const set=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;set.call(el,v);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));};async function sSel(lbl,opt){const t=Array.from(d.querySelectorAll('p,label,span,div')).find(el=>el.textContent.trim()===lbl);if(!t)return;const ctrl=t.closest('div').querySelector('[class*="-control"]');if(ctrl){ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));await slp(100);const m=d.querySelector('[class*="-menu"]');if(m){const o=Array.from(m.querySelectorAll('[id*="-option"]')).find(x=>x.textContent.trim()===opt);if(o)o.click();}}}d.getElementById('btn').onclick=async function(){const v_t=d.getElementById('txt').value,v_m=d.getElementById('mob').value.trim(),v_e=d.getElementById('mail').value;if(!/^05\d{8}$/.test(v_m))return alert("❌ رقم الجوال يجب أن يكون 10 أرقام ويبدأ بـ 05");const hrs=[];const lns=v_t.split('\n').map(l=>l.trim());for(let i=0;i<lns.length;i++){if(/^[12]\d{9}/.test(lns[i])){let dob="";for(let j=i;j<i+15&&j<lns.length;j++){let m=lns[j].match(/\d{4}\/\d{2}\/\d{2}/);if(m){dob=m[0].replace(/\//g,'-');break;}}if(dob)hrs.push({id:lns[i].match(/^[12]\d{9}/)[0],dob});}}if(!hrs.length)return alert("❌ لم يتم العثور على بيانات ورثة");if(!confirm("⚠️ تنبيه: يجب ضغط (إضافة مالك جديد) في الصفحة قبل البدء.\n\nهل أنت مستعد؟"))return;c.style.display='none';for(let k=0;k<hrs.length;k++){await slp(200);await sSel("نوع المالك","فرد");await slp(100);await sSel("نوع الهوية","هوية وطنية");await slp(100);trg('input[name="Identity"]',hrs[k].id);trg('input[name="DateOfBirth"]',hrs[k].dob);trg('input[name="email"]',v_e);trg('input[type="tel"]',"+966"+v_m.substring(1));await slp(1000);const vB=Array.from(d.querySelectorAll('button')).find(b=>b.innerText.includes('التحقق'));if(vB){vB.click();let ok=false;for(let a=0;a<100;a++){if(d.body.innerText.includes("بنجاح")){ok=true;break;}await slp(200);}if(ok){await slp(1000);}else{c.style.display='';if(!confirm(`⚠️ لم يتم التأكد من نجاح إضافة الوارث ${k+1}. هل نكمل؟`))break;c.style.display='none';}}if(k<hrs.length-1){const ad=Array.from(d.querySelectorAll('button')).find(b=>b.innerText.includes('إضافة مالك جديد'));if(ad){ad.click();await slp(400);}}}c.style.display='';alert("اكتملت العملية بنجاح ✅");c.remove();s.remove();};})();
+  ------
+
+
+  الحين بكتب لك أكواد الخانات بحيث تشوف زين 
+
+  <div class="ReactModal__Content ReactModal__Content--after-open" tabindex="-1" role="dialog" aria-modal="true" style="position: absolute; inset: 50% auto auto 50%; border: 1px solid rgb(204, 204, 204); background: rgb(255, 255, 255); overflow-x: visible; border-radius: 18px; outline: none; padding: 20px; width: 80%; height: auto; margin-right: -50%; transform: translate(-50%, -50%); min-width: 80%; max-width: 1600px; min-height: 500px; z-index: 100;"><div class="undefined " dir="rtl"> <div><div class="flex "><p class="    text-textPrimary     font-medium md:text-xl md:leading-9 mb-3">تفاصيل الملاك</p></div><div class="bg-[#F4F8FA] p-4 py-6"><div class="flex flex-wrap justify-center"><div class="flex flex-[0_0_33.33%] flex-col"><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-2">نوع المالك</label><span class=" text-lg font-medium mt-8">منشأة </span></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">نوع الهوية</p><div class="mt-4 border-lightgrey w-[90%] css-3iigni-container"><span id="react-select-17-live-region" class="css-7pg0cj-a11yText"></span><span aria-live="polite" aria-atomic="false" aria-relevant="additions text" class="css-7pg0cj-a11yText"></span><div class=" css-hrt0y8-control"><div class=" css-hlgwow"><div class=" css-1co7f8r-singleValue">الرقم الموحد للمنشأت</div><input id="react-select-17-input" disabled="" tabindex="0" inputmode="none" aria-autocomplete="list" aria-expanded="false" aria-haspopup="true" role="combobox" aria-readonly="true" class="css-1hac4vs-dummyInput" value=""></div><div class=" css-1wy0on6"><span class=" css-894a34-indicatorSeparator"></span><div class=" css-1xc3v61-indicatorContainer" aria-hidden="true"><svg height="20" width="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false" class="css-8mmkcg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div></div></div></div></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">بطاقة الهوية</p><input name="Identity" disabled="" placeholder="" type="number" class="bg-zinc-100 w-[90%] 
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-4 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder
+                            " value="7008655875"></div><div class="flex flex-col justify-start items-start flex flex-[0_0_33.33%]"> <div class="flex flex-col mt-4   justify-start items-start w-full"><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">اسم الجهة</label><input name="NationalityEn" placeholder="" class="
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder   mt-2 
+                            "></div></div><div class="flex flex-col mt-[16px] justify- items-start flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">رقم الجوال</label><div class="border-r-[6px] border-r-redBg rounded mt-3  react-tel-input "><input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966"><div class="flag-dropdown "><div class="selected-flag" title=" : + 966" tabindex="0" role="button" aria-haspopup="listbox"><div class="flag sa"><div class="arrow"></div></div></div></div></div></div><div class="flex flex-col  mt-[20px] justify-start items-start  flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">البريد الإلكتروني</label><input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value=""></div><div class="flex flex-col  mt-[20px] justify-start items-start  flex flex-[0_0_33.33%] "></div></div></div><div class="w-full block flex justify-end mt-4"><button type="submit" class="my-5 mx-2 bg-[#ffffff] text-bluerega py-3 px-5 border-[1px] border-cyan rounded text-base leading-5 font-[600]">إغلاق</button><button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">Validate Without Wathiq</button><button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق</button></div></div></div></div>
+
+
+
+  ثم خانة الوكيل 
+
+  <div class="ReactModal__Content ReactModal__Content--after-open" tabindex="-1" role="dialog" aria-modal="true" style="position: absolute; inset: 50% auto auto 50%; border: 1px solid rgb(204, 204, 204); background: rgb(255, 255, 255); overflow-x: visible; border-radius: 18px; outline: none; padding: 20px; width: 80%; height: 750px; margin-right: -50%; transform: translate(-50%, -50%); max-width: 1600px; min-height: 500px; z-index: 100;"><div class="undefined " dir="rtl"> <div><div class="flex "><p class="    text-textPrimary     font-medium md:text-xl md:leading-9 mb-3">إضافة وكيل</p></div><div class="bg-[#F4F8FA] p-4 py-6"><div class="flex flex-wrap justify-center"><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">نوع الهوية</p><div class="mt-4 border-lightgrey w-[90%] css-b62m3t-container"><span id="react-select-18-live-region" class="css-7pg0cj-a11yText"></span><span aria-live="polite" aria-atomic="false" aria-relevant="additions text" class="css-7pg0cj-a11yText"></span><div class=" css-1ns6ek8-control"><div class=" css-hlgwow"><div class=" css-1jqq78o-placeholder" id="react-select-18-placeholder">اختيار</div><input id="react-select-18-input" tabindex="0" inputmode="none" aria-autocomplete="list" aria-expanded="false" aria-haspopup="true" role="combobox" aria-readonly="true" aria-describedby="react-select-18-placeholder" class="css-1hac4vs-dummyInput" value=""></div><div class=" css-1wy0on6"><span class=" css-1u9des2-indicatorSeparator"></span><div class=" css-1xc3v61-indicatorContainer" aria-hidden="true"><svg height="20" width="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false" class="css-8mmkcg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div></div></div><input name="Type" type="hidden" value=""></div></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">بطاقة الهوية</p><input name="Identity" placeholder="" type="number" class="bg-white 
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-4 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder
+                            " value=""></div><div class="flex flex-col justify-start items-start flex flex-[0_0_33.33%]"> <div class="flex flex-col   justify-start items-start w-full d-picker"><label class=" mt-6 text-tertiary-350 font-[500] md:text-[14px] md:leading-5 ">تاريخ الميلاد</label><div class="flex w-[100%]"><div class="rmdp-container w-[97%] h-[48px]" style="display: inline-block; height: max-content;"><input type="text" name="DateOfBirth" class="
+        block 
+        rounded-md
+        border-2
+        border-lightShade
+        shadow-sm
+        h-[50px]
+        
+        focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+        
+                bg-white 
+                !w-[95%]
+                
+                new-form-input    mt-[15px]  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                              placeholder
+                              
+                  focus:border-l-redBg border-l-redBg 
+    " placeholder="انقر لتحديد التاريخ" autocomplete="off" value=""><div class="" style="position: absolute; left: 0px; top: 0px; will-change: transform; visibility: hidden; z-index: 100;"><div></div></div></div></div></div></div><div class="flex flex-col  mt-3 justify-start items-start  flex flex-[0_0_33.33%]"><p class=" mt-2  text-tertiary-350   pb-4   font-[500] md:text-[14px] md:leading-5 ">رقم الوكالة</p><input name="poaNumber" placeholder="" class=" !w-[90%]     !w-[90%]
+              
+                new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                              placeholder   mt-2 
+                        " value=""></div><div class="flex flex-col mt-[16px] justify- items-start flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">رقم الجوال</label><div class="border-r-[6px] border-r-redBg rounded mt-3  react-tel-input "><input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966"><div class="flag-dropdown "><div class="selected-flag" title=" : + 966" tabindex="0" role="button" aria-haspopup="listbox"><div class="flag sa"><div class="arrow"></div></div></div></div></div></div><div class="flex flex-col  mt-[20px] justify-start items-start  flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">البريد الإلكتروني</label><input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value=""></div></div></div><div><div></div></div><div class="flex w-full mt-12 justify-between"><div><div class="w-[730px] "><div class="flex flex-wrap items-center"><div class="cursor-pointer  undefined" style="border: 2px dashed rgb(164, 177, 196); width: 95%; border-radius: 4px; height: 160px;"><label for="" class=" rounded p-0.5 bg-white text-borderSecondary relative -z-0 cursor-pointer w-[97%]"><img alt="me" loading="lazy" width="34" height="34" decoding="async" data-nimg="1" class="hidden md:block mx-auto" src="/assets/svgs/uploadIcon.svg" style="color: transparent;"><div class="flex justify-center font-medium text-[18px] mt-2">تصفح الوثائق لتحميلها</div><input type="file" accept="image/*, .docx,.pdf" multiple="" style="background: white; position: absolute; z-index: 40; opacity: 0; width: 726px; height: 150px; margin-top: -90px;"><div class="flex items-center flex-col"><span class="font-normal ml-3 text-[#A4B1C4] text-[14px]">jpg, jpeg, png, pdf, doc</span><span class="font-normal text-[#A4B1C4] text-[14px]">10MB الأقصى.</span></div></label></div></div><div></div></div></div><div class="w-6/12"><div class="bg-lightShade py-2 px-5 h-36 rounded-md"><h3 class="text-[#4A6BA3] text-[18px] font-medium mb-3">قائمة الوثائق</h3><div class="text-[#A4B1C4] text-[14px] mb-[50px]">لم يتم تحميل أي وثيقة حتى الآن</div><div class="overflow-y-auto w-full h-full"></div></div></div></div><div class="w-full block flex justify-end mt-4"><button type="submit" class="my-5 mx-2 bg-[#ffffff] text-bluerega py-3 px-5   rounded text-base leading-5 font-[600]">إغلاق</button><button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق من البيانات</button></div></div></div></div>
+
+
+
+
+  ثم خانة المالك الجديد
+
+  تضغط ذا 
+  <button class=" uppercase rounded text-textPrimary  text-[14px] leading-5  font-[500]">+ إضافة مالك جديد</button>
+  ثم 
+  <div class="bg-[#F4F8FA] p-4 py-6"><div class="flex flex-wrap justify-center"><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">نوع المالك</p><div class="mt-4 border-lightgrey w-[90%] css-b62m3t-container"><span id="react-select-19-live-region" class="css-7pg0cj-a11yText"></span><span aria-live="polite" aria-atomic="false" aria-relevant="additions text" class="css-7pg0cj-a11yText"></span><div class=" css-1ns6ek8-control"><div class=" css-hlgwow"><div class=" css-1jqq78o-placeholder" id="react-select-19-placeholder">اختيار</div><input id="react-select-19-input" tabindex="0" inputmode="none" aria-autocomplete="list" aria-expanded="false" aria-haspopup="true" role="combobox" aria-readonly="true" aria-describedby="react-select-19-placeholder" class="css-1hac4vs-dummyInput" value=""></div><div class=" css-1wy0on6"><span class=" css-1u9des2-indicatorSeparator"></span><div class=" css-1xc3v61-indicatorContainer" aria-hidden="true"><svg height="20" width="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false" class="css-8mmkcg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div></div></div><input name="ownerType" type="hidden" value=""></div></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">نوع الهوية</p><div class="mt-4 border-lightgrey w-[90%] css-b62m3t-container"><span id="react-select-20-live-region" class="css-7pg0cj-a11yText"></span><span aria-live="polite" aria-atomic="false" aria-relevant="additions text" class="css-7pg0cj-a11yText"></span><div class=" css-1ns6ek8-control"><div class=" css-hlgwow"><div class=" css-1co7f8r-singleValue">رقم معرف اجنبى</div><input id="react-select-20-input" tabindex="0" inputmode="none" aria-autocomplete="list" aria-expanded="false" aria-haspopup="true" role="combobox" aria-readonly="true" class="css-1hac4vs-dummyInput" value=""></div><div class=" css-1wy0on6"><span class=" css-1u9des2-indicatorSeparator"></span><div class=" css-1xc3v61-indicatorContainer" aria-hidden="true"><svg height="20" width="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false" class="css-8mmkcg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div></div></div><input name="Type" type="hidden" value="7"></div></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">بطاقة الهوية</p><input name="Identity" placeholder="" type="number" class="bg-white 
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-4 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder
+                            " value=""></div><div class="flex flex-col justify-start items-start flex flex-[0_0_33.33%]"> <div class="flex flex-col mt-[28px]  justify-start items-start w-full date-picker"><label class="text-tertiary-350 text-base leading-6 font-[500px] ">تاريخ الميلاد</label><div class="flex w-[100%]"><div class="rmdp-container  h-[48px]" style="display: inline-block; height: max-content;"><input type="text" name="DateOfBirth" id="date" class="
+                  false
+
+                    custom-input  !w-[90%]
+                    
+                    focus:border-l-redBg border-l-redBg
+                    rounded-md
+                    border-2
+                    mt-4
+                    border-lightShade
+                    shadow-sm
+                    h-[50px]
+                    border-l-[7px]
+                    focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+                " placeholder="انقر لتحديد التاريخ" autocomplete="off" value=""><div class="" style="position: absolute; left: 0px; top: 0px; will-change: transform; visibility: hidden; z-index: 100;"><div></div></div></div><img alt="me" loading="lazy" width="18" height="19" decoding="async" data-nimg="1" class="cursor-pointer absolute right-80 mt-8" src="/assets/svgs/calenderBlue.svg" style="color: transparent;"></div></div></div><div class="flex flex-col mt-[16px] justify- items-start flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">رقم الجوال</label><div class="border-r-[6px] border-r-redBg rounded mt-3  react-tel-input "><input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966"><div class="flag-dropdown "><div class="selected-flag" title=" : + 966" tabindex="0" role="button" aria-haspopup="listbox"><div class="flag sa"><div class="arrow"></div></div></div></div></div></div><div class="flex flex-col  mt-[20px] justify-start items-start  flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">البريد الإلكتروني</label><input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value=""></div><div class="flex flex-col  mt-[20px] justify-start items-start  flex flex-[0_0_33.33%] "></div></div></div>
+
+طبعا اول خانتين قائمتين منسدلات 
+والمنسدلة الثانية الخيار السادس 
+  ثم باقي الخانات تعبيها 
+  ثم بعد ما تعبيها وتسوي تحقق نفس ما فيه حق النقرات اللي فوق 
+  تضغط 
+  <p class="font-bold text-[#4A6BA3]  dark:text-blue-500 ">إضافة</p>
+ثم تطلع لك 
+
+  <div class="ReactModal__Content ReactModal__Content--after-open" tabindex="-1" role="dialog" aria-modal="true" style="position: absolute; inset: 50% auto auto 50%; border: 1px solid rgb(204, 204, 204); background: rgb(255, 255, 255); overflow-x: visible; border-radius: 18px; outline: none; padding: 20px; width: 80%; height: 750px; margin-right: -50%; transform: translate(-50%, -50%); max-width: 1600px; min-height: 500px; z-index: 100;"><div class="undefined " dir="rtl"> <div><div class="flex "><p class="    text-textPrimary     font-medium md:text-xl md:leading-9 mb-3">إضافة وكيل</p></div><div class="bg-[#F4F8FA] p-4 py-6"><div class="flex flex-wrap justify-center"><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">نوع الهوية</p><div class="mt-4 border-lightgrey w-[90%] css-b62m3t-container"><span id="react-select-22-live-region" class="css-7pg0cj-a11yText"></span><span aria-live="polite" aria-atomic="false" aria-relevant="additions text" class="css-7pg0cj-a11yText"></span><div class=" css-1ns6ek8-control"><div class=" css-hlgwow"><div class=" css-1jqq78o-placeholder" id="react-select-22-placeholder">اختيار</div><input id="react-select-22-input" tabindex="0" inputmode="none" aria-autocomplete="list" aria-expanded="false" aria-haspopup="true" role="combobox" aria-readonly="true" aria-describedby="react-select-22-placeholder" class="css-1hac4vs-dummyInput" value=""></div><div class=" css-1wy0on6"><span class=" css-1u9des2-indicatorSeparator"></span><div class=" css-1xc3v61-indicatorContainer" aria-hidden="true"><svg height="20" width="20" viewBox="0 0 20 20" aria-hidden="true" focusable="false" class="css-8mmkcg"><path d="M4.516 7.548c0.436-0.446 1.043-0.481 1.576 0l3.908 3.747 3.908-3.747c0.533-0.481 1.141-0.446 1.574 0 0.436 0.445 0.408 1.197 0 1.615-0.406 0.418-4.695 4.502-4.695 4.502-0.217 0.223-0.502 0.335-0.787 0.335s-0.57-0.112-0.789-0.335c0 0-4.287-4.084-4.695-4.502s-0.436-1.17 0-1.615z"></path></svg></div></div></div><input name="Type" type="hidden" value=""></div></div><div class="flex flex-col   justify-start items-start flex flex-[0_0_33.33%]"><p class=" mt-6  text-tertiary-350      font-[500] md:text-[14px] md:leading-5 ">بطاقة الهوية</p><input name="Identity" placeholder="" type="number" class="bg-white 
+              !w-[90%]
+              
+              new-form-input    px-4 py-3 mt-4 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                            placeholder
+                            " value=""></div><div class="flex flex-col justify-start items-start flex flex-[0_0_33.33%]"> <div class="flex flex-col   justify-start items-start w-full d-picker"><label class=" mt-6 text-tertiary-350 font-[500] md:text-[14px] md:leading-5 ">تاريخ الميلاد</label><div class="flex w-[100%]"><div class="rmdp-container w-[97%] h-[48px]" style="display: inline-block; height: max-content;"><input type="text" name="DateOfBirth" class="
+        block 
+        rounded-md
+        border-2
+        border-lightShade
+        shadow-sm
+        h-[50px]
+        
+        focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50
+        
+                bg-white 
+                !w-[95%]
+                
+                new-form-input    mt-[15px]  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                              placeholder
+                              
+                  focus:border-l-redBg border-l-redBg 
+    " placeholder="انقر لتحديد التاريخ" autocomplete="off" value=""><div class="" style="position: absolute; left: 0px; top: 0px; will-change: transform; visibility: hidden; z-index: 100;"><div></div></div></div></div></div></div><div class="flex flex-col  mt-3 justify-start items-start  flex flex-[0_0_33.33%]"><p class=" mt-2  text-tertiary-350   pb-4   font-[500] md:text-[14px] md:leading-5 ">رقم الوكالة</p><input name="poaNumber" placeholder="" class=" !w-[90%]     !w-[90%]
+              
+                new-form-input    px-4 py-3 mt-3 my-1  border-l-[7px]  focus:border-l-redBg border-l-redBg   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                              placeholder   mt-2 
+                        " value=""></div><div class="flex flex-col mt-[16px] justify- items-start flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">رقم الجوال</label><div class="border-r-[6px] border-r-redBg rounded mt-3  react-tel-input "><input class="form-control !w-[90%] mt-1 p-[20px] block rounded-md border-gray-300 shadow-sm py-6 border-l-[7px] border-l-redBg focus:border-blue-300 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="" type="tel" dir="ltr" value="+966"><div class="flag-dropdown "><div class="selected-flag" title=" : + 966" tabindex="0" role="button" aria-haspopup="listbox"><div class="flag sa"><div class="arrow"></div></div></div></div></div></div><div class="flex flex-col  mt-[20px] justify-start items-start  flex flex-[0_0_33.33%] "><label class="text-tertiary-350 text-base leading-6 font-[500px]  pb-4">البريد الإلكتروني</label><input type="email" name="email" placeholder="" class=" 
+                !w-[90%] new-form-input    px-4 py-3 mt-2 my-1 border-l-[7px] focus:border-l-redBg border-l-redBg  border-lightShade2   outline-bluerega   rounded-md  border   focus:border-lightShade2 
+                                 bg-white
+                                " value=""></div></div></div><div><div></div></div><div class="flex w-full mt-12 justify-between"><div><div class="w-[730px] "><div class="flex flex-wrap items-center"><div class="cursor-pointer  undefined" style="border: 2px dashed rgb(164, 177, 196); width: 95%; border-radius: 4px; height: 160px;"><label for="" class=" rounded p-0.5 bg-white text-borderSecondary relative -z-0 cursor-pointer w-[97%]"><img alt="me" loading="lazy" width="34" height="34" decoding="async" data-nimg="1" class="hidden md:block mx-auto" src="/assets/svgs/uploadIcon.svg" style="color: transparent;"><div class="flex justify-center font-medium text-[18px] mt-2">تصفح الوثائق لتحميلها</div><input type="file" accept="image/*, .docx,.pdf" multiple="" style="background: white; position: absolute; z-index: 40; opacity: 0; width: 726px; height: 150px; margin-top: -90px;"><div class="flex items-center flex-col"><span class="font-normal ml-3 text-[#A4B1C4] text-[14px]">jpg, jpeg, png, pdf, doc</span><span class="font-normal text-[#A4B1C4] text-[14px]">10MB الأقصى.</span></div></label></div></div><div></div></div></div><div class="w-6/12"><div class="bg-lightShade py-2 px-5 h-36 rounded-md"><h3 class="text-[#4A6BA3] text-[18px] font-medium mb-3">قائمة الوثائق</h3><div class="text-[#A4B1C4] text-[14px] mb-[50px]">لم يتم تحميل أي وثيقة حتى الآن</div><div class="overflow-y-auto w-full h-full"></div></div></div></div><div class="w-full block flex justify-end mt-4"><button type="submit" class="my-5 mx-2 bg-[#ffffff] text-bluerega py-3 px-5   rounded text-base leading-5 font-[600]">إغلاق</button><button type="button" class="my-5 mx-3 bg-bluerega text-white py-5 px-8 border-[1px] border-cyan rounded text-base leading-5 font-[600]">التحقق من البيانات</button></div></div></div></div>
+
+  
+بعد ما تطلع تعبيها أول قائمة منسدلة الخامسة
+
+  ثم تعبيها وتخلص
+
+وتضغط تحقق 
+
+  ثم تروح للصفحة اللي بعدها نفس النقرات 
