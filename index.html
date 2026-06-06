@@ -1,1 +1,21 @@
-javascript:(function(){const d=document;const old=d.getElementById('cp-ui');if(old)old.remove();const st=d.createElement('style');st.innerHTML='#cp-ui{position:fixed;top:15px;left:15px;width:290px;background:#fff;z-index:2147483647;border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,0.3);font-family:sans-serif;direction:rtl;text-align:right;border:1px solid #cbd5e1}#cp-ui .hd{background:#1e293b;color:#fff;padding:8px 12px;font-size:12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;border-radius:8px 8px 0 0}#cp-ui .bd{padding:10px;display:flex;flex-direction:column;gap:6px}#cp-ui button{cursor:pointer;padding:8px;border:none;border-radius:5px;font-size:11px;font-weight:700;color:#fff}#cp-ui textarea{width:100%;height:140px;font-family:monospace;font-size:10px;direction:ltr;text-align:left;box-sizing:border-box;resize:none;background:#000;color:#0f0;padding:6px;border:1px solid #475569}';d.head.appendChild(st);const ui=d.createElement('div');ui.id='cp-ui';ui.innerHTML='<div class="hd"><span>صائد العناصر</span><button id="cp-x" style="background:none;border:none;color:#fff;cursor:pointer;font-size:12px">✕</button></div><div class="bd"><button id="cp-toggle" style="background:#22c55e">تشغيل</button><button id="cp-copy" style="background:#8b5cf6">نسخ السجل</button><textarea id="cp-log" readonly>جاهز...</textarea><button id="cp-clear" style="background:#64748b">مسح</button></div>';d.body.appendChild(ui);let active=false;const logBox=d.getElementById('cp-log');const btn=d.getElementById('cp-toggle');d.getElementById('cp-x').onclick=()=>{ui.remove();st.remove()};d.getElementById('cp-clear').onclick=()=>{logBox.value=''};d.getElementById('cp-copy').onclick=()=>{logBox.select();d.execCommand('copy');const b=d.getElementById('cp-copy');b.textContent='✅ تم!';setTimeout(()=>b.textContent='نسخ السجل',1000)};btn.onclick=()=>{active=!active;btn.textContent=active?'نشط (لقط)':'تشغيل';btn.style.background=active?'#ef4444':'#22c55e'};d.addEventListener('click',function(e){if(!active)return;const el=e.target;if(ui.contains(el))return;let selector=el.tagName.toLowerCase();if(el.id)selector+='#'+el.id;else if(el.className&&typeof el.className==='string'){const c=el.className.trim().split(/\s+/).join('.');if(c)selector+='.'+c}const info='- Element: '+el.tagName+'\n- Text: '+(el.innerText||'').substring(0,30).trim()+'\n- Selector: '+selector+'\n\n';logBox.value=(logBox.value==='جاهز...'?'':logBox.value)+info;logBox.scrollTop=logBox.scrollHeight},false);})();
+- Element: BUTTON
+- Text: التالي: نسب التملك
+- Selector: button.bg-textPrimary.border-textPrimary.px-4.py-4.uppercase.rounded.text-white.text-[14px].leading-5.font-[500]
+
+- Element: DIV
+- Text: /
+%
+- Selector: div.overflow-hidden.relative.flex.h-[37px].w-[200px].items-center.justify-center.rounded-md.border.border-l-4.border-[#D2DCE0].border-l-red-500.text-sm
+
+- Element: INPUT
+- Text: 
+- Selector: input.w-12.border-none.border-transparent.px-1.text-center.outline-none.ring-0.!ring-transparent
+
+- Element: INPUT
+- Text: 
+- Selector: input.w-12.border-none.border-transparent.text-center.outline-none.px-1.overflow-hidden.ring-0.!ring-transparent
+
+- Element: BUTTON
+- Text: التالي: تفاصيل نقل الملكية
+- Selector: button.bg-textPrimary.border-textPrimary.px-4.py-4.uppercase.rounded.text-white.text-[14px].leading-5.font-[500]
+
