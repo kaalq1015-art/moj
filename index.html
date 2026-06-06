@@ -49,15 +49,11 @@ ui.innerHTML=`
     </div>
     <div class="f"><label>جوال الوكيل</label><input id="na_mob" value="0504102030"></div>
   </div>
-  <div class="grp"><h4>عام + ترتيب القوائم المنسدلة</h4>
+  <div class="grp"><h4>عام + قوائم المالك الجديد فقط</h4>
     <div class="f"><label>الإيميل (للكل)</label><input id="g_mail" value="kahdhjahdbsjjxdjsk@kskdo.aoa"></div>
     <div class="dd">
-      <div class="f"><label>نوع هوية وكيل البائع</label><input id="dd_sa" value="1"></div>
       <div class="f"><label>نوع المالك الجديد</label><input id="dd_nt" value="2"></div>
-    </div>
-    <div class="dd">
       <div class="f"><label>نوع هوية المالك الجديد</label><input id="dd_nid" value="6"></div>
-      <div class="f"><label>نوع هوية وكيل الجديد</label><input id="dd_naid" value="1"></div>
     </div>
   </div>
   <button class="go" id="naql-go">▶ بدء التعبئة</button>
@@ -72,7 +68,7 @@ d.getElementById('naql-x').onclick=()=>{ui.remove();st.remove()};
 const V=id=>d.getElementById(id).value.trim();
 const setStatus=t=>{d.getElementById('naql-st').textContent=t};
 d.getElementById('naql-go').onclick=async function(){
-  const C={sName:V('s_name'),sMob:V('s_mob'),saId:V('sa_id'),saDob:V('sa_dob'),saPoa:V('sa_poa'),saMob:V('sa_mob'),nId:V('n_id'),nMob:V('n_mob'),naId:V('na_id'),naDob:V('na_dob'),naPoa:V('na_poa'),naMob:V('na_mob'),mail:V('g_mail'),ddSa:parseInt(V('dd_sa'))-1,ddNt:parseInt(V('dd_nt'))-1,ddNid:parseInt(V('dd_nid'))-1,ddNaid:parseInt(V('dd_naid'))-1};
+  const C={sName:V('s_name'),sMob:V('s_mob'),saId:V('sa_id'),saDob:V('sa_dob'),saPoa:V('sa_poa'),saMob:V('sa_mob'),nId:V('n_id'),nMob:V('n_mob'),naId:V('na_id'),naDob:V('na_dob'),naPoa:V('na_poa'),naMob:V('na_mob'),mail:V('g_mail'),ddNt:parseInt(V('dd_nt'))-1,ddNid:parseInt(V('dd_nid'))-1};
   ui.style.opacity='0.25';
   const slp=ms=>new Promise(r=>setTimeout(r,ms));
   const fmt=m=>"+966"+m.replace(/^(0|966|\+966)/,'');
@@ -101,7 +97,6 @@ d.getElementById('naql-go').onclick=async function(){
     setStatus('إضافة وكيل البائع...');
     let ad=await waitFor(()=>findP(isAdd,false),10000);if(!ad){setStatus('لم يظهر زر إضافة وكيل البائع');ui.style.opacity='1';return}ad.click();
     await waitFor(getModal,6000);await slp(1000);
-    await selDD(0,C.ddSa);
     trgSel('input[name="Identity"]',C.saId);trgSel('input[name="DateOfBirth"]',C.saDob);trgSel('input[name="poaNumber"]',C.saPoa);trgSel('input[type="tel"]',fmt(C.saMob));trgSel('input[name="email"]',C.mail);
     await slp(1200);
     setStatus('ضغط تحقق (وكيل البائع)...');
@@ -118,7 +113,6 @@ d.getElementById('naql-go').onclick=async function(){
     setStatus('إضافة وكيل المالك الجديد...');
     let ad2=await waitFor(()=>findP(isAdd,true),10000);if(!ad2){setStatus('لم يظهر زر إضافة وكيل الجديد');ui.style.opacity='1';return}ad2.click();
     await waitFor(getModal,6000);await slp(1000);
-    await selDD(0,C.ddNaid);
     trgSel('input[name="Identity"]',C.naId);trgSel('input[name="DateOfBirth"]',C.naDob);trgSel('input[name="poaNumber"]',C.naPoa);trgSel('input[type="tel"]',fmt(C.naMob));trgSel('input[name="email"]',C.mail);
     await slp(1200);
     setStatus('ضغط تحقق (وكيل الجديد)...');
