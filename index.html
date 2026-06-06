@@ -26,6 +26,7 @@ ui.innerHTML=`
 <div class="hd" id="naql2-drag"><h3>2️⃣ المالك الجديد ووكيله</h3><button class="x" id="naql2-x">✕</button></div>
 <div class="bd">
   <div class="grp"><h4>المالك الجديد (الجهة)</h4>
+    <div class="f"><label>اسم الجهة</label><input id="n_name" value="مؤسسة الاسكان التنموي" style="text-align:right;direction:rtl"></div>
     <div class="f"><label>الرقم الموحد / الهوية</label><input id="n_id" value="7020579558"></div>
     <div class="f"><label>الجوال</label><input id="n_mob" value="0504102030"></div>
   </div>
@@ -56,7 +57,7 @@ d.getElementById('naql2-x').onclick=()=>{ui.remove();st.remove()};
 const V=id=>d.getElementById(id).value.trim();
 const setStatus=t=>{d.getElementById('naql2-st').textContent=t};
 d.getElementById('naql2-go').onclick=async function(){
-  const C={nId:V('n_id'),nMob:V('n_mob'),naId:V('na_id'),naDob:V('na_dob'),naPoa:V('na_poa'),naMob:V('na_mob'),mail:V('g_mail'),ddNt:parseInt(V('dd_nt'))-1,ddNid:parseInt(V('dd_nid'))-1};
+  const C={nName:V('n_name'),nId:V('n_id'),nMob:V('n_mob'),naId:V('na_id'),naDob:V('na_dob'),naPoa:V('na_poa'),naMob:V('na_mob'),mail:V('g_mail'),ddNt:parseInt(V('dd_nt'))-1,ddNid:parseInt(V('dd_nid'))-1};
   ui.style.opacity='0.25';
   const slp=ms=>new Promise(r=>setTimeout(r,ms));
   const fmt=m=>"+966"+m.replace(/^(0|966|\+966)/,'');
@@ -72,8 +73,12 @@ d.getElementById('naql2-go').onclick=async function(){
     setStatus('إضافة مالك جديد...');
     let bn=await waitFor(()=>findEl('إضافة مالك جديد','button'),10000);if(!bn){setStatus('لم يظهر زر إضافة مالك جديد');ui.style.opacity='1';return}bn.click();
     await waitFor(getModal,6000);await slp(1000);
-    setStatus('تعبئة المالك الجديد...');
+    setStatus('اختيار القوائم المنسدلة...');
     await selDD(0,C.ddNt);await selDD(1,C.ddNid);
+    await slp(1000);
+    setStatus('تعبئة المالك الجديد...');
+    let nm=await waitFor(()=>{const el=d.querySelector('input[name="NationalityEn"]');return(el&&el.getBoundingClientRect().width>0)?el:null},6000);
+    if(nm)trgSel('input[name="NationalityEn"]',C.nName);
     trgSel('input[name="Identity"]',C.nId);trgSel('input[type="tel"]',fmt(C.nMob));trgSel('input[name="email"]',C.mail);
     await slp(1200);
     setStatus('ضغط تحقق (المالك الجديد)...');
