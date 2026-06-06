@@ -1,0 +1,16 @@
+- Element: INPUT
+- Text: 
+- Selector: input.w-12.border-none.border-transparent.px-1.text-center.outline-none.ring-0.!ring-transparent
+
+- Element: INPUT
+- Text: 
+- Selector: input.w-12.border-none.border-transparent.text-center.outline-none.px-1.overflow-hidden.ring-0.!ring-transparent
+
+- Element: INPUT
+- Text: 
+- Selector: input.w-12.border-none.border-transparent.px-1.text-center.outline-none.ring-0.!ring-transparent
+
+- Element: INPUT
+- Text: 
+- Selector: input.w-12.border-none.border-transparent.text-center.outline-none.px-1.overflow-hidden.ring-0.!ring-transparent
+
