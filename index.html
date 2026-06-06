@@ -64,8 +64,24 @@ d.getElementById('naql2-go').onclick=async function(){
   const trgSel=(sel,vl)=>{const el=d.querySelector(sel);if(!el)return;const s=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;s.call(el,vl);el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}))};
   const findEl=(txt,tag='*')=>d.evaluate(`//${tag}[contains(text(),'${txt}') or normalize-space(.)='${txt}']`,d,null,9,null).singleNodeValue;
   const getModal=()=>Array.from(d.querySelectorAll('.ReactModal__Content')).find(x=>x.getBoundingClientRect().width>0)||null;
-  const waitFor=async(fn,maxMs=12000)=>{const s=Date.now();while(Date.now()-s<maxMs){let r;try{r=fn();}catch(e){}if(r)return r;await slp(200);}return null};
-  const selDD=async(ctrlIndex,optIdx)=>{const m=getModal();if(!m)return false;const ctrls=Array.from(m.querySelectorAll('[class*="-control"]'));const ctrl=ctrls[ctrlIndex];if(!ctrl)return false;ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));await slp(800);const menu=d.querySelector('[class*="-menu"]');if(!menu)return false;const opts=Array.from(menu.querySelectorAll('[id*="-option"]'));const opt=opts[optIdx]||opts[0];if(opt){opt.click();await slp(700);return true}return false};
+  const waitFor=async(fn,maxMs=12000)=>{const s=Date.now();while(Date.now()-s<maxMs){let r;try{r=fn();}catch(e){}if(r)return r;await slp(150);}return null};
+  // فتح القائمة رقم ctrlIndex داخل المودال واختيار option رقم optIdx — مع إعادة محاولة وانتظار المنيو
+  const selDD=async(ctrlIndex,optIdx)=>{
+    const m=getModal();if(!m)return false;
+    for(let a=0;a<4;a++){
+      const ctrls=Array.from(m.querySelectorAll('[class*="-control"]'));
+      const ctrl=ctrls[ctrlIndex];if(!ctrl)return false;
+      ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
+      ctrl.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
+      const menu=await waitFor(()=>d.querySelector('[class*="-menu"]'),1500);
+      if(menu){
+        const opt=await waitFor(()=>{const o=Array.from(menu.querySelectorAll('[id*="-option"]'));return o[optIdx]||o[0]||null;},1500);
+        if(opt){opt.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));opt.click();await slp(700);return true;}
+      }
+      await slp(500);
+    }
+    return false;
+  };
   const clkBtnExact=txt=>{const b=Array.from(d.querySelectorAll('button')).find(x=>x.innerText.trim()===txt);if(b){b.click();return true}return false};
   const findP=(matchFn,last)=>{const arr=Array.from(d.querySelectorAll('p')).filter(p=>matchFn(p.textContent.trim())&&p.className.includes('text-[#4A6BA3]')&&p.getBoundingClientRect().width>0);return last?arr[arr.length-1]:arr[0]};
   const isAdd=t=>t==='إضافة'||t==='*إضافة'||t.endsWith('إضافة');
@@ -73,8 +89,10 @@ d.getElementById('naql2-go').onclick=async function(){
     setStatus('إضافة مالك جديد...');
     let bn=await waitFor(()=>findEl('إضافة مالك جديد','button'),10000);if(!bn){setStatus('لم يظهر زر إضافة مالك جديد');ui.style.opacity='1';return}bn.click();
     await waitFor(getModal,6000);await slp(1000);
-    setStatus('اختيار القوائم المنسدلة...');
-    await selDD(0,C.ddNt);await selDD(1,C.ddNid);
+    setStatus('فتح المنسدلة 1 (نوع المالك)...');
+    let ok1=await selDD(0,C.ddNt);if(!ok1){setStatus('لم تفتح المنسدلة 1');ui.style.opacity='1';return}
+    setStatus('فتح المنسدلة 2 (نوع الهوية)...');
+    let ok2=await selDD(1,C.ddNid);if(!ok2){setStatus('لم تفتح المنسدلة 2');ui.style.opacity='1';return}
     await slp(1000);
     setStatus('تعبئة المالك الجديد...');
     let nm=await waitFor(()=>{const el=d.querySelector('input[name="NationalityEn"]');return(el&&el.getBoundingClientRect().width>0)?el:null},6000);
