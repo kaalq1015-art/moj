@@ -53,11 +53,11 @@ ui.innerHTML=`
     <div class="f"><label>الإيميل (للكل)</label><input id="g_mail" value="kahdhjahdbsjjxdjsk@kskdo.aoa"></div>
     <div class="dd">
       <div class="f"><label>نوع هوية وكيل البائع</label><input id="dd_sa" value="1"></div>
-      <div class="f"><label>نوع المالك الجديد</label><input id="dd_nt" value="1"></div>
+      <div class="f"><label>نوع المالك الجديد</label><input id="dd_nt" value="2"></div>
     </div>
     <div class="dd">
       <div class="f"><label>نوع هوية المالك الجديد</label><input id="dd_nid" value="6"></div>
-      <div class="f"><label>نوع هوية وكيل الجديد</label><input id="dd_naid" value="5"></div>
+      <div class="f"><label>نوع هوية وكيل الجديد</label><input id="dd_naid" value="1"></div>
     </div>
   </div>
   <button class="go" id="naql-go">▶ بدء التعبئة</button>
@@ -80,8 +80,9 @@ d.getElementById('naql-go').onclick=async function(){
   const findEl=(txt,tag='*')=>d.evaluate(`//${tag}[contains(text(),'${txt}') or normalize-space(.)='${txt}']`,d,null,9,null).singleNodeValue;
   const getModal=()=>Array.from(d.querySelectorAll('.ReactModal__Content')).find(x=>x.getBoundingClientRect().width>0)||null;
   const waitFor=async(fn,maxMs=12000)=>{const s=Date.now();while(Date.now()-s<maxMs){let r;try{r=fn();}catch(e){}if(r)return r;await slp(200);}return null};
-  const selDD=async(ctrlIndex,optIdx)=>{const m=getModal();if(!m)return false;const ctrls=Array.from(m.querySelectorAll('[class*="-control"]'));const ctrl=ctrls[ctrlIndex];if(!ctrl)return false;ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));await slp(700);const menu=d.querySelector('[class*="-menu"]');if(!menu)return false;const opts=Array.from(menu.querySelectorAll('[id*="-option"]'));const opt=opts[optIdx]||opts[0];if(opt){opt.click();await slp(600);return true}return false};
-  const clkBtn=txt=>{const m=getModal();if(!m)return false;const b=Array.from(m.querySelectorAll('button')).find(x=>x.textContent.trim()===txt);if(b){b.click();return true}return false};
+  const rClk=el=>{el.scrollIntoView({block:'center'});['mouseover','mousedown','mouseup','click'].forEach(ev=>el.dispatchEvent(new MouseEvent(ev,{bubbles:true,cancelable:true})))};
+  const selDD=async(ctrlIndex,optIdx)=>{const m=getModal();if(!m)return false;const ctrls=Array.from(m.querySelectorAll('[class*="-control"]'));const ctrl=ctrls[ctrlIndex];if(!ctrl)return false;ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));await slp(800);const menu=d.querySelector('[class*="-menu"]');if(!menu)return false;const opts=Array.from(menu.querySelectorAll('[id*="-option"]'));const opt=opts[optIdx]||opts[0];if(opt){opt.click();await slp(700);return true}return false};
+  const clkVerify=async(txt)=>{for(let a=0;a<3;a++){const btn=await waitFor(()=>{const m=getModal();if(!m)return null;return Array.from(m.querySelectorAll('button')).find(x=>x.textContent.trim()===txt&&x.getBoundingClientRect().width>0)||null;},6000);if(btn){rClk(btn);return true}await slp(600);}return false};
   const findP=(matchFn,last)=>{const arr=Array.from(d.querySelectorAll('p')).filter(p=>matchFn(p.textContent.trim())&&p.className.includes('text-[#4A6BA3]')&&p.getBoundingClientRect().width>0);return last?arr[arr.length-1]:arr[0]};
   const isVerify=t=>t==='التحقق';
   const isAdd=t=>t==='إضافة'||t==='*إضافة'||t.endsWith('إضافة');
@@ -92,30 +93,38 @@ d.getElementById('naql-go').onclick=async function(){
     let b2=findEl('نقل الملكية','p');if(b2)b2.closest('div').click();await slp(1800);
     let bc=findEl('التأكيد','button');if(bc)bc.click();await slp(3000);
     setStatus('التحقق من البائع...');
-    let cv=await waitFor(()=>findP(isVerify,false),12000);if(!cv){setStatus('لم يظهر التحقق للبائع');ui.style.opacity='1';return}cv.click();
-    await waitFor(getModal,6000);await slp(800);
+    let cv=await waitFor(()=>findP(isVerify,false),12000);if(!cv){setStatus('لم يظهر التحقق للبائع');ui.style.opacity='1';return}rClk(cv);
+    await waitFor(getModal,6000);await slp(900);
     setStatus('تعبئة بيانات البائع...');
     trgSel('input[name="NationalityEn"]',C.sName);trgSel('input[type="tel"]',fmt(C.sMob));trgSel('input[name="email"]',C.mail);
-    await slp(1000);clkBtn('التحقق');await slp(4000);
+    await slp(1200);
+    setStatus('ضغط تحقق (البائع)...');
+    await clkVerify('التحقق');await slp(3000);
     setStatus('إضافة وكيل البائع...');
-    let ad=await waitFor(()=>findP(isAdd,false),10000);if(!ad){setStatus('لم يظهر زر إضافة وكيل البائع');ui.style.opacity='1';return}ad.click();
-    await waitFor(getModal,6000);await slp(800);
+    let ad=await waitFor(()=>findP(isAdd,false),10000);if(!ad){setStatus('لم يظهر زر إضافة وكيل البائع');ui.style.opacity='1';return}rClk(ad);
+    await waitFor(getModal,6000);await slp(900);
     await selDD(0,C.ddSa);
     trgSel('input[name="Identity"]',C.saId);trgSel('input[name="DateOfBirth"]',C.saDob);trgSel('input[name="poaNumber"]',C.saPoa);trgSel('input[type="tel"]',fmt(C.saMob));trgSel('input[name="email"]',C.mail);
-    await slp(1000);clkBtn('التحقق من البيانات');await slp(4000);
+    await slp(1200);
+    setStatus('ضغط تحقق (وكيل البائع)...');
+    await clkVerify('التحقق من البيانات');await slp(3000);
     setStatus('إضافة مالك جديد...');
-    let bn=await waitFor(()=>findEl('إضافة مالك جديد','button'),10000);if(!bn){setStatus('لم يظهر زر إضافة مالك جديد');ui.style.opacity='1';return}bn.click();
-    await waitFor(getModal,6000);await slp(800);
+    let bn=await waitFor(()=>findEl('إضافة مالك جديد','button'),10000);if(!bn){setStatus('لم يظهر زر إضافة مالك جديد');ui.style.opacity='1';return}rClk(bn);
+    await waitFor(getModal,6000);await slp(900);
     setStatus('تعبئة المالك الجديد...');
     await selDD(0,C.ddNt);await selDD(1,C.ddNid);
     trgSel('input[name="Identity"]',C.nId);trgSel('input[type="tel"]',fmt(C.nMob));trgSel('input[name="email"]',C.mail);
-    await slp(1000);clkBtn('التحقق');await slp(4000);
+    await slp(1200);
+    setStatus('ضغط تحقق (المالك الجديد)...');
+    await clkVerify('التحقق');await slp(3000);
     setStatus('إضافة وكيل المالك الجديد...');
-    let ad2=await waitFor(()=>findP(isAdd,true),10000);if(!ad2){setStatus('لم يظهر زر إضافة وكيل الجديد');ui.style.opacity='1';return}ad2.click();
-    await waitFor(getModal,6000);await slp(800);
+    let ad2=await waitFor(()=>findP(isAdd,true),10000);if(!ad2){setStatus('لم يظهر زر إضافة وكيل الجديد');ui.style.opacity='1';return}rClk(ad2);
+    await waitFor(getModal,6000);await slp(900);
     await selDD(0,C.ddNaid);
     trgSel('input[name="Identity"]',C.naId);trgSel('input[name="DateOfBirth"]',C.naDob);trgSel('input[name="poaNumber"]',C.naPoa);trgSel('input[type="tel"]',fmt(C.naMob));trgSel('input[name="email"]',C.mail);
-    await slp(1000);clkBtn('التحقق من البيانات');await slp(3000);
+    await slp(1200);
+    setStatus('ضغط تحقق (وكيل الجديد)...');
+    await clkVerify('التحقق من البيانات');await slp(3000);
     setStatus('✅ تمت تعبئة الأطراف');ui.style.opacity='1';
   }catch(e){setStatus('توقف: '+e.message);ui.style.opacity='1'}
 };
