@@ -65,18 +65,19 @@ d.getElementById('naql2-go').onclick=async function(){
   const findEl=(txt,tag='*')=>d.evaluate(`//${tag}[contains(text(),'${txt}') or normalize-space(.)='${txt}']`,d,null,9,null).singleNodeValue;
   const getModal=()=>Array.from(d.querySelectorAll('.ReactModal__Content')).find(x=>x.getBoundingClientRect().width>0)||null;
   const waitFor=async(fn,maxMs=12000)=>{const s=Date.now();while(Date.now()-s<maxMs){let r;try{r=fn();}catch(e){}if(r)return r;await slp(150);}return null};
-  // فتح القائمة رقم ctrlIndex داخل المودال واختيار option رقم optIdx — مع إعادة محاولة وانتظار المنيو
+  const key=(el,k,code,kc)=>el.dispatchEvent(new KeyboardEvent(k,{key:code,code:code,keyCode:kc,which:kc,bubbles:true,cancelable:true}));
+  // فتح react-select بالـ input + ArrowDown ثم اختيار option رقم optIdx
   const selDD=async(ctrlIndex,optIdx)=>{
     const m=getModal();if(!m)return false;
     for(let a=0;a<4;a++){
-      const ctrls=Array.from(m.querySelectorAll('[class*="-control"]'));
-      const ctrl=ctrls[ctrlIndex];if(!ctrl)return false;
-      ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true,cancelable:true}));
-      ctrl.dispatchEvent(new MouseEvent('mouseup',{bubbles:true,cancelable:true}));
+      const inputs=Array.from(m.querySelectorAll('input[id*="react-select"][id$="-input"]'));
+      const inp=inputs[ctrlIndex];if(!inp)return false;
+      inp.focus();
+      key(inp,'keydown','ArrowDown',40);key(inp,'keyup','ArrowDown',40);
       const menu=await waitFor(()=>d.querySelector('[class*="-menu"]'),1500);
       if(menu){
         const opt=await waitFor(()=>{const o=Array.from(menu.querySelectorAll('[id*="-option"]'));return o[optIdx]||o[0]||null;},1500);
-        if(opt){opt.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));opt.click();await slp(700);return true;}
+        if(opt){opt.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));opt.dispatchEvent(new MouseEvent('mouseup',{bubbles:true}));opt.click();await slp(700);return true;}
       }
       await slp(500);
     }
