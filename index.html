@@ -1,29 +1,28 @@
 javascript:(function(){
 const d=document;
-const old=d.getElementById('naql-ui');if(old)old.remove();
+const old=d.getElementById('naql1-ui');if(old)old.remove();
 const st=d.createElement('style');
 st.innerHTML=`
-#naql-ui{position:fixed;top:30px;right:30px;width:340px;background:rgba(255,255,255,.97);z-index:2147483647;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.2);font-family:'Segoe UI',system-ui,sans-serif;direction:rtl;text-align:right;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.5);overflow:hidden;max-height:90vh;display:flex;flex-direction:column}
-#naql-ui .hd{background:linear-gradient(135deg,#0f2b5c,#1a3b7a);padding:14px 18px;color:#fff;cursor:move;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
-#naql-ui .hd h3{margin:0;font-size:14px;font-weight:700}
-#naql-ui .hd .x{background:rgba(255,255,255,.15);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px}
-#naql-ui .bd{padding:16px;overflow-y:auto}
-#naql-ui .grp{margin-bottom:14px;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
-#naql-ui .grp h4{margin:0 0 8px;font-size:12px;font-weight:700;color:#0f2b5c}
-#naql-ui .f{margin-bottom:8px}
-#naql-ui .f label{display:block;font-size:10px;font-weight:600;color:#64748b;margin-bottom:3px}
-#naql-ui .f input{width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;box-sizing:border-box;background:#f8fafc;direction:ltr;text-align:right}
-#naql-ui .f input:focus{outline:none;border-color:#3b82f6;background:#fff}
-#naql-ui .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#naql-ui .dd{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-#naql-ui .go{width:100%;background:#059669;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px;margin-top:4px;font-family:inherit}
-#naql-ui .go:hover{background:#047857}
-#naql-ui .st{text-align:center;font-size:12px;color:#0f2b5c;font-weight:600;margin-top:10px;min-height:16px}
+#naql1-ui{position:fixed;top:30px;right:30px;width:330px;background:rgba(255,255,255,.97);z-index:2147483647;border-radius:18px;box-shadow:0 20px 50px rgba(0,0,0,.2);font-family:'Segoe UI',system-ui,sans-serif;direction:rtl;text-align:right;backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.5);overflow:hidden;max-height:90vh;display:flex;flex-direction:column}
+#naql1-ui .hd{background:linear-gradient(135deg,#0f2b5c,#1a3b7a);padding:14px 18px;color:#fff;cursor:move;display:flex;justify-content:space-between;align-items:center;flex-shrink:0}
+#naql1-ui .hd h3{margin:0;font-size:14px;font-weight:700}
+#naql1-ui .hd .x{background:rgba(255,255,255,.15);border:none;color:#fff;width:26px;height:26px;border-radius:50%;cursor:pointer;font-size:14px}
+#naql1-ui .bd{padding:16px;overflow-y:auto}
+#naql1-ui .grp{margin-bottom:14px;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px}
+#naql1-ui .grp h4{margin:0 0 8px;font-size:12px;font-weight:700;color:#0f2b5c}
+#naql1-ui .f{margin-bottom:8px}
+#naql1-ui .f label{display:block;font-size:10px;font-weight:600;color:#64748b;margin-bottom:3px}
+#naql1-ui .f input{width:100%;padding:7px 10px;border:1px solid #e2e8f0;border-radius:8px;font-size:12px;box-sizing:border-box;background:#f8fafc;direction:ltr;text-align:right}
+#naql1-ui .f input:focus{outline:none;border-color:#3b82f6;background:#fff}
+#naql1-ui .row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#naql1-ui .go{width:100%;background:#059669;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:700;cursor:pointer;font-size:14px;margin-top:4px;font-family:inherit}
+#naql1-ui .go:hover{background:#047857}
+#naql1-ui .st{text-align:center;font-size:12px;color:#0f2b5c;font-weight:600;margin-top:10px;min-height:16px}
 `;
 d.head.appendChild(st);
-const ui=d.createElement('div');ui.id='naql-ui';
+const ui=d.createElement('div');ui.id='naql1-ui';
 ui.innerHTML=`
-<div class="hd" id="naql-drag"><h3>📑 نقل الملكية — تعبئة تلقائية</h3><button class="x" id="naql-x">✕</button></div>
+<div class="hd" id="naql1-drag"><h3>1️⃣ البائع ووكيله</h3><button class="x" id="naql1-x">✕</button></div>
 <div class="bd">
   <div class="grp"><h4>البائع (الجهة)</h4>
     <div class="f"><label>اسم الجهة</label><input id="s_name" value="شركة كدف للتطوير العقاري" style="text-align:right;direction:rtl"></div>
@@ -37,38 +36,22 @@ ui.innerHTML=`
     </div>
     <div class="f"><label>جوال الوكيل</label><input id="sa_mob" value="504102030"></div>
   </div>
-  <div class="grp"><h4>المالك الجديد (الجهة)</h4>
-    <div class="f"><label>الرقم الموحد / الهوية</label><input id="n_id" value="7020579558"></div>
-    <div class="f"><label>الجوال</label><input id="n_mob" value="0504102030"></div>
-  </div>
-  <div class="grp"><h4>وكيل المالك الجديد</h4>
-    <div class="f"><label>هوية الوكيل</label><input id="na_id" value="1021871908"></div>
-    <div class="row">
-      <div class="f"><label>الميلاد (YYYY-MM-DD)</label><input id="na_dob" value="1401-03-21"></div>
-      <div class="f"><label>رقم الوكالة</label><input id="na_poa" value="472809224"></div>
-    </div>
-    <div class="f"><label>جوال الوكيل</label><input id="na_mob" value="0504102030"></div>
-  </div>
-  <div class="grp"><h4>عام + قوائم المالك الجديد فقط</h4>
+  <div class="grp"><h4>عام</h4>
     <div class="f"><label>الإيميل (للكل)</label><input id="g_mail" value="kahdhjahdbsjjxdjsk@kskdo.aoa"></div>
-    <div class="dd">
-      <div class="f"><label>نوع المالك الجديد</label><input id="dd_nt" value="2"></div>
-      <div class="f"><label>نوع هوية المالك الجديد</label><input id="dd_nid" value="6"></div>
-    </div>
   </div>
-  <button class="go" id="naql-go">▶ بدء التعبئة</button>
-  <div class="st" id="naql-st"></div>
+  <button class="go" id="naql1-go">▶ بدء (من البداية حتى وكيل البائع)</button>
+  <div class="st" id="naql1-st"></div>
 </div>`;
 d.body.appendChild(ui);
-let drag=false,off={x:0,y:0};const h=d.getElementById('naql-drag');
+let drag=false,off={x:0,y:0};const h=d.getElementById('naql1-drag');
 h.onmousedown=e=>{drag=true;off.x=e.clientX-ui.offsetLeft;off.y=e.clientY-ui.offsetTop};
 d.onmousemove=e=>{if(!drag)return;ui.style.left=(e.clientX-off.x)+'px';ui.style.top=(e.clientY-off.y)+'px';ui.style.right='auto'};
 d.onmouseup=()=>drag=false;
-d.getElementById('naql-x').onclick=()=>{ui.remove();st.remove()};
+d.getElementById('naql1-x').onclick=()=>{ui.remove();st.remove()};
 const V=id=>d.getElementById(id).value.trim();
-const setStatus=t=>{d.getElementById('naql-st').textContent=t};
-d.getElementById('naql-go').onclick=async function(){
-  const C={sName:V('s_name'),sMob:V('s_mob'),saId:V('sa_id'),saDob:V('sa_dob'),saPoa:V('sa_poa'),saMob:V('sa_mob'),nId:V('n_id'),nMob:V('n_mob'),naId:V('na_id'),naDob:V('na_dob'),naPoa:V('na_poa'),naMob:V('na_mob'),mail:V('g_mail'),ddNt:parseInt(V('dd_nt'))-1,ddNid:parseInt(V('dd_nid'))-1};
+const setStatus=t=>{d.getElementById('naql1-st').textContent=t};
+d.getElementById('naql1-go').onclick=async function(){
+  const C={sName:V('s_name'),sMob:V('s_mob'),saId:V('sa_id'),saDob:V('sa_dob'),saPoa:V('sa_poa'),saMob:V('sa_mob'),mail:V('g_mail')};
   ui.style.opacity='0.25';
   const slp=ms=>new Promise(r=>setTimeout(r,ms));
   const fmt=m=>"+966"+m.replace(/^(0|966|\+966)/,'');
@@ -76,7 +59,6 @@ d.getElementById('naql-go').onclick=async function(){
   const findEl=(txt,tag='*')=>d.evaluate(`//${tag}[contains(text(),'${txt}') or normalize-space(.)='${txt}']`,d,null,9,null).singleNodeValue;
   const getModal=()=>Array.from(d.querySelectorAll('.ReactModal__Content')).find(x=>x.getBoundingClientRect().width>0)||null;
   const waitFor=async(fn,maxMs=12000)=>{const s=Date.now();while(Date.now()-s<maxMs){let r;try{r=fn();}catch(e){}if(r)return r;await slp(200);}return null};
-  const selDD=async(ctrlIndex,optIdx)=>{const m=getModal();if(!m)return false;const ctrls=Array.from(m.querySelectorAll('[class*="-control"]'));const ctrl=ctrls[ctrlIndex];if(!ctrl)return false;ctrl.dispatchEvent(new MouseEvent('mousedown',{bubbles:true}));await slp(800);const menu=d.querySelector('[class*="-menu"]');if(!menu)return false;const opts=Array.from(menu.querySelectorAll('[id*="-option"]'));const opt=opts[optIdx]||opts[0];if(opt){opt.click();await slp(700);return true}return false};
   const clkBtnExact=txt=>{const b=Array.from(d.querySelectorAll('button')).find(x=>x.innerText.trim()===txt);if(b){b.click();return true}return false};
   const findP=(matchFn,last)=>{const arr=Array.from(d.querySelectorAll('p')).filter(p=>matchFn(p.textContent.trim())&&p.className.includes('text-[#4A6BA3]')&&p.getBoundingClientRect().width>0);return last?arr[arr.length-1]:arr[0]};
   const isAdd=t=>t==='إضافة'||t==='*إضافة'||t.endsWith('إضافة');
@@ -101,23 +83,7 @@ d.getElementById('naql-go').onclick=async function(){
     await slp(1200);
     setStatus('ضغط تحقق (وكيل البائع)...');
     clkBtnExact('التحقق من البيانات');await slp(3000);
-    setStatus('إضافة مالك جديد...');
-    let bn=await waitFor(()=>findEl('إضافة مالك جديد','button'),10000);if(!bn){setStatus('لم يظهر زر إضافة مالك جديد');ui.style.opacity='1';return}bn.click();
-    await waitFor(getModal,6000);await slp(1000);
-    setStatus('تعبئة المالك الجديد...');
-    await selDD(0,C.ddNt);await selDD(1,C.ddNid);
-    trgSel('input[name="Identity"]',C.nId);trgSel('input[type="tel"]',fmt(C.nMob));trgSel('input[name="email"]',C.mail);
-    await slp(1200);
-    setStatus('ضغط تحقق (المالك الجديد)...');
-    clkBtnExact('التحقق');await slp(3000);
-    setStatus('إضافة وكيل المالك الجديد...');
-    let ad2=await waitFor(()=>findP(isAdd,true),10000);if(!ad2){setStatus('لم يظهر زر إضافة وكيل الجديد');ui.style.opacity='1';return}ad2.click();
-    await waitFor(getModal,6000);await slp(1000);
-    trgSel('input[name="Identity"]',C.naId);trgSel('input[name="DateOfBirth"]',C.naDob);trgSel('input[name="poaNumber"]',C.naPoa);trgSel('input[type="tel"]',fmt(C.naMob));trgSel('input[name="email"]',C.mail);
-    await slp(1200);
-    setStatus('ضغط تحقق (وكيل الجديد)...');
-    clkBtnExact('التحقق من البيانات');await slp(3000);
-    setStatus('✅ تمت تعبئة الأطراف');ui.style.opacity='1';
+    setStatus('✅ تم — شغّل البوكمارك الثاني للمالك الجديد');ui.style.opacity='1';
   }catch(e){setStatus('توقف: '+e.message);ui.style.opacity='1'}
 };
 })();
