@@ -145,10 +145,12 @@
         <svg class="w-full h-full" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
             <path d="M120,0 C100,15 70,22 40,65 C30,76 22,88 15,105" />
             <path d="M120,0 C110,25 90,45 65,70 C55,80 40,95 30,115" />
+            <!-- Tiny flowers clustered neatly at the corner -->
             <circle cx="95" cy="25" r="3" fill="currentColor" />
             <path d="M95,25 C90,18 82,18 82,25 C82,32 90,32 95,25 Z" />
             <path d="M95,25 C100,18 108,18 108,25 C108,32 100,32 95,25 Z" />
             <path d="M95,25 C87,21 87,13 95,13 C103,13 103,21 95,25 Z" />
+            <!-- Neat leaf structures cascading downwards -->
             <path d="M78,35 C70,30 65,38 70,45 C75,52 82,45 78,35 Z" fill="currentColor" opacity="0.25"/>
             <path d="M52,58 C45,53 40,61 45,68 C50,75 58,68 52,58 Z" fill="currentColor" opacity="0.25"/>
             <path d="M30,85 C24,80 18,88 23,94 C28,100 35,93 30,85 Z" fill="currentColor" opacity="0.25"/>
@@ -212,23 +214,6 @@
         <div class="w-24 h-[1px] bg-amber-500/20 relative">
             <div id="progress-bar" class="progress-indicator w-0 h-full absolute top-0 right-0"></div>
         </div>
-    </div>
-
-    <!-- ================= FIXED FULLSCREEN CONTROL ONLY (CLEAN MINI UI) ================= -->
-    <!-- Positioned absolutely at the top, zoom controls removed as requested -->
-    <div class="absolute top-14 flex items-center justify-center bg-white/70 backdrop-blur-md px-3.5 py-1.5 rounded-2xl border border-amber-500/15 shadow-sm z-50 transition-all duration-300" id="global-controls">
-        <!-- Fullscreen Button -->
-        <button id="btn-fullscreen" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 active:scale-95 transition-all text-amber-800 text-xs font-bold font-ui">
-            <svg id="fullscreen-icon" class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
-            </svg>
-            <span id="fullscreen-text">ملء الشاشة</span>
-        </button>
-    </div>
-
-    <!-- ================= ELEGANT FALLBACK TOAST NOTIFICATION ================= -->
-    <div id="fullscreen-toast" class="fixed top-28 left-1/2 transform -translate-x-1/2 bg-stone-900/95 text-amber-100 text-xs md:text-sm px-5 py-3 rounded-2xl shadow-2xl z-50 transition-all duration-500 opacity-0 scale-95 pointer-events-none flex items-center gap-2 border border-amber-500/30 font-ui text-center max-w-[90%]">
-        <span>✨ للحصول على تجربة ملء الشاشة الكاملة والغامرة، يرجى فتح الرابط من المتصفح مباشرة (سفاري أو كروم) ✨</span>
     </div>
 
     <!-- Interactive Tap Zone / Main Screen Container (Hardcoded to 20px base for guaranteed 125% zoom scale) -->
@@ -310,7 +295,7 @@
                 <!-- Separated Mini Baby Card - Clear Hierarchy with Tajawal and Marhey fonts -->
                 <div class="mt-4 px-6 py-5 bg-amber-50/40 rounded-2xl border border-amber-500/15 w-full max-w-sm flex flex-col items-center shadow-inner overflow-visible">
                     
-                    <!-- Elegant Baby Signature Indicator - PERFECTLY CLEAN, ENLARGED TAJAWAL FONT -->
+                    <!-- Elegant Baby Signature Indicator -->
                     <div class="flex items-center gap-1.5 mb-2 overflow-visible">
                         <span class="text-[0.85em] text-amber-700/85 font-bold tracking-wide scalable-text font-tajawal" style="line-height: 1.4;">
                             طفلي يهمس لكِ بصوتٍ لم تسمعيه بعد:
@@ -365,101 +350,9 @@
         const progressBar = document.getElementById("progress-bar");
         const btnReplay = document.getElementById("btn-replay");
 
-        // Controls
-        const btnFullscreen = document.getElementById("btn-fullscreen");
-        const fullscreenText = document.getElementById("fullscreen-text");
-        const globalControls = document.getElementById("global-controls");
-        const toast = document.getElementById("fullscreen-toast");
-
-        // Safe Fallback Toast message if device blocks fullscreen (especially in platform iframes)
-        function showFullscreenToast() {
-            toast.classList.remove("opacity-0", "scale-95", "pointer-events-none");
-            toast.classList.add("opacity-100", "scale-100");
-            setTimeout(() => {
-                toast.classList.add("opacity-0", "scale-95", "pointer-events-none");
-                toast.classList.remove("opacity-100", "scale-100");
-            }, 6000);
-        }
-
-        // Fullscreen Toggle Logic
-        function toggleFullscreen() {
-            const docEl = document.documentElement;
-            
-            // Checking if we are currently fullscreen (standard or vendor-specific)
-            const isCurrentlyFullscreen = document.fullscreenElement || 
-                                          document.mozFullScreenElement || 
-                                          document.webkitFullscreenElement || 
-                                          document.msFullscreenElement;
-
-            if (!isCurrentlyFullscreen) {
-                // Determine standard or fallback request methods
-                const requestFS = docEl.requestFullscreen || 
-                                  docEl.mozRequestFullScreen || 
-                                  docEl.webkitRequestFullscreen || 
-                                  docEl.msRequestFullscreen;
-
-                if (requestFS) {
-                    requestFS.call(docEl)
-                        .then(() => {
-                            updateFullscreenButton(true);
-                        })
-                        .catch(err => {
-                            console.log("Native fullscreen blocked by iframe constraints. Displaying toast guidance.");
-                            showFullscreenToast();
-                        });
-                } else {
-                    showFullscreenToast();
-                }
-            } else {
-                const exitFS = document.exitFullscreen || 
-                               document.mozCancelFullScreen || 
-                               document.webkitExitFullscreen || 
-                               document.msExitFullscreen;
-
-                if (exitFS) {
-                    exitFS.call(document)
-                        .then(() => {
-                            updateFullscreenButton(false);
-                        })
-                        .catch(err => {
-                            console.log("Error leaving native fullscreen:", err);
-                        });
-                } else {
-                    updateFullscreenButton(false);
-                }
-            }
-        }
-
-        function updateFullscreenButton(isActive) {
-            if (isActive) {
-                fullscreenText.innerText = "تصغير";
-            } else {
-                fullscreenText.innerText = "ملء الشاشة";
-            }
-        }
-
-        // Listen for native escape/exit fullscreen changes to synchronize UI text state
-        function syncFullscreenUI() {
-            const isFS = document.fullscreenElement || 
-                         document.mozFullScreenElement || 
-                         document.webkitFullscreenElement || 
-                         document.msFullscreenElement;
-            updateFullscreenButton(!!isFS);
-        }
-
-        document.addEventListener('fullscreenchange', syncFullscreenUI);
-        document.addEventListener('webkitfullscreenchange', syncFullscreenUI);
-        document.addEventListener('mozfullscreenchange', syncFullscreenUI);
-        document.addEventListener('MSFullscreenChange', syncFullscreenUI);
-
-        btnFullscreen.addEventListener("click", (e) => {
-            e.stopPropagation();
-            toggleFullscreen();
-        });
-
-        // Interaction Handling - Simplified standard click prevents gestural security blocking on Safari/Chrome
+        // Interaction Handling - Simplified standard click
         interactiveZone.addEventListener("click", (e) => {
-            if (e.target.closest("#btn-replay") || e.target.closest("#global-controls")) return;
+            if (e.target.closest("#btn-replay")) return;
             handleNavigation();
         });
 
@@ -486,11 +379,6 @@
 
         function transitionToSlides() {
             isTransitioning = true;
-            
-            // Hide the controls with a clean fade-out so they don't distract during poetry
-            globalControls.style.opacity = "0";
-            globalControls.style.pointerEvents = "none";
-
             fade(screenIntro, "out", () => {
                 screenIntro.classList.add("screen-hidden");
                 screenIntro.classList.remove("screen-visible");
@@ -524,8 +412,6 @@
         // Set Slide Font sizing dynamically but UNIFIED (Constant size across slides)
         function displayCurrentSlide() {
             slideText.innerHTML = slides[currentSlideIndex];
-            
-            // Unified size: No more length-based toggling. Linear scale for complete transition consistency.
             slideText.className = "text-[1.8em] md:text-[2.2em] leading-relaxed text-stone-800 px-2 font-bold select-none text-center";
 
             // Progress bar mapping
@@ -579,10 +465,6 @@
                 screenIntro.classList.remove("screen-hidden");
                 progressBar.style.width = "0%";
                 currentState = "intro";
-                
-                // Show control panel again on intro screen
-                globalControls.style.opacity = "1";
-                globalControls.style.pointerEvents = "auto";
 
                 setTimeout(() => {
                     fade(screenIntro, "in", () => {
