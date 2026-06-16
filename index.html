@@ -157,13 +157,11 @@
     </div>
 
     <!-- Interactive Fluttering Butterflies -->
-    <!-- Butterfly 1 -->
     <div class="butterfly" style="left: 12%; animation-delay: 0s; animation-duration: 18s;">
         <svg class="butterfly-wings w-8 h-8 text-amber-500/35" viewBox="0 0 100 100" fill="currentColor">
             <path d="M50,50 C30,30 10,40 15,60 C20,80 40,75 50,55 C60,75 80,80 85,60 C90,40 70,30 50,50 Z M50,50 C45,35 30,20 35,10 C40,0 50,20 50,35 C50,20 60,0 65,10 C70,20 55,35 50,50 Z"/>
         </svg>
     </div>
-    <!-- Butterfly 2 -->
     <div class="butterfly" style="right: 15%; animation-delay: 4s; animation-duration: 22s;">
         <svg class="butterfly-wings w-10 h-10 text-pink-400/35" viewBox="0 0 100 100" fill="currentColor">
             <path d="M50,50 C30,30 10,40 15,60 C20,80 40,75 50,55 C60,75 80,80 85,60 C90,40 70,30 50,50 Z M50,50 C45,35 30,20 35,10 C40,0 50,20 50,35 C50,20 60,0 65,10 C70,20 55,35 50,50 Z"/>
@@ -186,32 +184,33 @@
         <!-- ================= 1. INTRO SCREEN ================= -->
         <div id="screen-intro" class="screen-transition screen-visible flex flex-col items-center justify-center w-full">
             <!-- Pulsing Emblem -->
-            <div class="relative w-32 h-32 flex items-center justify-center mb-8">
+            <div class="relative w-36 h-36 flex items-center justify-center mb-8">
                 <!-- Golden Floral/Circle Border -->
                 <svg class="absolute w-full h-full text-amber-500/20 animate-[spin_45s_linear_infinite]" viewBox="0 0 120 120">
                     <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="8,5"/>
                     <circle cx="60" cy="60" r="48" fill="none" stroke="currentColor" stroke-width="0.5"/>
                 </svg>
                 <!-- Central Elegant Heart -->
-                <div class="w-16 h-16 bg-white/80 rounded-full flex items-center justify-center border border-amber-200 shadow-[0_4px_15px_rgba(212,175,55,0.1)]">
-                    <svg class="w-8 h-8 text-pink-400 pulse-heart" fill="currentColor" viewBox="0 0 20 20">
+                <div class="w-18 h-18 bg-white/80 rounded-full flex items-center justify-center border border-amber-200 shadow-[0_4px_15px_rgba(212,175,55,0.1)]">
+                    <svg class="w-10 h-10 text-pink-400 pulse-heart" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
                     </svg>
                 </div>
             </div>
 
-            <h1 class="text-4xl font-bold text-gold-gradient mb-8 px-4" style="line-height: 1.5;">رسالة من القلب..</h1>
+            <!-- Enlarged Intro Title -->
+            <h1 class="text-4xl md:text-5.5xl font-bold text-gold-gradient mb-8 px-4" style="line-height: 1.5;">رسالة من القلب..</h1>
             
-            <div class="px-6 py-3 border border-amber-500/20 rounded-full bg-white/70 backdrop-blur-sm shadow-sm animate-pulse">
-                <span class="text-sm font-semibold font-ui text-amber-700/80">المسي الشاشة لفتح الرسالة يا خالتي ✨</span>
+            <div class="px-7 py-3.5 border border-amber-500/20 rounded-full bg-white/70 backdrop-blur-sm shadow-sm animate-pulse">
+                <span class="text-base font-semibold font-ui text-amber-700/85">المسي الشاشة لفتح الرسالة يا خالتي ✨</span>
             </div>
         </div>
 
         <!-- ================= 2. CAROUSEL SLIDES ================= -->
-        <div id="screen-slides" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center min-h-[280px]">
-            <div class="relative px-6 py-10 rounded-3xl w-full text-halo">
-                <!-- Text Container with Aref Ruqaa styling -->
-                <p id="slide-text" class="text-2xl md:text-3.5xl leading-relaxed text-stone-800 px-2 text-center select-none">
+        <div id="screen-slides" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center min-h-[300px]">
+            <div class="relative px-6 py-12 rounded-3xl w-full text-halo">
+                <!-- Text Container with larger and dynamic sizing -->
+                <p id="slide-text" class="text-3xl md:text-4.5xl leading-relaxed text-stone-800 px-2 text-center select-none font-bold">
                     <!-- Text injected dynamically -->
                 </p>
             </div>
@@ -223,10 +222,10 @@
             <!-- Big Golden Spotlight for "قريباً" with absolute overflow protection for perfect points visibility -->
             <div class="relative flex items-center justify-center w-full py-4 overflow-visible">
                 <!-- Golden glow background aura -->
-                <div class="absolute w-64 h-64 bg-amber-200/25 rounded-full blur-3xl"></div>
+                <div class="absolute w-72 h-72 bg-amber-200/25 rounded-full blur-3xl"></div>
                 
-                <!-- Display block with line-height 1.8 to prevent dots clipping on Arabic letter Qaf/Ya -->
-                <h2 class="text-7xl md:text-8xl font-bold text-gold-gradient tracking-wide relative z-10 py-6 px-8 text-center animate-[pulse_2.5s_infinite_ease-in-out]" style="font-family: 'Aref Ruqaa', serif; overflow: visible; display: block; line-height: 1.8;">
+                <!-- Display block with line-height 1.8 to prevent dots clipping and slightly increased size -->
+                <h2 class="text-8xl md:text-9xl font-bold text-gold-gradient tracking-wide relative z-10 py-6 px-8 text-center animate-[pulse_2.5s_infinite_ease-in-out]" style="font-family: 'Aref Ruqaa', serif; overflow: visible; display: block; line-height: 1.8;">
                     قَرِيباً
                 </h2>
             </div>
@@ -235,34 +234,34 @@
         <!-- ================= 3. GRAND REVEAL SCREEN ================= -->
         <div id="screen-reveal" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center">
             
-            <!-- Ultimate Heartwarming Message Panel -->
-            <div class="relative px-6 py-8 md:py-10 rounded-3xl w-full text-halo mb-8 overflow-visible flex flex-col items-center">
+            <!-- Ultimate Heartwarming Message Panel with larger text styling -->
+            <div class="relative px-6 py-8 md:py-12 rounded-3xl w-full text-halo mb-8 overflow-visible flex flex-col items-center">
                 <!-- Main Big Poetic Message -->
-                <p class="text-2xl md:text-3xl text-stone-800 font-bold mb-6 leading-relaxed">
-                    سيجعلكِ أجمل خالة لقطعةٍ من روحه!
+                <p class="text-3xl md:text-4xl text-stone-800 font-bold mb-6 leading-relaxed">
+                    سيجعلكِ بإذن الله أجمل خالة لقطعةٍ من روحه!
                 </p>
                 
                 <!-- Elegant decorative divider -->
-                <div class="w-24 h-[1px] bg-amber-500/20 my-2"></div>
+                <div class="w-28 h-[1.5px] bg-amber-500/20 my-2"></div>
                 
                 <!-- Separated Mini Baby Card - Clear Hierarchy with Poetic Introduction and Baby Icon -->
-                <div class="mt-4 px-4 py-4 bg-amber-50/40 rounded-2xl border border-amber-500/15 w-full max-w-sm flex flex-col items-center shadow-inner">
+                <div class="mt-4 px-6 py-5 bg-amber-50/40 rounded-2xl border border-amber-500/15 w-full max-w-sm flex flex-col items-center shadow-inner overflow-visible">
                     <!-- Elegant Baby Signature Indicator -->
                     <div class="flex items-center gap-1.5 mb-2">
-                        <span class="text-xs font-ui tracking-wide text-amber-700/80 font-semibold uppercase">
-                            👶 بنبضٍ لم تسمعيه بعد، يهمس لكِ:
+                        <span class="text-sm font-ui tracking-wide text-amber-700/85 font-semibold uppercase">
+                            طفلي يهمس لكِ بصوتٍ لم تسمعيه بعد:
                         </span>
                     </div>
                     
-                    <!-- Baby statement - Perfectly clean, distinct, and legible (No overlaps, slightly smaller and neat) -->
-                    <p class="text-xl md:text-2xl text-amber-800 font-bold text-center leading-normal py-1" style="font-family: 'Aref Ruqaa', serif;">
+                    <!-- Baby statement - Perfectly clean, distinct, and enlarged -->
+                    <p class="text-2.5xl md:text-3.5xl text-amber-800 font-bold text-center leading-loose py-2 px-2 overflow-visible" style="font-family: 'Aref Ruqaa', serif; min-height: 1.6em;">
                         مبارك يا خالة أبي الغالية! ❤️
                     </p>
                 </div>
             </div>
 
             <!-- Replay Button -->
-            <button id="btn-replay" class="px-8 py-3 rounded-full border border-amber-500/20 bg-white/90 hover:bg-white text-amber-700 font-semibold font-ui text-sm transition-all duration-300 transform active:scale-95 shadow-[0_4px_12px_rgba(212,175,55,0.1)] flex items-center gap-2 z-30">
+            <button id="btn-replay" class="px-8 py-3.5 rounded-full border border-amber-500/20 bg-white/90 hover:bg-white text-amber-700 font-semibold font-ui text-sm transition-all duration-300 transform active:scale-95 shadow-[0_4px_12px_rgba(212,175,55,0.1)] flex items-center gap-2 z-30">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/>
                 </svg>
@@ -277,14 +276,13 @@
 
     <!-- Scripting and Interactive Engine -->
     <script>
-        // Exactly requested texts in absolute order
+        // Exactly requested texts in absolute order with user edits applied (Slide 4 changed to "من أول", Slide 5 changed to "ليست فرحةً")
         const slides = [
             "إلى خالتي الحبيبة.. رائحةُ أُمّي",
             "أنتِ الغيمةُ التي تُمطرنا حُباً، والقلبُ الذي لا يملُّ من العطاء",
-            "كبرنا على حبكِ.. وما زالت حنيّتكِ تغمرنا",
             "لا أذكر فرحةً في عمري.. إلا وكنتِ أنتِ بهجتَها",
-            "أنتِ أولُ من أشاركه أخباري، وأولُ من يفرحُ لفرحي",
-            "ولأن فرحتي ليست فرحتي.. ما لم تكن فرحتكِ",
+            "أنتِ من أولُ من أشاركه أخباري، وأولُ من يفرحُ لفرحي",
+            "ولأن فرحتي ليست فرحةً",
             "اليوم لديّ خبرٌ يستحقُ أن تكوني أول من يسمعه",
             "استعدي لدورٍ وحُبٍّ جديد..",
             "لأن ابن أختكِ.."
@@ -372,11 +370,11 @@
         function displayCurrentSlide() {
             slideText.innerHTML = slides[currentSlideIndex];
             
-            // Adjust dynamic sizing based on text length for elegant flow on mobile screen
+            // Adjust dynamic sizing - with newly enlarged limits for premium legibility
             if (slides[currentSlideIndex].length > 45) {
-                slideText.className = "text-xl md:text-2xl leading-relaxed text-stone-800 px-2 font-bold";
+                slideText.className = "text-2xl md:text-3xl leading-relaxed text-stone-800 px-2 font-bold";
             } else {
-                slideText.className = "text-2xl md:text-3.5xl leading-relaxed text-stone-800 px-2 font-bold";
+                slideText.className = "text-3xl md:text-4.5xl leading-relaxed text-stone-800 px-2 font-bold";
             }
 
             // Progress bar mapping
