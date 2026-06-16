@@ -41,8 +41,8 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             color: #D4AF37;
-            padding-top: 20px;
-            padding-bottom: 20px;
+            padding-top: 10px;
+            padding-bottom: 10px;
             display: inline-block;
             overflow: visible;
             line-height: 1.8;
@@ -178,8 +178,30 @@
         </div>
     </div>
 
-    <!-- Interactive Tap Zone / Main Screen Container -->
-    <div id="main-interactive-zone" class="w-full max-w-lg flex-grow flex flex-col justify-center items-center text-center px-4 relative z-20 cursor-pointer">
+    <!-- ================= FIXED CONTROL PANEL (DOES NOT SCALE) ================= -->
+    <!-- Positioned absolutely at the top to remain clickable, clear, and unscaled -->
+    <div class="absolute top-14 flex items-center justify-center gap-3 bg-white/75 backdrop-blur-md px-4 py-2 rounded-2xl border border-amber-500/15 shadow-sm z-50 transition-all duration-300" id="global-controls">
+        <button id="btn-zoom-out" class="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-500/5 border border-amber-500/10 hover:bg-amber-500/10 active:scale-95 transition-all text-amber-800 font-bold text-xs font-ui">
+            A-
+        </button>
+        <!-- Dynamic Size Indicator Display -->
+        <span id="zoom-indicator" class="text-xs font-ui text-amber-800/80 font-bold px-1 min-w-[40px] text-center">100%</span>
+        <button id="btn-zoom-in" class="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-500/5 border border-amber-500/10 hover:bg-amber-500/10 active:scale-95 transition-all text-amber-800 font-bold text-sm font-ui">
+            A+
+        </button>
+        
+        <div class="w-[1px] h-6 bg-amber-500/20 mx-1"></div>
+        
+        <button id="btn-fullscreen" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 active:scale-95 transition-all text-amber-800 text-xs font-bold font-ui">
+            <svg class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+            </svg>
+            <span>ملء الشاشة</span>
+        </button>
+    </div>
+
+    <!-- Interactive Tap Zone / Main Screen Container (Inline font-size scaling is applied directly here) -->
+    <div id="main-interactive-zone" class="w-full max-w-lg flex-grow flex flex-col justify-center items-center text-center px-4 relative z-20 cursor-pointer" style="font-size: 16px;">
         
         <!-- ================= 1. INTRO SCREEN ================= -->
         <div id="screen-intro" class="screen-transition screen-visible flex flex-col items-center justify-center w-full">
@@ -198,8 +220,8 @@
                 </div>
             </div>
 
-            <!-- Enlarged Intro Title -->
-            <h1 class="text-4xl md:text-5.5xl font-bold text-gold-gradient mb-8 px-4" style="line-height: 1.5;">رسالة من القلب..</h1>
+            <!-- Intro Title using dynamic em scale -->
+            <h1 class="text-[2.6em] md:text-[3.2em] font-bold text-gold-gradient mb-8 px-4" style="line-height: 1.4;">رسالة من القلب..</h1>
             
             <div class="px-7 py-3.5 border border-amber-500/20 rounded-full bg-white/70 backdrop-blur-sm shadow-sm animate-pulse">
                 <span class="text-base font-semibold font-ui text-amber-700/85">المسي الشاشة لفتح الرسالة يا خالتي ✨</span>
@@ -209,8 +231,8 @@
         <!-- ================= 2. CAROUSEL SLIDES ================= -->
         <div id="screen-slides" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center min-h-[300px]">
             <div class="relative px-6 py-12 rounded-3xl w-full text-halo">
-                <!-- Text Container with larger and dynamic sizing -->
-                <p id="slide-text" class="text-3xl md:text-4.5xl leading-relaxed text-stone-800 px-2 text-center select-none font-bold">
+                <!-- Text Container with scalable font styling - using raw em sizes -->
+                <p id="slide-text" class="text-[1.8em] md:text-[2.5em] leading-relaxed text-stone-800 px-2 text-center select-none font-bold">
                     <!-- Text injected dynamically -->
                 </p>
             </div>
@@ -224,8 +246,8 @@
                 <!-- Golden glow background aura -->
                 <div class="absolute w-72 h-72 bg-amber-200/25 rounded-full blur-3xl"></div>
                 
-                <!-- Display block with line-height 1.8 to prevent dots clipping and slightly increased size -->
-                <h2 class="text-8xl md:text-9xl font-bold text-gold-gradient tracking-wide relative z-10 py-6 px-8 text-center animate-[pulse_2.5s_infinite_ease-in-out]" style="font-family: 'Aref Ruqaa', serif; overflow: visible; display: block; line-height: 1.8;">
+                <!-- Display block with line-height 1.8 to prevent dots clipping -->
+                <h2 class="text-[5.5em] md:text-[7em] font-bold text-gold-gradient tracking-wide relative z-10 py-6 px-8 text-center animate-[pulse_2.5s_infinite_ease-in-out]" style="font-family: 'Aref Ruqaa', serif; overflow: visible; display: block; line-height: 1.8;">
                     قَرِيباً
                 </h2>
             </div>
@@ -234,10 +256,10 @@
         <!-- ================= 3. GRAND REVEAL SCREEN ================= -->
         <div id="screen-reveal" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center">
             
-            <!-- Ultimate Heartwarming Message Panel with larger text styling -->
+            <!-- Ultimate Heartwarming Message Panel with larger text styling using em -->
             <div class="relative px-6 py-8 md:py-12 rounded-3xl w-full text-halo mb-8 overflow-visible flex flex-col items-center">
                 <!-- Main Big Poetic Message -->
-                <p class="text-3xl md:text-4xl text-stone-800 font-bold mb-6 leading-relaxed">
+                <p class="text-[1.8em] md:text-[2.2em] text-stone-800 font-bold mb-6 leading-relaxed">
                     سيجعلكِ بإذن الله أجمل خالة لقطعةٍ من روحه!
                 </p>
                 
@@ -248,13 +270,13 @@
                 <div class="mt-4 px-6 py-5 bg-amber-50/40 rounded-2xl border border-amber-500/15 w-full max-w-sm flex flex-col items-center shadow-inner overflow-visible">
                     <!-- Elegant Baby Signature Indicator -->
                     <div class="flex items-center gap-1.5 mb-2">
-                        <span class="text-sm font-ui tracking-wide text-amber-700/85 font-semibold uppercase">
+                        <span class="text-[0.9em] font-ui tracking-wide text-amber-700/85 font-semibold uppercase">
                             طفلي يهمس لكِ بصوتٍ لم تسمعيه بعد:
                         </span>
                     </div>
                     
                     <!-- Baby statement - Perfectly clean, distinct, and enlarged -->
-                    <p class="text-2.5xl md:text-3.5xl text-amber-800 font-bold text-center leading-loose py-2 px-2 overflow-visible" style="font-family: 'Aref Ruqaa', serif; min-height: 1.6em;">
+                    <p class="text-[1.5em] md:text-[2em] text-amber-800 font-bold text-center leading-normal py-2 px-2 overflow-visible" style="font-family: 'Aref Ruqaa', serif; min-height: 1.6em;">
                         مبارك يا خالة أبي الغالية! ❤️
                     </p>
                 </div>
@@ -276,13 +298,12 @@
 
     <!-- Scripting and Interactive Engine -->
     <script>
-        // Exactly requested texts in absolute order with user edits applied (Slide 4 changed to "من أول", Slide 5 changed to "ليست فرحةً")
+        // Exactly requested texts in absolute order with user edits applied (removed Slide 4 "أنت من أول", Slide 5 changed to "ولأن فرحتي ليست فرحةً")
         const slides = [
             "إلى خالتي الحبيبة.. رائحةُ أُمّي",
             "أنتِ الغيمةُ التي تُمطرنا حُباً، والقلبُ الذي لا يملُّ من العطاء",
             "لا أذكر فرحةً في عمري.. إلا وكنتِ أنتِ بهجتَها",
-            "أنتِ من أولُ من أشاركه أخباري، وأولُ من يفرحُ لفرحي",
-            "ولأن فرحتي ليست فرحةً",
+            "ولأن فرحتي ليست فرحةً.. ما لم تكن فرحتكِ",
             "اليوم لديّ خبرٌ يستحقُ أن تكوني أول من يسمعه",
             "استعدي لدورٍ وحُبٍّ جديد..",
             "لأن ابن أختكِ.."
@@ -291,6 +312,11 @@
         let currentState = "intro"; // states: intro, slides, soon, reveal
         let currentSlideIndex = 0;
         let isTransitioning = false;
+        
+        // Font sizing state (Calculated in base px size)
+        let currentFontSize = 16; 
+        const minFontSize = 12;
+        const maxFontSize = 24;
 
         // Elements
         const interactiveZone = document.getElementById("main-interactive-zone");
@@ -302,14 +328,84 @@
         const progressBar = document.getElementById("progress-bar");
         const btnReplay = document.getElementById("btn-replay");
 
+        // Controls
+        const btnZoomIn = document.getElementById("btn-zoom-in");
+        const btnZoomOut = document.getElementById("btn-zoom-out");
+        const zoomIndicator = document.getElementById("zoom-indicator");
+        const btnFullscreen = document.getElementById("btn-fullscreen");
+        const globalControls = document.getElementById("global-controls");
+
+        // Font Resize Logic (Directly modifies base font-size of main container)
+        function updateZoomDisplay() {
+            interactiveZone.style.fontSize = `${currentFontSize}px`;
+            const percentage = Math.round((currentFontSize / 16) * 100);
+            zoomIndicator.innerText = `${percentage}%`;
+        }
+
+        btnZoomIn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (currentFontSize < maxFontSize) {
+                currentFontSize += 2;
+                updateZoomDisplay();
+            }
+        });
+
+        btnZoomOut.addEventListener("click", (e) => {
+            e.stopPropagation();
+            if (currentFontSize > minFontSize) {
+                currentFontSize -= 2;
+                updateZoomDisplay();
+            }
+        });
+
+        btnZoomIn.addEventListener("touchend", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (currentFontSize < maxFontSize) {
+                currentFontSize += 2;
+                updateZoomDisplay();
+            }
+        });
+
+        btnZoomOut.addEventListener("touchend", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (currentFontSize > minFontSize) {
+                currentFontSize -= 2;
+                updateZoomDisplay();
+            }
+        });
+
+        // Fullscreen Logic
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log("وضع ملء الشاشة غير مدعوم في هذا المتصفح:", err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        btnFullscreen.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleFullscreen();
+        });
+
+        btnFullscreen.addEventListener("touchend", (e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            toggleFullscreen();
+        });
+
         // Interaction Handling
         interactiveZone.addEventListener("click", (e) => {
-            if (e.target.closest("#btn-replay")) return;
+            if (e.target.closest("#btn-replay") || e.target.closest("#global-controls")) return;
             handleNavigation();
         });
 
         interactiveZone.addEventListener("touchend", (e) => {
-            if (e.target.closest("#btn-replay")) return;
+            if (e.target.closest("#btn-replay") || e.target.closest("#global-controls")) return;
             e.preventDefault(); // suppress redundant click behaviors
             handleNavigation();
         }, { passive: false });
@@ -337,6 +433,11 @@
 
         function transitionToSlides() {
             isTransitioning = true;
+            
+            // Hide the controls with a clean fade-out so they don't distract during poetry
+            globalControls.style.opacity = "0";
+            globalControls.style.pointerEvents = "none";
+
             fade(screenIntro, "out", () => {
                 screenIntro.classList.add("screen-hidden");
                 screenIntro.classList.remove("screen-visible");
@@ -370,11 +471,11 @@
         function displayCurrentSlide() {
             slideText.innerHTML = slides[currentSlideIndex];
             
-            // Adjust dynamic sizing - with newly enlarged limits for premium legibility
+            // Adjust dynamic em-sizes based on slide length
             if (slides[currentSlideIndex].length > 45) {
-                slideText.className = "text-2xl md:text-3xl leading-relaxed text-stone-800 px-2 font-bold";
+                slideText.className = "text-[1.6em] md:text-[2.2em] leading-relaxed text-stone-800 px-2 font-bold";
             } else {
-                slideText.className = "text-3xl md:text-4.5xl leading-relaxed text-stone-800 px-2 font-bold";
+                slideText.className = "text-[2.2em] md:text-[3em] leading-relaxed text-stone-800 px-2 font-bold";
             }
 
             // Progress bar mapping
@@ -429,6 +530,10 @@
                 progressBar.style.width = "0%";
                 currentState = "intro";
                 
+                // Show control panel again on intro screen
+                globalControls.style.opacity = "1";
+                globalControls.style.pointerEvents = "auto";
+
                 setTimeout(() => {
                     fade(screenIntro, "in", () => {
                         isTransitioning = false;
@@ -556,9 +661,10 @@
             requestAnimationFrame(runOverlayLoop);
         }
 
-        // Initialize simulation
+        // Initialize simulation & zoom scale
         populateOverlay();
         runOverlayLoop();
+        updateZoomDisplay();
     </script>
 </body>
 </html>
