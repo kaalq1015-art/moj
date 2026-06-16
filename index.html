@@ -1,1 +1,567 @@
-javascript:(function(){const d=document,old=d.getElementById('pro-auto-container');if(old)old.remove();const s=d.createElement('style');s.innerHTML='#pro-auto-container{position:fixed;top:40px;right:40px;width:360px;background:#ffffff;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,0.25);z-index:2147483647;font-family:sans-serif;direction:rtl;text-align:right;border:1px solid #cbd5e1;overflow:hidden;}.h{background:#1a3b7a;padding:12px;color:#fff;cursor:move;display:flex;justify-content:space-between;font-weight:bold;font-size:14px;}.b{padding:15px;}.l{display:block;font-size:12px;color:#334155;margin-bottom:5px;font-weight:bold;}.i{width:100%;padding:8px 10px;border:1px solid #94a3b8;border-radius:6px;margin-bottom:12px;box-sizing:border-box;font-size:13px;background:#f8fafc;}#btn{width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:bold;font-size:15px;}.spin{width:20px;height:20px;border:2px solid #e2e8f0;border-bottom-color:#2563eb;border-radius:50%;display:inline-block;animation:r 1s linear infinite;}@keyframes r{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}';d.head.appendChild(s);const c=d.createElement('div');c.id='pro-auto-container';c.innerHTML='<div class="h" id="drag"><span>⚡ محاكي الكتابة والنقرات البشرية</span><span style="cursor:pointer" onclick="this.parentElement.parentElement.remove()">✕</span></div><div class="b" id="main"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;"><div><label class="l">رقم الجوال</label><input type="text" id="mob" class="i" value="05"></div><div><label class="l">البريد الإلكتروني</label><input type="email" id="mail" class="i" value="a@a.com"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px;"><div><label class="l">انتظار بعد التحقق (ثانية)</label><input type="number" id="v_spd" class="i" value="4" step="0.5"></div><div><label class="l">انتظار مالك جديد (ثانية)</label><input type="number" id="n_spd" class="i" value="3" step="0.5"></div></div><label class="l">نص صك حصر الورثة</label><textarea id="txt" class="i" style="height:60px;" placeholder="ألصق النص هنا..."></textarea><button id="btn">بدء التنفيذ التلقائي</button></div>';d.body.appendChild(c);let isD=false,off={x:0,y:0};const h=d.getElementById('drag');h.onmousedown=(e)=>{isD=true;off.x=e.clientX-c.offsetLeft;off.y=e.clientY-c.offsetTop;};d.onmousemove=(e)=>{if(isD){c.style.left=(e.clientX-off.x)+"px";c.style.top=(e.clientY-off.y)+"px";c.style.right="auto";}};d.onmouseup=()=>isD=false;const slp=(ms)=>new Promise(r=>setTimeout(r,ms));const wf=async(fn,t=1000,iv=20)=>{const st=Date.now();while(Date.now()-st<t){const r=fn();if(r)return r;await slp(iv);}return null;};const typeEffect=async(sel,val,spd=25)=>{const el=d.querySelector(sel);if(!el)return;el.focus();const set=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,"value").set;set.call(el,"");el.dispatchEvent(new Event("input",{bubbles:true}));for(let i=0;i<val.length;i++){const cur=val.slice(0,i+1);set.call(el,cur);el.dispatchEvent(new Event("input",{bubbles:true}));el.dispatchEvent(new KeyboardEvent("keydown",{bubbles:true,key:val[i]}));el.dispatchEvent(new KeyboardEvent("keypress",{bubbles:true,key:val[i]}));el.dispatchEvent(new KeyboardEvent("keyup",{bubbles:true,key:val[i]}));await slp(spd);}el.dispatchEvent(new Event("change",{bubbles:true}));el.blur();};async function sSel(lbl,opt){const t=Array.from(d.querySelectorAll("p,label,span,div")).find(el=>el.textContent.trim()===lbl);if(!t)return;const ctrl=t.closest("div").querySelector('[class*="-control"]');if(ctrl){ctrl.dispatchEvent(new MouseEvent("mousedown",{bubbles:true}));await slp(250);const m=await wf(()=>d.querySelector('[class*="-menu"]'),1000,15);if(m){const o=await wf(()=>Array.from(m.querySelectorAll('[id*="-option"]')).find(x=>x.textContent.trim()===opt),1000,15);if(o){await slp(100);o.click();await slp(150);}}}}d.getElementById("btn").onclick=async function(){const v_t=d.getElementById("txt").value,v_m=d.getElementById("mob").value.trim(),v_e=d.getElementById("mail").value;if(!/^05\d{8}$/.test(v_m))return alert("❌ رقم الجوال خطأ");const WAIT_VERIFY=parseFloat(d.getElementById("v_spd").value)*1000;const WAIT_NEW=parseFloat(d.getElementById("n_spd").value)*1000;const hrs=[];const lns=v_t.split("\n").map(l=>l.trim());for(let i=0;i<lns.length;i++){if(/^[12]\d{9}/.test(lns[i])){let dob="";for(let j=i;j<i+15&&j<lns.length;j++){let m=lns[j].match(/\d{4}\/\d{2}\/\d{2}/);if(m){dob=m[0].replace(/\//g,"-");break;}}if(dob)hrs.push({id:lns[i].match(/^[12]\d{9}/)[0],dob});}}if(!hrs.length)return alert("❌ لم يتم العثور على ورثة");d.getElementById("main").innerHTML='<div style="text-align:center;padding:20px 0;"><span class="spin"></span><div id="st" style="margin-top:10px;font-size:13px;color:#1e293b;">جاري البدء...</div></div>';for(let k=0;k<hrs.length;k++){d.getElementById("st").innerText=`تعبئة الوارث ${k+1} من ${hrs.length}`;await sSel("نوع المالك","فرد");await sSel("نوع الهوية","هوية وطنية");await typeEffect('input[name="Identity"]',hrs[k].id,25);await typeEffect('input[name="DateOfBirth"]',hrs[k].dob,25);await typeEffect('input[name="email"]',v_e,15);await typeEffect('input[type="tel"]',"+966"+v_m.substring(1),25);await slp(300);const vB=Array.from(d.querySelectorAll("button")).find(b=>b.innerText.includes("التحقق"));if(vB){vB.click();await slp(WAIT_VERIFY);}if(k<hrs.length-1){const ad=Array.from(d.querySelectorAll("button")).find(b=>b.innerText.includes("إضافة مالك جديد"));if(ad){ad.click();await slp(WAIT_NEW);}}}alert("اكتملت العملية بنجاح ✅");c.remove();s.remove();};})();
+html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>رسالة إلى خالتي الغالية</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Aref Ruqaa & Cairo for UI -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --gold-light: #fbf5e6;
+            --gold-primary: #D4AF37;
+            --gold-dark: #aa7c11;
+            /* Premium Cream to Soft Pink Gradient */
+            --bg-gradient: linear-gradient(135deg, #FFF9F6 0%, #FFF0F2 50%, #FFE4E8 100%);
+        }
+
+        body {
+            font-family: 'Aref Ruqaa', serif;
+            background: var(--bg-gradient);
+            color: #4A3B32; /* Rich warm dark brown */
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: manipulation;
+        }
+
+        .font-ui {
+            font-family: 'Cairo', sans-serif;
+        }
+
+        /* Gold gradient text with safety padding to prevent glyph/dots clipping on mobile browsers */
+        .text-gold-gradient {
+            background: linear-gradient(135deg, #F3E5AB 0%, #D4AF37 40%, #B38728 70%, #9A7B1C 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: #D4AF37;
+            padding-top: 20px;
+            padding-bottom: 20px;
+            display: inline-block;
+            overflow: visible;
+            line-height: 1.8;
+            filter: drop-shadow(0px 2px 4px rgba(212, 175, 55, 0.15));
+        }
+
+        /* Pulsing heart inside the intro */
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5)); }
+            50% { transform: scale(1.15); filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.8)); }
+        }
+        .pulse-heart {
+            animation: heartBeat 1.8s infinite ease-in-out;
+        }
+
+        /* Ambient soft golden glow */
+        .ambient-glow {
+            background: radial-gradient(circle, rgba(251, 245, 230, 0.95) 0%, rgba(255, 240, 242, 0) 80%);
+            filter: blur(12px);
+        }
+
+        /* Elegant text backings (halo effect for high contrast over elements) */
+        .text-halo {
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.85) 70%, rgba(255, 255, 255, 0) 100%);
+            box-shadow: 0 10px 45px rgba(212, 175, 55, 0.05);
+            border: 1px solid rgba(212, 175, 55, 0.08);
+        }
+
+        /* Butterfly fluttering animation */
+        @keyframes flutter {
+            0%, 100% { transform: scaleX(1) rotate(0deg); }
+            50% { transform: scaleX(0.2) rotate(10deg); }
+        }
+
+        @keyframes drift {
+            0% { transform: translateY(110vh) translateX(0) scale(0.8); opacity: 0; }
+            10% { opacity: 0.9; }
+            90% { opacity: 0.9; }
+            100% { transform: translateY(-10vh) translateX(50px) scale(1); opacity: 0; }
+        }
+
+        .butterfly {
+            position: absolute;
+            pointer-events: none;
+            z-index: 15;
+            animation: drift 14s infinite linear;
+        }
+
+        .butterfly-wings {
+            animation: flutter 0.15s infinite ease-in-out;
+        }
+
+        /* Beautiful smooth transitions for screens */
+        .screen-transition {
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .screen-hidden {
+            opacity: 0;
+            transform: scale(0.97) translateY(10px);
+            pointer-events: none;
+            position: absolute;
+        }
+
+        .screen-visible {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            pointer-events: auto;
+        }
+
+        /* Progress indicator bar */
+        .progress-indicator {
+            height: 3px;
+            background: linear-gradient(to left, transparent, var(--gold-primary), transparent);
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.5);
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+    </style>
+</head>
+<body class="w-full h-screen flex flex-col justify-between items-center relative p-6 overflow-hidden select-none">
+
+    <!-- Sparkle Canvas Overlay (For falling rose petals & light shimmer) -->
+    <canvas id="canvas-overlay" class="absolute inset-0 pointer-events-none z-10"></canvas>
+
+    <!-- Subtle, Elegant Minimalist Botanical Elements (Corner Flowers) -->
+    <!-- Top Right Flower Branch -->
+    <div class="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 text-amber-600/10 pointer-events-none z-0">
+        <svg class="w-full h-full" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M120,0 C100,20 60,30 20,80 C10,90 5,100 0,120" />
+            <!-- Soft flower buds -->
+            <circle cx="60" cy="35" r="2.5" fill="currentColor" />
+            <path d="M60,35 C55,27 47,27 47,35 C47,43 55,43 60,35 Z" />
+            <path d="M60,35 C65,27 73,27 73,35 C73,43 65,43 60,35 Z" />
+            <path d="M60,35 C52,31 52,22 60,22 C68,22 68,31 60,35 Z" />
+            <!-- Soft leaves -->
+            <path d="M90,18 C85,24 88,32 95,30 C102,28 100,20 90,18 Z" fill="currentColor" opacity="0.3"/>
+            <path d="M40,55 C33,52 30,59 33,66 C36,73 45,68 40,55 Z" fill="currentColor" opacity="0.3"/>
+        </svg>
+    </div>
+
+    <!-- Bottom Left Flower Branch -->
+    <div class="absolute bottom-0 left-0 w-32 h-32 md:w-48 md:h-48 text-amber-600/10 pointer-events-none z-0 transform rotate-180">
+        <svg class="w-full h-full" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.2">
+            <path d="M120,0 C100,20 60,30 20,80 C10,90 5,100 0,120" />
+            <circle cx="60" cy="35" r="2.5" fill="currentColor" />
+            <path d="M60,35 C55,27 47,27 47,35 C47,43 55,43 60,35 Z" />
+            <path d="M60,35 C65,27 73,27 73,35 C73,43 65,43 60,35 Z" />
+            <path d="M60,35 C52,31 52,22 60,22 C68,22 68,31 60,35 Z" />
+            <path d="M90,18 C85,24 88,32 95,30 C102,28 100,20 90,18 Z" fill="currentColor" opacity="0.3"/>
+            <path d="M40,55 C33,52 30,59 33,66 C36,73 45,68 40,55 Z" fill="currentColor" opacity="0.3"/>
+        </svg>
+    </div>
+
+    <!-- Interactive Fluttering Butterflies -->
+    <!-- Butterfly 1 -->
+    <div class="butterfly" style="left: 12%; animation-delay: 0s; animation-duration: 18s;">
+        <svg class="butterfly-wings w-8 h-8 text-amber-500/35" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50,50 C30,30 10,40 15,60 C20,80 40,75 50,55 C60,75 80,80 85,60 C90,40 70,30 50,50 Z M50,50 C45,35 30,20 35,10 C40,0 50,20 50,35 C50,20 60,0 65,10 C70,20 55,35 50,50 Z"/>
+        </svg>
+    </div>
+    <!-- Butterfly 2 -->
+    <div class="butterfly" style="right: 15%; animation-delay: 4s; animation-duration: 22s;">
+        <svg class="butterfly-wings w-10 h-10 text-pink-400/35" viewBox="0 0 100 100" fill="currentColor">
+            <path d="M50,50 C30,30 10,40 15,60 C20,80 40,75 50,55 C60,75 80,80 85,60 C90,40 70,30 50,50 Z M50,50 C45,35 30,20 35,10 C40,0 50,20 50,35 C50,20 60,0 65,10 C70,20 55,35 50,50 Z"/>
+        </svg>
+    </div>
+
+    <!-- Soft Golden Ambient Glow Base -->
+    <div class="absolute inset-0 ambient-glow pointer-events-none z-0"></div>
+
+    <!-- Header Section (Subtle and ultra-clean golden progress line) -->
+    <div class="w-full max-w-md flex flex-col items-center z-30 pt-6">
+        <div class="w-24 h-[1px] bg-amber-500/20 relative">
+            <div id="progress-bar" class="progress-indicator w-0 h-full absolute top-0 right-0"></div>
+        </div>
+    </div>
+
+    <!-- Interactive Tap Zone / Main Screen Container -->
+    <div id="main-interactive-zone" class="w-full max-w-lg flex-grow flex flex-col justify-center items-center text-center px-4 relative z-20 cursor-pointer">
+        
+        <!-- ================= 1. INTRO SCREEN ================= -->
+        <div id="screen-intro" class="screen-transition screen-visible flex flex-col items-center justify-center w-full">
+            <!-- Pulsing Emblem -->
+            <div class="relative w-32 h-32 flex items-center justify-center mb-8">
+                <!-- Golden Floral/Circle Border -->
+                <svg class="absolute w-full h-full text-amber-500/20 animate-[spin_45s_linear_infinite]" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="54" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="8,5"/>
+                    <circle cx="60" cy="60" r="48" fill="none" stroke="currentColor" stroke-width="0.5"/>
+                </svg>
+                <!-- Central Elegant Heart -->
+                <div class="w-16 h-16 bg-white/80 rounded-full flex items-center justify-center border border-amber-200 shadow-[0_4px_15px_rgba(212,175,55,0.1)]">
+                    <svg class="w-8 h-8 text-pink-400 pulse-heart" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                    </svg>
+                </div>
+            </div>
+
+            <h1 class="text-4xl font-bold text-gold-gradient mb-8 px-4" style="line-height: 1.5;">رسالة من القلب..</h1>
+            
+            <div class="px-6 py-3 border border-amber-500/20 rounded-full bg-white/70 backdrop-blur-sm shadow-sm animate-pulse">
+                <span class="text-sm font-semibold font-ui text-amber-700/80">المسي الشاشة لفتح الرسالة يا خالتي ✨</span>
+            </div>
+        </div>
+
+        <!-- ================= 2. CAROUSEL SLIDES ================= -->
+        <div id="screen-slides" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center min-h-[280px]">
+            <div class="relative px-6 py-10 rounded-3xl w-full text-halo">
+                <!-- Text Container with Aref Ruqaa styling -->
+                <p id="slide-text" class="text-2xl md:text-3.5xl leading-relaxed text-stone-800 px-2 text-center select-none">
+                    <!-- Text injected dynamically -->
+                </p>
+            </div>
+        </div>
+
+        <!-- ================= 2.5. STANDALONE "قريباً" SCREEN ================= -->
+        <div id="screen-soon" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center">
+            
+            <!-- Big Golden Spotlight for "قريباً" with absolute overflow protection for perfect points visibility -->
+            <div class="relative flex items-center justify-center w-full py-4 overflow-visible">
+                <!-- Golden glow background aura -->
+                <div class="absolute w-64 h-64 bg-amber-200/25 rounded-full blur-3xl"></div>
+                
+                <!-- Display block with line-height 1.8 to prevent dots clipping on Arabic letter Qaf/Ya -->
+                <h2 class="text-7xl md:text-8xl font-bold text-gold-gradient tracking-wide relative z-10 py-6 px-8 text-center animate-[pulse_2.5s_infinite_ease-in-out]" style="font-family: 'Aref Ruqaa', serif; overflow: visible; display: block; line-height: 1.8;">
+                    قَرِيباً
+                </h2>
+            </div>
+        </div>
+
+        <!-- ================= 3. GRAND REVEAL SCREEN ================= -->
+        <div id="screen-reveal" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center">
+            
+            <!-- Ultimate Heartwarming Message Panel -->
+            <div class="relative px-6 py-8 md:py-10 rounded-3xl w-full text-halo mb-8 overflow-visible flex flex-col items-center">
+                <!-- Main Big Poetic Message -->
+                <p class="text-2xl md:text-3xl text-stone-800 font-bold mb-6 leading-relaxed">
+                    سيجعلكِ أجمل خالة لقطعةٍ من روحه!
+                </p>
+                
+                <!-- Elegant decorative divider -->
+                <div class="w-24 h-[1px] bg-amber-500/20 my-2"></div>
+                
+                <!-- Separated Mini Baby Card - Clear Hierarchy with Poetic Introduction and Baby Icon -->
+                <div class="mt-4 px-4 py-4 bg-amber-50/40 rounded-2xl border border-amber-500/15 w-full max-w-sm flex flex-col items-center shadow-inner">
+                    <!-- Elegant Baby Signature Indicator -->
+                    <div class="flex items-center gap-1.5 mb-2">
+                        <span class="text-xs font-ui tracking-wide text-amber-700/80 font-semibold uppercase">
+                            👶 بنبضٍ لم تسمعيه بعد، يهمس لكِ:
+                        </span>
+                    </div>
+                    
+                    <!-- Baby statement - Perfectly clean, distinct, and legible (No overlaps, slightly smaller and neat) -->
+                    <p class="text-xl md:text-2xl text-amber-800 font-bold text-center leading-normal py-1" style="font-family: 'Aref Ruqaa', serif;">
+                        مبارك يا خالة أبي الغالية! ❤️
+                    </p>
+                </div>
+            </div>
+
+            <!-- Replay Button -->
+            <button id="btn-replay" class="px-8 py-3 rounded-full border border-amber-500/20 bg-white/90 hover:bg-white text-amber-700 font-semibold font-ui text-sm transition-all duration-300 transform active:scale-95 shadow-[0_4px_12px_rgba(212,175,55,0.1)] flex items-center gap-2 z-30">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H17"/>
+                </svg>
+                <span>إعادة عرض الرسالة</span>
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Empty Bottom Spacer -->
+    <div class="w-full h-8 pointer-events-none z-30"></div>
+
+    <!-- Scripting and Interactive Engine -->
+    <script>
+        // Exactly requested texts in absolute order
+        const slides = [
+            "إلى خالتي الحبيبة.. رائحةُ أُمّي",
+            "أنتِ الغيمةُ التي تُمطرنا حُباً، والقلبُ الذي لا يملُّ من العطاء",
+            "كبرنا على حبكِ.. وما زالت حنيّتكِ تغمرنا",
+            "لا أذكر فرحةً في عمري.. إلا وكنتِ أنتِ بهجتَها",
+            "أنتِ أولُ من أشاركه أخباري، وأولُ من يفرحُ لفرحي",
+            "ولأن فرحتي ليست فرحتي.. ما لم تكن فرحتكِ",
+            "اليوم لديّ خبرٌ يستحقُ أن تكوني أول من يسمعه",
+            "استعدي لدورٍ وحُبٍّ جديد..",
+            "لأن ابن أختكِ.."
+        ];
+
+        let currentState = "intro"; // states: intro, slides, soon, reveal
+        let currentSlideIndex = 0;
+        let isTransitioning = false;
+
+        // Elements
+        const interactiveZone = document.getElementById("main-interactive-zone");
+        const screenIntro = document.getElementById("screen-intro");
+        const screenSlides = document.getElementById("screen-slides");
+        const screenSoon = document.getElementById("screen-soon");
+        const screenReveal = document.getElementById("screen-reveal");
+        const slideText = document.getElementById("slide-text");
+        const progressBar = document.getElementById("progress-bar");
+        const btnReplay = document.getElementById("btn-replay");
+
+        // Interaction Handling
+        interactiveZone.addEventListener("click", (e) => {
+            if (e.target.closest("#btn-replay")) return;
+            handleNavigation();
+        });
+
+        interactiveZone.addEventListener("touchend", (e) => {
+            if (e.target.closest("#btn-replay")) return;
+            e.preventDefault(); // suppress redundant click behaviors
+            handleNavigation();
+        }, { passive: false });
+
+        btnReplay.addEventListener("click", (e) => {
+            e.stopPropagation();
+            resetPresentation();
+        });
+
+        function handleNavigation() {
+            if (isTransitioning) return;
+
+            if (currentState === "intro") {
+                transitionToSlides();
+            } else if (currentState === "slides") {
+                if (currentSlideIndex < slides.length - 1) {
+                    nextSlide();
+                } else {
+                    transitionToSoon(); // Independent "قريباً" Screen
+                }
+            } else if (currentState === "soon") {
+                transitionToReveal(); // Final reveal step
+            }
+        }
+
+        function transitionToSlides() {
+            isTransitioning = true;
+            fade(screenIntro, "out", () => {
+                screenIntro.classList.add("screen-hidden");
+                screenIntro.classList.remove("screen-visible");
+                
+                screenSlides.classList.remove("screen-hidden");
+                currentSlideIndex = 0;
+                displayCurrentSlide();
+                
+                setTimeout(() => {
+                    fade(screenSlides, "in", () => {
+                        currentState = "slides";
+                        isTransitioning = false;
+                    });
+                }, 50);
+            });
+        }
+
+        function nextSlide() {
+            isTransitioning = true;
+            fade(screenSlides, "out", () => {
+                currentSlideIndex++;
+                displayCurrentSlide();
+                setTimeout(() => {
+                    fade(screenSlides, "in", () => {
+                        isTransitioning = false;
+                    });
+                }, 50);
+            });
+        }
+
+        function displayCurrentSlide() {
+            slideText.innerHTML = slides[currentSlideIndex];
+            
+            // Adjust dynamic sizing based on text length for elegant flow on mobile screen
+            if (slides[currentSlideIndex].length > 45) {
+                slideText.className = "text-xl md:text-2xl leading-relaxed text-stone-800 px-2 font-bold";
+            } else {
+                slideText.className = "text-2xl md:text-3.5xl leading-relaxed text-stone-800 px-2 font-bold";
+            }
+
+            // Progress bar mapping
+            const total = slides.length;
+            const percentage = ((currentSlideIndex + 1) / (total + 1)) * 100; // Leave room for soon
+            progressBar.style.width = `${percentage}%`;
+        }
+
+        function transitionToSoon() {
+            isTransitioning = true;
+            fade(screenSlides, "out", () => {
+                screenSlides.classList.add("screen-hidden");
+                screenSlides.classList.remove("screen-visible");
+                
+                screenSoon.classList.remove("screen-hidden");
+                progressBar.style.width = "95%"; // Almost complete
+                
+                setTimeout(() => {
+                    fade(screenSoon, "in", () => {
+                        currentState = "soon";
+                        isTransitioning = false;
+                    });
+                }, 50);
+            });
+        }
+
+        function transitionToReveal() {
+            isTransitioning = true;
+            fade(screenSoon, "out", () => {
+                screenSoon.classList.add("screen-hidden");
+                screenSoon.classList.remove("screen-visible");
+                
+                screenReveal.classList.remove("screen-hidden");
+                progressBar.style.width = "100%";
+                
+                setTimeout(() => {
+                    fade(screenReveal, "in", () => {
+                        currentState = "reveal";
+                        isTransitioning = false;
+                    });
+                }, 50);
+            });
+        }
+
+        function resetPresentation() {
+            isTransitioning = true;
+            fade(screenReveal, "out", () => {
+                screenReveal.classList.add("screen-hidden");
+                screenReveal.classList.remove("screen-visible");
+                
+                screenIntro.classList.remove("screen-hidden");
+                progressBar.style.width = "0%";
+                currentState = "intro";
+                
+                setTimeout(() => {
+                    fade(screenIntro, "in", () => {
+                        isTransitioning = false;
+                    });
+                }, 50);
+            });
+        }
+
+        function fade(element, dir, callback) {
+            if (dir === "out") {
+                element.style.opacity = "0";
+                element.style.transform = "scale(0.97) translateY(-5px)";
+                setTimeout(callback, 800);
+            } else {
+                element.style.opacity = "1";
+                element.style.transform = "scale(1) translateY(0)";
+                if (callback) setTimeout(callback, 800);
+            }
+        }
+
+        // ================= CANVASES & FLOWERS SIMULATION =================
+        const canvas = document.getElementById("canvas-overlay");
+        const ctx = canvas.getContext("2d");
+
+        let itemsArray = [];
+        const petalCount = 22; // Controlled count for elegance
+        const shimmerCount = 18;
+
+        function setCanvasBounds() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        setCanvasBounds();
+        window.addEventListener("resize", setCanvasBounds);
+
+        // Rose Petal Class
+        class RosePetal {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * -canvas.height;
+                this.size = Math.random() * 15 + 10;
+                this.speedY = Math.random() * 1.2 + 0.6; // Gentle fall
+                this.speedX = Math.random() * 1 - 0.5;   // Swaying
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = Math.random() * 1 - 0.5;
+                // Soft elegant pink shades
+                this.color = `rgba(255, ${Math.floor(Math.random() * 40) + 160}, ${Math.floor(Math.random() * 30) + 180}, ${Math.random() * 0.4 + 0.4})`;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += this.speedX + Math.sin(this.y / 30) * 0.2; // organic sway
+                this.rotation += this.rotationSpeed;
+
+                // Reset when off bottom
+                if (this.y > canvas.height) {
+                    this.y = -20;
+                    this.x = Math.random() * canvas.width;
+                    this.rotation = Math.random() * 360;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                
+                // Draw an organic romantic heart-shaped petal curve
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-this.size, -this.size, -this.size * 1.5, this.size / 3, 0, this.size * 1.5);
+                ctx.bezierCurveTo(this.size * 1.5, this.size / 3, this.size, -this.size, 0, 0);
+                ctx.closePath();
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        // Soft Golden Shimmer/Sparkle Class
+        class ShimmerPoint {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 1.5 + 0.5;
+                this.alpha = Math.random() * 0.5 + 0.1;
+                this.pulseRate = Math.random() * 0.015 + 0.005;
+            }
+
+            update() {
+                this.alpha += this.pulseRate;
+                if (this.alpha > 0.8 || this.alpha < 0.1) {
+                    this.pulseRate = -this.pulseRate;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.shadowBlur = 4;
+                ctx.shadowColor = "#D4AF37";
+                ctx.fillStyle = `rgba(212, 175, 55, ${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        function populateOverlay() {
+            itemsArray = [];
+            for (let i = 0; i < petalCount; i++) {
+                itemsArray.push(new RosePetal());
+            }
+            for (let i = 0; i < shimmerCount; i++) {
+                itemsArray.push(new ShimmerPoint());
+            }
+        }
+
+        function runOverlayLoop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < itemsArray.length; i++) {
+                itemsArray[i].update();
+                itemsArray[i].draw();
+            }
+            requestAnimationFrame(runOverlayLoop);
+        }
+
+        // Initialize simulation
+        populateOverlay();
+        runOverlayLoop();
+    </script>
+</body>
+</html>
