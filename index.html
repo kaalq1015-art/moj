@@ -6,10 +6,10 @@
     <title>رسالة إلى خالتي الغالية</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Fonts: Aref Ruqaa & Cairo for UI -->
+    <!-- Google Fonts: Aref Ruqaa, Marhey, Tajawal & Cairo for UI -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Aref+Ruqaa:wght@400;700&family=Cairo:wght@300;400;600;700&family=Marhey:wght@400;700&family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
     
     <style>
         :root {
@@ -32,6 +32,18 @@
 
         .font-ui {
             font-family: 'Cairo', sans-serif;
+        }
+
+        .font-ruqaa {
+            font-family: 'Aref Ruqaa', serif;
+        }
+
+        .font-marhey {
+            font-family: 'Marhey', sans-serif;
+        }
+
+        .font-tajawal {
+            font-family: 'Tajawal', sans-serif;
         }
 
         /* Gold gradient text with safety padding to prevent glyph/dots clipping on mobile browsers */
@@ -127,32 +139,58 @@
     <!-- Sparkle Canvas Overlay (For falling rose petals & light shimmer) -->
     <canvas id="canvas-overlay" class="absolute inset-0 pointer-events-none z-10"></canvas>
 
-    <!-- Subtle, Elegant Minimalist Botanical Elements (Corner Flowers) -->
-    <!-- Top Right Flower Branch -->
-    <div class="absolute top-0 right-0 w-32 h-32 md:w-48 md:h-48 text-amber-600/10 pointer-events-none z-0">
-        <svg class="w-full h-full" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.2">
-            <path d="M120,0 C100,20 60,30 20,80 C10,90 5,100 0,120" />
-            <!-- Soft flower buds -->
-            <circle cx="60" cy="35" r="2.5" fill="currentColor" />
-            <path d="M60,35 C55,27 47,27 47,35 C47,43 55,43 60,35 Z" />
-            <path d="M60,35 C65,27 73,27 73,35 C73,43 65,43 60,35 Z" />
-            <path d="M60,35 C52,31 52,22 60,22 C68,22 68,31 60,35 Z" />
-            <!-- Soft leaves -->
-            <path d="M90,18 C85,24 88,32 95,30 C102,28 100,20 90,18 Z" fill="currentColor" opacity="0.3"/>
-            <path d="M40,55 C33,52 30,59 33,66 C36,73 45,68 40,55 Z" fill="currentColor" opacity="0.3"/>
+    <!-- ================= NEATLY ARRANGED GOLD BOTANICAL SIDE & CORNER FLOWERS ================= -->
+    <!-- Top Right Corner Flower Bouquet -->
+    <div class="absolute top-0 right-0 w-36 h-36 md:w-56 md:h-56 text-amber-600/15 pointer-events-none z-0">
+        <svg class="w-full h-full" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+            <path d="M120,0 C100,15 70,22 40,65 C30,76 22,88 15,105" />
+            <path d="M120,0 C110,25 90,45 65,70 C55,80 40,95 30,115" />
+            <!-- Tiny flowers clustered neatly at the corner -->
+            <circle cx="95" cy="25" r="3" fill="currentColor" />
+            <path d="M95,25 C90,18 82,18 82,25 C82,32 90,32 95,25 Z" />
+            <path d="M95,25 C100,18 108,18 108,25 C108,32 100,32 95,25 Z" />
+            <path d="M95,25 C87,21 87,13 95,13 C103,13 103,21 95,25 Z" />
+            <!-- Neat leaf structures cascading downwards -->
+            <path d="M78,35 C70,30 65,38 70,45 C75,52 82,45 78,35 Z" fill="currentColor" opacity="0.25"/>
+            <path d="M52,58 C45,53 40,61 45,68 C50,75 58,68 52,58 Z" fill="currentColor" opacity="0.25"/>
+            <path d="M30,85 C24,80 18,88 23,94 C28,100 35,93 30,85 Z" fill="currentColor" opacity="0.25"/>
         </svg>
     </div>
 
-    <!-- Bottom Left Flower Branch -->
-    <div class="absolute bottom-0 left-0 w-32 h-32 md:w-48 md:h-48 text-amber-600/10 pointer-events-none z-0 transform rotate-180">
-        <svg class="w-full h-full" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.2">
-            <path d="M120,0 C100,20 60,30 20,80 C10,90 5,100 0,120" />
-            <circle cx="60" cy="35" r="2.5" fill="currentColor" />
-            <path d="M60,35 C55,27 47,27 47,35 C47,43 55,43 60,35 Z" />
-            <path d="M60,35 C65,27 73,27 73,35 C73,43 65,43 60,35 Z" />
-            <path d="M60,35 C52,31 52,22 60,22 C68,22 68,31 60,35 Z" />
-            <path d="M90,18 C85,24 88,32 95,30 C102,28 100,20 90,18 Z" fill="currentColor" opacity="0.3"/>
-            <path d="M40,55 C33,52 30,59 33,66 C36,73 45,68 40,55 Z" fill="currentColor" opacity="0.3"/>
+    <!-- Bottom Left Corner Flower Bouquet (Perfectly Balancing) -->
+    <div class="absolute bottom-0 left-0 w-36 h-36 md:w-56 md:h-56 text-amber-600/15 pointer-events-none z-0 transform rotate-180">
+        <svg class="w-full h-full" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+            <path d="M120,0 C100,15 70,22 40,65 C30,76 22,88 15,105" />
+            <path d="M120,0 C110,25 90,45 65,70 C55,80 40,95 30,115" />
+            <circle cx="95" cy="25" r="3" fill="currentColor" />
+            <path d="M95,25 C90,18 82,18 82,25 C82,32 90,32 95,25 Z" />
+            <path d="M95,25 C100,18 108,18 108,25 C108,32 100,32 95,25 Z" />
+            <path d="M95,25 C87,21 87,13 95,13 C103,13 103,21 95,25 Z" />
+            <path d="M78,35 C70,30 65,38 70,45 C75,52 82,45 78,35 Z" fill="currentColor" opacity="0.25"/>
+            <path d="M52,58 C45,53 40,61 45,68 C50,75 58,68 52,58 Z" fill="currentColor" opacity="0.25"/>
+            <path d="M30,85 C24,80 18,88 23,94 C28,100 35,93 30,85 Z" fill="currentColor" opacity="0.25"/>
+        </svg>
+    </div>
+
+    <!-- Top Left Corner - Soft Hanging Ivy Leaves -->
+    <div class="absolute top-0 left-0 w-24 h-24 text-amber-600/10 pointer-events-none z-0">
+        <svg class="w-full h-full" viewBox="0 0 80 80" fill="currentColor" opacity="0.5">
+            <path d="M0,0 Q15,20 30,15 T50,40 Q40,55 60,60" fill="none" stroke="currentColor" stroke-width="1" />
+            <path d="M10,8 C15,12 8,18 5,14 C2,10 5,4 10,8 Z" />
+            <path d="M22,12 C28,16 20,24 16,18 C12,12 16,8 22,12 Z" />
+            <path d="M32,24 C38,30 30,36 26,30 C22,24 26,18 32,24 Z" />
+            <path d="M42,32 C48,40 40,44 36,38 C32,32 36,26 42,32 Z" />
+        </svg>
+    </div>
+
+    <!-- Bottom Right Corner - Soft Hanging Ivy Leaves (Balancing) -->
+    <div class="absolute bottom-0 right-0 w-24 h-24 text-amber-600/10 pointer-events-none z-0 transform rotate-180">
+        <svg class="w-full h-full" viewBox="0 0 80 80" fill="currentColor" opacity="0.5">
+            <path d="M0,0 Q15,20 30,15 T50,40 Q40,55 60,60" fill="none" stroke="currentColor" stroke-width="1" />
+            <path d="M10,8 C15,12 8,18 5,14 C2,10 5,4 10,8 Z" />
+            <path d="M22,12 C28,16 20,24 16,18 C12,12 16,8 22,12 Z" />
+            <path d="M32,24 C38,30 30,36 26,30 C22,24 26,18 32,24 Z" />
+            <path d="M42,32 C48,40 40,44 36,38 C32,32 36,26 42,32 Z" />
         </svg>
     </div>
 
@@ -179,7 +217,6 @@
     </div>
 
     <!-- ================= FIXED CONTROL PANEL (DOES NOT SCALE) ================= -->
-    <!-- Positioned absolutely at the top to remain clickable, clear, and unscaled -->
     <div class="absolute top-14 flex items-center justify-center gap-3 bg-white/80 backdrop-blur-md px-4 py-2 rounded-2xl border border-amber-500/15 shadow-sm z-50 transition-all duration-300" id="global-controls">
         <button id="btn-zoom-out" class="w-9 h-9 flex items-center justify-center rounded-xl bg-amber-500/5 border border-amber-500/10 hover:bg-amber-500/10 active:scale-95 transition-all text-amber-800 font-bold text-xs font-ui">
             A-
@@ -192,7 +229,7 @@
         
         <div class="w-[1px] h-6 bg-amber-500/20 mx-1"></div>
         
-        <!-- Upgraded Fullscreen with Fallback capabilities -->
+        <!-- Fullscreen Button -->
         <button id="btn-fullscreen" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/10 border border-amber-500/20 hover:bg-amber-500/20 active:scale-95 transition-all text-amber-800 text-xs font-bold font-ui">
             <svg id="fullscreen-icon" class="w-3.5 h-3.5 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
@@ -227,7 +264,7 @@
             </div>
 
             <!-- Intro Title using dynamic em scale -->
-            <h1 class="text-[2.6em] md:text-[3.2em] font-bold text-gold-gradient mb-8 px-4" style="line-height: 1.4;">رسالة من القلب..</h1>
+            <h1 class="text-[2.4em] font-bold text-gold-gradient mb-8 px-4" style="line-height: 1.5;">رسالة من القلب..</h1>
             
             <div class="px-7 py-3.5 border border-amber-500/20 rounded-full bg-white/70 backdrop-blur-sm shadow-sm animate-pulse">
                 <span class="text-base font-semibold font-ui text-amber-700/85">المسي الشاشة لفتح الرسالة يا خالتي ✨</span>
@@ -237,8 +274,8 @@
         <!-- ================= 2. CAROUSEL SLIDES ================= -->
         <div id="screen-slides" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center min-h-[300px]">
             <div class="relative px-6 py-12 rounded-3xl w-full text-halo">
-                <!-- Text Container with scalable font styling - using raw em sizes -->
-                <p id="slide-text" class="text-[1.8em] md:text-[2.5em] leading-relaxed text-stone-800 px-2 text-center select-none font-bold">
+                <!-- Text Container - Perfectly Harmonized & Fixed in size (No more dynamic shrinking/growing) -->
+                <p id="slide-text" class="text-[2em] md:text-[2.4em] leading-relaxed text-stone-800 px-2 text-center select-none font-bold">
                     <!-- Text injected dynamically -->
                 </p>
             </div>
@@ -252,8 +289,8 @@
                 <!-- Golden glow background aura -->
                 <div class="absolute w-72 h-72 bg-amber-200/25 rounded-full blur-3xl"></div>
                 
-                <!-- Display block with line-height 1.8 to prevent dots clipping and slightly increased size -->
-                <h2 class="text-[5.5em] md:text-[7em] font-bold text-gold-gradient tracking-wide relative z-10 py-6 px-8 text-center animate-[pulse_2.5s_infinite_ease-in-out]" style="font-family: 'Aref Ruqaa', serif; overflow: visible; display: block; line-height: 1.8;">
+                <!-- Display block with line-height 1.8 to prevent dots clipping -->
+                <h2 class="text-[4.5em] md:text-[5.5em] font-bold text-gold-gradient tracking-wide relative z-10 py-6 px-8 text-center animate-[pulse_2.5s_infinite_ease-in-out]" style="font-family: 'Aref Ruqaa', serif; overflow: visible; display: block; line-height: 1.8;">
                     قَرِيباً
                 </h2>
             </div>
@@ -262,27 +299,28 @@
         <!-- ================= 3. GRAND REVEAL SCREEN ================= -->
         <div id="screen-reveal" class="screen-transition screen-hidden w-full flex flex-col items-center justify-center">
             
-            <!-- Ultimate Heartwarming Message Panel with larger text styling using em -->
-            <div class="relative px-6 py-8 md:py-12 rounded-3xl w-full text-halo mb-8 overflow-visible flex flex-col items-center">
-                <!-- Main Big Poetic Message -->
-                <p class="text-[1.8em] md:text-[2.2em] text-stone-800 font-bold mb-6 leading-relaxed">
+            <!-- Ultimate Heartwarming Message Panel - Seamlessly proportional text sizes -->
+            <div class="relative px-6 py-8 md:py-10 rounded-3xl w-full text-halo mb-8 overflow-visible flex flex-col items-center">
+                <!-- Main Big Poetic Announcement (Unified with Slide size for perfect continuity) -->
+                <p class="text-[2em] md:text-[2.4em] text-stone-800 font-bold mb-6 leading-relaxed">
                     سيجعلكِ بإذن الله أجمل خالة لقطعةٍ من روحه!
                 </p>
                 
                 <!-- Elegant decorative divider -->
                 <div class="w-28 h-[1.5px] bg-amber-500/20 my-2"></div>
                 
-                <!-- Separated Mini Baby Card - Clear Hierarchy with Poetic Introduction and Baby Icon -->
+                <!-- Separated Mini Baby Card - Clear Hierarchy with Tajawal and Marhey fonts -->
                 <div class="mt-4 px-6 py-5 bg-amber-50/40 rounded-2xl border border-amber-500/15 w-full max-w-sm flex flex-col items-center shadow-inner overflow-visible">
-                    <!-- Elegant Baby Signature Indicator -->
-                    <div class="flex items-center gap-1.5 mb-2">
-                        <span class="text-[0.9em] font-ui tracking-wide text-amber-700/85 font-semibold uppercase">
+                    
+                    <!-- Elegant Baby Signature Indicator - Perfectly Clean & Shrunk as requested -->
+                    <div class="flex items-center gap-1.5 mb-2 overflow-visible">
+                        <span class="text-[0.85em] text-amber-700/85 font-bold tracking-wide scalable-text font-tajawal" style="line-height: 1.4;">
                             طفلي يهمس لكِ بصوتٍ لم تسمعيه بعد:
                         </span>
                     </div>
                     
-                    <!-- Baby statement - Perfectly clean, distinct, and enlarged -->
-                    <p class="text-[1.5em] md:text-[2em] text-amber-800 font-bold text-center leading-normal py-2 px-2 overflow-visible" style="font-family: 'Aref Ruqaa', serif; min-height: 1.6em;">
+                    <!-- Baby statement in Marhey font (The 5th font option) -->
+                    <p class="text-[1.5em] md:text-[1.8em] text-amber-800 font-bold text-center leading-loose py-1 px-2 overflow-visible scalable-text font-marhey" style="min-height: 1.5em;">
                         مبارك يا خالة أبي الغالية! ❤️
                     </p>
                 </div>
@@ -304,13 +342,13 @@
 
     <!-- Scripting and Interactive Engine -->
     <script>
-        // Exactly requested texts in absolute order with user edits applied (removed Slide 4 "أنت من أول", Slide 5 changed to "ولأن فرحتي ليست فرحةً")
+        // Updated slide array according to user's exact specification
         const slides = [
             "إلى خالتي الحبيبة.. رائحةُ أُمّي",
             "أنتِ الغيمةُ التي تُمطرنا حُباً، والقلبُ الذي لا يملُّ من العطاء",
             "لا أذكر فرحةً في عمري.. إلا وكنتِ أنتِ بهجتَها",
-            "ولأن فرحتي ليست فرحةً.. ما لم تكن فرحتكِ",
-            "اليوم لديّ خبرٌ يستحقُ أن تكوني أول من يسمعه",
+            "ولأن فرحتي ليست فرحة .. ما لم تشاركيني إياها",
+            "اليوم لديّ خبرٌ يستحقُ أن تكوني من أول من يعرفه",
             "استعدي لدورٍ وحُبٍّ جديد..",
             "لأن ابن أختكِ.."
         ];
@@ -516,15 +554,12 @@
             });
         }
 
+        // Set Slide Font sizing dynamically but UNIFIED (Constant size across slides)
         function displayCurrentSlide() {
             slideText.innerHTML = slides[currentSlideIndex];
             
-            // Adjust dynamic em-sizes based on slide length
-            if (slides[currentSlideIndex].length > 45) {
-                slideText.className = "text-[1.6em] md:text-[2.2em] leading-relaxed text-stone-800 px-2 font-bold";
-            } else {
-                slideText.className = "text-[2.2em] md:text-[3em] leading-relaxed text-stone-800 px-2 font-bold";
-            }
+            // Unified size: No more length-based toggling. Linear scale for complete transition consistency.
+            slideText.className = "text-[1.8em] md:text-[2.2em] leading-relaxed text-stone-800 px-2 font-bold select-none text-center";
 
             // Progress bar mapping
             const total = slides.length;
